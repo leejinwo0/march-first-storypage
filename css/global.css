@@ -1,0 +1,833 @@
+@charset "utf-8";
+
+/* =======================================================
+   1. Base · Reset
+======================================================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body,
+.global-body {
+  background-color: var(--bg-base);
+  color: var(--cream);
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  line-height: var(--lh-body);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: var(--lh-tight);
+}
+
+img {
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(var(--red-rgb), 0.55);
+  color: var(--white);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* 공통 스크롤바 (Firefox + WebKit) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--white-rgb), 0.25) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(var(--white-rgb), 0.25);
+  border-radius: var(--radius-pill);
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* PC/모바일 컨테이너 전환 기본값 (모바일 노출 규칙: index-mobile.css) */
+.mobile-only {
+  display: none;
+}
+
+/* =======================================================
+   2. Leaflet 기본 스타일 재정의
+======================================================= */
+.leaflet-container,
+.leaflet-tile {
+  background: transparent !important;
+}
+
+.leaflet-container {
+  font-family: var(--font-sans);
+}
+
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+/* 흑백 베이스맵 (섹션 공통) */
+#map-s2 .leaflet-tile-pane,
+#map-s3 .leaflet-tile-pane,
+#map-s4 .leaflet-tile-pane,
+#map-s5 .leaflet-tile-pane {
+  filter: grayscale(100%) brightness(0.95);
+  transition: filter var(--dur-base) ease;
+}
+
+/* =======================================================
+   3. 챕터 헤더 (섹션 1~6 공통)
+======================================================= */
+.story-section {
+  position: relative;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+}
+
+.story-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* 외부 텍스처 이미지 → 인라인 SVG 노이즈로 대체 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.story-overlay-header {
+  opacity: 0.06;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 25%, #000 75%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 25%, #000 75%, transparent 100%);
+}
+
+.story-header {
+  position: relative;
+  min-height: var(--viewport-h);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  padding: 0 var(--space-8);
+}
+
+.story-header-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 50%, rgba(var(--red-rgb), 0.07), transparent 70%),
+    var(--bg-base);
+}
+
+.story-header-content {
+  position: relative;
+  z-index: var(--z-content);
+  text-align: center;
+}
+
+.story-chapter-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+}
+
+.story-chapter-num {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  line-height: 1;
+  color: rgba(var(--white-rgb), 0.45);
+}
+
+.story-divider {
+  width: 3rem;
+  height: 1px;
+  background-color: var(--accent);
+}
+
+.story-chapter-subtitle {
+  color: var(--text-accent);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  /* letter-spacing 우측 여백 보정 */
+  margin-right: -0.4em;
+}
+
+.story-title {
+  margin-bottom: var(--space-6);
+  font-family: var(--font-serif);
+  font-size: var(--fs-4xl);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+}
+
+.story-desc {
+  margin: 0 auto;
+  color: var(--text-secondary);
+  font-size: var(--fs-lg);
+  line-height: var(--lh-body);
+}
+
+/* =======================================================
+   4. 우측 Dot 네비게이션 (호버 시 챕터명 노출)
+======================================================= */
+.global-dot-nav {
+  position: fixed;
+  top: 50%;
+  right: var(--space-8);
+  z-index: var(--z-nav);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transform: translateY(-50%);
+}
+
+.global-dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.global-dot::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(var(--red-rgb), 0.55);
+  transition: background-color var(--dur-base) ease, border-color var(--dur-base) ease, transform var(--dur-base) var(--ease-out);
+}
+
+.global-dot::after {
+  content: attr(data-label);
+  position: absolute;
+  right: calc(100% + var(--space-2));
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--surface-glass-strong);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(6px);
+  pointer-events: none;
+  transition: opacity var(--dur-base) ease, transform var(--dur-base) var(--ease-out);
+}
+
+.global-dot:hover::before {
+  border-color: var(--red-light);
+  transform: scale(1.15);
+}
+
+.global-dot:hover::after,
+.global-dot:focus-visible::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.global-dot.active::before {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.2);
+  box-shadow: 0 0 0 4px rgba(var(--red-rgb), 0.18);
+}
+
+/* =======================================================
+   5. 플로팅 TOP 버튼
+======================================================= */
+.floating-top-btn {
+  position: fixed;
+  right: var(--space-8);
+  bottom: var(--space-8);
+  z-index: var(--z-floating);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  background: var(--surface-glass-strong);
+  backdrop-filter: blur(var(--blur-glass));
+  color: var(--text-primary);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px);
+  transition: opacity var(--dur-base) ease, visibility var(--dur-base) ease, transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease, border-color var(--dur-base) ease;
+}
+
+.floating-top-btn .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.floating-top-btn.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.floating-top-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-accent);
+}
+
+/* =======================================================
+   6. 공통 컴포넌트
+======================================================= */
+
+/* 6-1. 글래스 패널 (플로팅 카드·범례·검색 패널) */
+.sc2-fixed-card,
+.sc3-fixed-card,
+.sc4-floating-legend,
+.sc5-search-panel {
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--blur-glass)) saturate(1.2);
+  -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(1.2);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 6-2. 지도 컨트롤 버튼 (지도 전환 / 전체 보기 / 검색) */
+.custom-map-toggle,
+.sc4-reset-btn,
+.sc5-reset-btn,
+.sc5-search-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: background-color var(--dur-base) ease, border-color var(--dur-base) ease, opacity var(--dur-base) ease, visibility var(--dur-base) ease, transform var(--dur-base) var(--ease-out);
+}
+
+.custom-map-toggle:hover,
+.sc4-reset-btn:hover,
+.sc5-reset-btn:hover,
+.sc5-search-toggle:hover,
+.sc5-search-wrapper:has(.sc5-search-panel.show) .sc5-search-toggle {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.custom-map-toggle {
+  margin-top: var(--space-6) !important;
+  margin-right: var(--space-6) !important;
+}
+
+.map-type-label {
+  color: rgba(var(--white-rgb), 0.4);
+  font-weight: 500;
+  transition: color var(--dur-base) ease;
+}
+
+.map-type-label.active {
+  color: var(--white);
+  font-weight: 700;
+}
+
+.map-type-divider {
+  color: rgba(var(--white-rgb), 0.2);
+  font-size: var(--fs-xs);
+}
+
+/* 전체 보기 버튼 (sc4/sc5) : 표시 상태 전환 */
+.sc4-reset-btn,
+.sc5-reset-btn {
+  position: absolute;
+  top: 5.5rem;
+  right: var(--space-6);
+  z-index: var(--z-map-ui);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+}
+
+.sc4-reset-btn.show,
+.sc5-reset-btn.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.sc4-reset-btn .icon,
+.sc5-reset-btn .icon,
+.sc5-search-toggle .icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* 6-3. 외부 링크 버튼 (지도 팝업·카드 공통) */
+.sc2-pop-btns,
+.sc4-pop-btns,
+.sc5-pop-btns {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.sc2-btn,
+.sc4-btn,
+.sc5-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: var(--space-2) var(--space-2);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--dur-base) ease, color var(--dur-base) ease, border-color var(--dur-base) ease;
+}
+
+.sc2-btn.map-btn,
+.sc4-btn.map-btn,
+.sc5-btn.map-btn {
+  color: var(--red-light);
+}
+
+.sc2-btn.history-btn,
+.sc4-btn.history-btn,
+.sc5-btn.history-btn {
+  color: var(--gold);
+}
+
+.sc2-btn.map-btn:hover,
+.sc4-btn.map-btn:hover,
+.sc5-btn.map-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--white);
+}
+
+.sc2-btn.history-btn:hover,
+.sc4-btn.history-btn:hover,
+.sc5-btn.history-btn:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--black);
+}
+
+/* 6-4. Leaflet 팝업 다크 테마 (sc1~sc5 공통) */
+.sc1-leaflet-popup .leaflet-popup-content-wrapper,
+.sc2-leaflet-popup .leaflet-popup-content-wrapper,
+.sc4-leaflet-popup .leaflet-popup-content-wrapper,
+.sc5-leaflet-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-glass-strong);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+}
+
+.sc1-leaflet-popup .leaflet-popup-tip,
+.sc2-leaflet-popup .leaflet-popup-tip,
+.sc4-leaflet-popup .leaflet-popup-tip,
+.sc5-leaflet-popup .leaflet-popup-tip {
+  background: var(--surface-glass-strong);
+  box-shadow: none;
+}
+
+.sc1-leaflet-popup a.leaflet-popup-close-button,
+.sc2-leaflet-popup a.leaflet-popup-close-button,
+.sc4-leaflet-popup a.leaflet-popup-close-button,
+.sc5-leaflet-popup a.leaflet-popup-close-button {
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  font: 400 20px/28px var(--font-sans);
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.sc1-leaflet-popup a.leaflet-popup-close-button:hover,
+.sc2-leaflet-popup a.leaflet-popup-close-button:hover,
+.sc4-leaflet-popup a.leaflet-popup-close-button:hover,
+.sc5-leaflet-popup a.leaflet-popup-close-button:hover {
+  background: var(--surface-hover);
+  color: var(--white);
+}
+
+.sc2-leaflet-popup .leaflet-popup-content,
+.sc5-leaflet-popup .leaflet-popup-content {
+  width: auto !important;
+  /* Leaflet 인라인 width 무효화 */
+  margin: 0;
+}
+
+/* 6-5. 스텝 네비게이션 버튼 (sc2/sc3) */
+.sc2-side-nav,
+.sc3-side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: auto;
+}
+
+.sc2-nav-btn,
+.sc3-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h);
+  height: var(--control-h);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  color: rgba(var(--white-rgb), 0.55);
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color var(--dur-base) ease, color var(--dur-base) ease, border-color var(--dur-base) ease, transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) ease;
+}
+
+.sc2-nav-btn:hover,
+.sc3-nav-btn:hover {
+  background: rgba(var(--red-rgb), 0.35);
+  color: var(--white);
+}
+
+.sc2-nav-btn.active,
+.sc3-nav-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--white);
+  transform: translateX(8px);
+  box-shadow: var(--shadow-accent);
+}
+
+/* 6-6. 스크롤 등장 애니메이션 (섹션 공통) */
+.sc1-reveal,
+.sc4-reveal,
+.sc5-reveal,
+.sc6-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
+}
+
+.sc1-reveal.visible,
+.sc1-reveal.active,
+.sc4-reveal.active,
+.sc5-reveal.active,
+.sc6-reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =======================================================
+   7. Footer
+======================================================= */
+.site-footer {
+  position: relative;
+  z-index: 100;
+  padding: var(--space-16) var(--space-8) var(--space-12);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--bg-base);
+  color: var(--text-tertiary);
+}
+
+.footer-inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--space-8);
+}
+
+.footer-logo {
+  font-family: var(--font-serif);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.footer-logo span {
+  margin-left: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: rgba(var(--white-rgb), 0.45);
+}
+
+.footer-divider {
+  height: 1px;
+  margin-bottom: var(--space-8);
+  background: var(--border-subtle);
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-8);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.footer-info p {
+  margin-bottom: var(--space-1);
+}
+
+.footer-source {
+  font-size: var(--fs-xs);
+  color: rgba(var(--white-rgb), 0.38);
+}
+
+.footer-copyright {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+/* =======================================================
+   8. 전역 이미지 확대 모달 (display 전환은 JS 인라인 스타일)
+======================================================= */
+.global-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  padding: clamp(3rem, 8vh, 5rem) var(--space-4) var(--space-8);
+  overflow: auto;
+  background-color: rgba(var(--black-rgb), 0.9);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  overscroll-behavior: contain;
+}
+
+.global-modal-content {
+  display: block;
+  width: auto;
+  max-width: min(1000px, 92vw);
+  max-height: 78vh;
+  margin: 0 auto;
+  border-radius: var(--radius-sm);
+  object-fit: contain;
+  box-shadow: var(--shadow-lg);
+}
+
+#caption-modal {
+  display: block;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-5) 0;
+  color: var(--paper);
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  text-align: center;
+}
+
+.close-modal {
+  position: fixed;
+  top: var(--space-5);
+  right: var(--space-6);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--control-h);
+  height: var(--control-h);
+  border: 1px solid var(--border-default);
+  border-radius: 50%;
+  background: var(--surface-glass-strong);
+  color: var(--white);
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--dur-base) ease, border-color var(--dur-base) ease;
+}
+
+.close-modal:hover,
+.close-modal:focus-visible {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.global-modal-content,
+#caption-modal {
+  animation: global-zoom-in 0.4s var(--ease-out);
+}
+
+@keyframes global-zoom-in {
+  from {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* =======================================================
+   9. 모션 최소화 설정 대응
+======================================================= */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .sc1-reveal,
+  .sc4-reveal,
+  .sc5-reveal,
+  .sc6-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* =======================================================
+   아이콘 (SVG 마스크)
+   - HTML: <span class="icon icon-이름" aria-hidden="true"></span>
+   - 색상: background-color: currentColor → 부모 글자색 연동
+   - 크기: 기본 1em, 사용처에서 width/height 재정의
+======================================================= */
+.icon {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  background-color: currentColor;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}
+
+/* 지도 (스마트서울맵 링크) */
+.icon-map {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z'/%3E%3Cpath d='M9 4v14M15 6v14'/%3E%3C/svg%3E");
+}
+
+/* 검색 */
+.icon-search {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+}
+
+/* 전체 보기 */
+.icon-expand {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E");
+}
+
+/* 이전 */
+.icon-chevron-left {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
+}
+
+/* 다음 */
+.icon-chevron-right {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+}
+
+/* 맨 위로 */
+.icon-chevron-up {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m18 15-6-6-6 6'/%3E%3C/svg%3E");
+}

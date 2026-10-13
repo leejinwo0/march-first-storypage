@@ -1,0 +1,271 @@
+/* =======================================================
+   Card 4 · 함성의 궤적 시위 경로 카드 (JS 생성)
+======================================================= */
+.mobile-route-scroll-area {
+  padding: var(--space-5) var(--space-4) var(--space-12);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.mobile-s3-routes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mobile-route-card {
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+/* ---------- 헤더 (번호 · 제목 · 경유지 수) ---------- */
+.route-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.route-num {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  font-variant-numeric: lining-nums;
+}
+
+.route-title {
+  flex: 1;
+  min-width: 0;
+  color: var(--white);
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+}
+
+.route-count {
+  flex-shrink: 0;
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: var(--fs-2xs);
+}
+
+/* ---------- 경로 영역 (지도 + SVG 대체) ---------- */
+.route-map {
+  position: relative;
+  aspect-ratio: 16 / 7;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(var(--red-rgb), 0.08), transparent 70%),
+    var(--bg-base);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* SVG: 지도 생성 전 자리 표시, 지도 준비 후 페이드아웃 */
+.route-sketch {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* 뷰박스 밖 주변 경로 잘림 처리 */
+  transition: opacity var(--dur-slow) ease;
+}
+
+.route-map.is-map-ready .route-sketch {
+  opacity: 0;
+}
+
+/* 지도 캔버스: 정적 지도 (터치 이벤트 통과 → Swiper·스크롤 제스처 유지) */
+.route-map-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.route-map-canvas.leaflet-container {
+  background: transparent;
+}
+
+/* PC 지도와 동일 흑백 베이스맵 */
+.route-map-canvas .leaflet-tile-pane {
+  filter: grayscale(100%) brightness(0.95);
+}
+
+/* 지도 가장자리 어둡게 처리 (카드 배경과 연결) */
+.route-map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  box-shadow: inset 0 0 40px rgba(var(--black-rgb), 0.55);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.route-map-line {
+  animation: route-flow 1s linear infinite;
+}
+
+.route-sketch path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 다른 경로: 위치 맥락용 회색 선 */
+.route-sketch-bg {
+  stroke: rgba(var(--white-rgb), 0.12);
+  stroke-width: 2;
+}
+
+/* 해당 경로: 빨간 점선 흐름 애니메이션 (PC section3 활성 경로와 동일 표현) */
+.route-sketch-active {
+  stroke: var(--red-light);
+  stroke-width: 3;
+  stroke-dasharray: 8 6;
+  animation: route-flow 1s linear infinite;
+}
+
+.route-sketch-start,
+.route-sketch-end {
+  stroke: var(--white);
+  stroke-width: 2;
+}
+
+.route-sketch-start {
+  fill: var(--gold);
+}
+
+.route-sketch-end {
+  fill: var(--red);
+}
+
+@keyframes route-flow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+/* ---------- 경유지 세로 스텝 ---------- */
+.route-stops {
+  margin-bottom: var(--space-3);
+  list-style: none;
+}
+
+.route-stop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 0 var(--space-2) var(--space-6);
+  color: var(--text-body);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+}
+
+/* 점 */
+.route-stop::before {
+  content: "";
+  position: absolute;
+  top: 0.45em;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(var(--red-rgb), 0.6);
+}
+
+/* 연결선 */
+.route-stop::after {
+  content: "";
+  position: absolute;
+  top: calc(0.45em + 10px);
+  bottom: 2px;
+  left: 9px;
+  width: 2px;
+  background: rgba(var(--red-rgb), 0.25);
+}
+
+.route-stop:last-child {
+  padding-bottom: 0;
+}
+
+.route-stop:last-child::after {
+  display: none;
+}
+
+.route-stop.is-start::before {
+  background: var(--gold);
+}
+
+.route-stop.is-end::before {
+  background: var(--red);
+}
+
+.route-stop.is-start .route-stop-name,
+.route-stop.is-end .route-stop-name {
+  color: var(--white);
+  font-weight: 700;
+}
+
+.route-stop-tag {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-xs);
+  background: rgba(var(--white-rgb), 0.08);
+  color: var(--text-secondary);
+  font-size: var(--fs-2xs);
+  line-height: 1.6;
+}
+
+/* ---------- 상세 설명 (접기/펼치기) ---------- */
+.route-desc {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.route-desc summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) 0 0;
+  color: var(--gold);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.route-desc summary::-webkit-details-marker {
+  display: none;
+}
+
+.route-desc summary::after {
+  content: "+";
+  font-size: var(--fs-lg);
+  line-height: 1;
+}
+
+.route-desc[open] summary::after {
+  content: "−";
+}
+
+.route-desc p {
+  padding-top: var(--space-3);
+  color: var(--text-body);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}

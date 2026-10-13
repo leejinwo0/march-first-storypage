@@ -1,0 +1,381 @@
+/* =======================================================
+   Section 4: 역사의 현장 (지도 + 플로팅 범례)
+   - 공통 요소(글래스 패널, 컨트롤 버튼, 팝업, 링크 버튼)는 global.css
+======================================================= */
+
+/* ---------- 지도 ---------- */
+.sc4-map-view {
+  position: relative;
+  width: 100%;
+  height: var(--viewport-h);
+  overflow: hidden;
+}
+
+.sc4-map-container {
+  position: absolute;
+  inset: 0;
+  background-color: var(--bg-base);
+}
+
+/* ---------- 플로팅 범례 패널 ---------- */
+.sc4-floating-legend {
+  position: absolute;
+  top: 50%;
+  left: var(--space-12);
+  z-index: var(--z-map-ui);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 580px;
+  max-width: calc(100vw - 6rem);
+  max-height: 78vh;
+  padding: var(--space-8) var(--space-8) var(--space-6);
+  border: 1px solid rgba(var(--white-rgb), 0.09);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(160deg, rgba(var(--white-rgb), 0.05) 0%, transparent 40%),
+    rgba(var(--ink-rgb), 0.78);
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  box-shadow:
+    0 30px 60px -20px rgba(var(--black-rgb), 0.7),
+    inset 0 1px 0 rgba(var(--white-rgb), 0.06);
+  overflow: hidden;
+  transform: translateY(-50%);
+}
+
+/* 상단 레드 → 골드 헤어라인 */
+.sc4-floating-legend::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--space-8);
+  right: var(--space-8);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--red) 25%, var(--gold) 75%, transparent);
+  opacity: 0.8;
+}
+
+/* reveal 애니메이션 + 수직 중앙 정렬 병합 */
+.sc4-floating-legend.sc4-reveal {
+  transform: translateY(calc(-50% + 30px));
+}
+
+.sc4-floating-legend.sc4-reveal.active {
+  transform: translateY(-50%);
+}
+
+/* ---------- 헤더 ---------- */
+.sc4-legend-header {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* 아이브로우 라벨 */
+.sc4-legend-header::before {
+  content: "MAP LEGEND";
+  display: block;
+  margin-bottom: var(--space-3);
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tracking-wider);
+}
+
+.sc4-legend-title {
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+}
+
+.sc4-legend-subtitle {
+  color: var(--text-tertiary);
+  font-size: var(--fs-sm);
+}
+
+/* ---------- 필터 컬럼 (2열, 세로 구분선) ---------- */
+.sc4-intro-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
+  border-top: 1px solid var(--border-subtle);
+  list-style: none;
+}
+
+.sc4-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--space-5) var(--space-5) 0 0;
+  cursor: pointer;
+}
+
+.sc4-col+.sc4-col {
+  padding: var(--space-5) 0 0 var(--space-5);
+  border-left: 1px solid var(--border-subtle);
+}
+
+/* ---------- 컬럼 헤더 + 토글 스위치 ---------- */
+.sc4-col-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+/* 토글 스위치 (필터 ON/OFF 상태 표시) */
+.sc4-col-header::after {
+  content: "";
+  flex-shrink: 0;
+  width: 30px;
+  height: 16px;
+  margin-top: 4px;
+  border-radius: var(--radius-pill);
+  background:
+    radial-gradient(circle 6px at 22px 50%, var(--white) 92%, transparent 100%),
+    var(--col-accent);
+  transition: background var(--dur-base) ease;
+}
+
+.sc4-col:not(.active) .sc4-col-header::after {
+  background:
+    radial-gradient(circle 6px at 8px 50%, rgba(var(--white-rgb), 0.55) 92%, transparent 100%),
+    rgba(var(--white-rgb), 0.12);
+}
+
+.sc4-col.hub-card {
+  --col-accent: var(--red);
+  --col-accent-text: var(--red-light);
+}
+
+.sc4-col.site-card {
+  --col-accent: var(--gold);
+  --col-accent-text: var(--gold);
+}
+
+.sc4-col-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sc4-col-title .ko-text {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  transition: color var(--dur-base) ease;
+}
+
+.sc4-col-title .en-text {
+  padding-left: calc(8px + var(--space-2));
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: var(--fs-2xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.sc4-legend-dot {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--col-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--col-accent) 25%, transparent);
+  transition: background var(--dur-base) ease, box-shadow var(--dur-base) ease;
+}
+
+/* 필터 OFF 상태: 흑백 처리 대신 톤다운 */
+.sc4-col:not(.active) .sc4-col-title .ko-text {
+  color: var(--text-tertiary);
+}
+
+.sc4-col:not(.active) .sc4-legend-dot {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px rgba(var(--white-rgb), 0.35);
+}
+
+.sc4-col:not(.active) .sc4-loc-list {
+  opacity: 0.35;
+}
+
+/* ---------- 장소 리스트 (번호 + 구분선) ---------- */
+.sc4-loc-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 232px;
+  margin-top: var(--space-4);
+  padding: 0 var(--space-2) var(--space-6) 0;
+  list-style: none;
+  overflow: hidden auto;
+  counter-reset: loc;
+  scrollbar-width: none;
+  /* 하단 페이드 */
+  -webkit-mask-image: linear-gradient(180deg, #000 82%, transparent);
+  mask-image: linear-gradient(180deg, #000 82%, transparent);
+  transition: opacity var(--dur-base) ease;
+}
+
+.sc4-loc-list::-webkit-scrollbar {
+  display: none;
+}
+
+.sc4-loc-item {
+  position: relative;
+  flex-shrink: 0;
+  display: block;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  border-bottom: 1px solid rgba(var(--white-rgb), 0.05);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  counter-increment: loc;
+  cursor: pointer;
+  transition: color var(--dur-fast) ease, background-color var(--dur-fast) ease;
+}
+
+/* 순번 */
+.sc4-loc-item::before {
+  content: counter(loc, decimal-leading-zero);
+  display: inline-block;
+  min-width: 1.4em;
+  margin-right: var(--space-3);
+  color: var(--text-tertiary);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-variant-numeric: lining-nums tabular-nums;
+  transition: color var(--dur-fast) ease;
+}
+
+/* 좌측 액센트 바 */
+.sc4-loc-item::after {
+  content: "";
+  position: absolute;
+  top: 25%;
+  bottom: 25%;
+  left: 0;
+  width: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--col-accent);
+  transform: scaleY(0);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.sc4-loc-item:hover {
+  background: rgba(var(--white-rgb), 0.04);
+  color: var(--white);
+}
+
+.sc4-loc-item:hover::before {
+  color: var(--col-accent-text);
+}
+
+.sc4-loc-item.active {
+  background: color-mix(in srgb, var(--col-accent) 14%, transparent);
+  color: var(--white);
+  font-weight: 600;
+}
+
+.sc4-loc-item.active::before {
+  color: var(--col-accent-text);
+}
+
+.sc4-loc-item:hover::after,
+.sc4-loc-item.active::after {
+  transform: scaleY(1);
+}
+
+/* ---------- 마커 (이미지 + 펄스 링) ---------- */
+.sc4-marker-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sc4-pulse-hub,
+.sc4-pulse-site {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background: center / contain no-repeat;
+}
+
+.sc4-pulse-hub {
+  background-image: url("/assets/images/markers/marker-theme-11100550-3.png");
+}
+
+.sc4-pulse-site {
+  background-image: url("/assets/images/markers/marker-theme-11100550-4.png");
+}
+
+.sc4-pulse-hub::after,
+.sc4-pulse-site::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  width: 15px;
+  height: 15px;
+  border: 3px solid var(--red);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse-ring 2s ease-out infinite;
+  /* keyframes: section1.css */
+}
+
+.sc4-pulse-site::after {
+  border-color: var(--gold);
+}
+
+/* ---------- 지도 팝업 ---------- */
+.sc4-popup-inner {
+  width: 380px;
+  max-width: 90vw;
+  padding: var(--space-2) 0;
+}
+
+.sc4-popup-inner h3 {
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+
+.sc4-popup-inner .sc4-pop-addr {
+  display: block;
+  margin-bottom: var(--space-4);
+  color: var(--gold);
+  font-size: var(--fs-xs);
+}
+
+.sc4-popup-inner .sc4-pop-desc {
+  display: block;
+  color: var(--text-body);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  white-space: normal;
+}
+
+.sc4-pop-btns {
+  margin-top: var(--space-4);
+}

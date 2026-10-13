@@ -1,0 +1,354 @@
+/* =======================================================
+   Section 1: 시대의 부름 (교차 레이아웃 슬라이더)
+======================================================= */
+
+/* ---------- 슬라이더 ---------- */
+.sc1-slider-wrapper {
+  position: relative;
+  display: grid;
+  grid-template: 1fr / 1fr;
+  width: 100%;
+}
+
+.sc1-slide {
+  grid-area: 1 / 1;
+  z-index: 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1s var(--ease-in-out), visibility 1s var(--ease-in-out);
+}
+
+.sc1-slide.active {
+  z-index: 5;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---------- 페이지네이션 (dot + 재생 버튼) ---------- */
+.sc1-pagination {
+  position: absolute;
+  bottom: var(--space-10);
+  left: 50%;
+  z-index: var(--z-content);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  transform: translateX(-50%);
+}
+
+.sc1-dots {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sc1-dot {
+  width: 8px;
+  height: 8px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: rgba(var(--cream-rgb), 0.3);
+  cursor: pointer;
+  transition: width var(--dur-slow) var(--ease-out), background-color var(--dur-base) ease;
+}
+
+.sc1-dot:hover {
+  background: rgba(var(--cream-rgb), 0.6);
+}
+
+.sc1-dot.active {
+  width: 24px;
+  background: var(--accent);
+}
+
+.sc1-play-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-default);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color var(--dur-base) ease, color var(--dur-base) ease, border-color var(--dur-base) ease;
+}
+
+.sc1-play-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--white);
+}
+
+.sc1-play-btn span {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.1em;
+}
+
+/* ---------- 2분할 레이아웃 ---------- */
+.sc1-split-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  min-height: var(--viewport-h);
+}
+
+.sc1-split-text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(7rem, 12vh, 10rem) clamp(2rem, 5vw, 5rem) clamp(6rem, 10vh, 7rem);
+  background: var(--bg-base);
+  overflow: hidden;
+}
+
+.sc1-split-visual {
+  position: relative;
+  min-height: 500px;
+  overflow: hidden;
+}
+
+.sc1-map-container {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-base);
+  filter: grayscale(100%) brightness(0.95);
+}
+
+.sc1-map-container .leaflet-control-attribution {
+  display: block !important;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-xs) 0 0 0;
+  background: rgba(var(--ink-rgb), 0.7);
+  color: var(--text-secondary);
+  font-size: var(--fs-2xs);
+}
+
+.sc1-map-container .leaflet-control-attribution a {
+  color: var(--cream);
+}
+
+/* ---------- 텍스트 ---------- */
+.sc1-chapter-num {
+  position: absolute;
+  top: var(--space-6);
+  left: var(--space-6);
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 12vw, 9rem);
+  font-weight: 700;
+  line-height: 0.85;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.sc1-section-label {
+  margin-bottom: var(--space-4);
+  color: var(--gold);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: var(--tracking-wide);
+}
+
+.sc1-section-heading-ko {
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: var(--fs-3xl);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.sc1-section-heading-en {
+  margin-bottom: var(--space-8);
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-style: italic;
+}
+
+.sc1-desc-text {
+  color: var(--text-body);
+  line-height: 1.85;
+}
+
+.sc1-margin-b {
+  margin-bottom: var(--space-8);
+}
+
+.sc1-quote-box {
+  padding: var(--space-5) var(--space-6);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--accent-soft);
+}
+
+.sc1-quote-ko {
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-weight: 700;
+}
+
+.sc1-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+  color: var(--paper);
+  opacity: 0.25;
+}
+
+.sc1-divider-line {
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+}
+
+.sc1-divider-diamond {
+  width: 6px;
+  height: 6px;
+  background: var(--red);
+  transform: rotate(45deg);
+}
+
+/* ---------- 지도 팝업 ---------- */
+.sc1-popup-inner {
+  max-width: 500px;
+  padding: var(--space-6);
+}
+
+.sc1-popup-inner h3 {
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+}
+
+.sc1-popup-inner .sc1-pop-addr {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.sc1-pop-img-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.sc1-pop-img {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.sc1-pop-img-wrapper:hover .sc1-pop-img {
+  transform: scale(1.04);
+}
+
+.sc1-img-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--black-rgb), 0.55);
+  color: var(--white);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  /* 클릭 이벤트를 이미지로 통과 */
+  transition: opacity var(--dur-base) ease;
+}
+
+.sc1-pop-img-wrapper:hover .sc1-img-overlay {
+  opacity: 1;
+}
+
+/* ---------- 마커 ---------- */
+.custom-marker-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-pulse {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--red);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.map-pulse::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--red);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* 펄스 링 애니메이션 (sc1·sc4 공용) */
+@keyframes pulse-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0;
+  }
+}
+
+/* ---------- 전역 모달 캡션 (JS 생성 마크업) ---------- */
+.sc1-modal-caption {
+  margin-top: var(--space-2);
+  text-align: center;
+}
+
+.sc1-modal-title {
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--white);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+
+.sc1-modal-desc {
+  max-width: 900px;
+  margin: 0 auto;
+  color: var(--text-body);
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  line-height: 1.7;
+}

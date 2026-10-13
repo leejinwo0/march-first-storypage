@@ -1,0 +1,107 @@
+/* =======================================================
+   Card 3 · 거사의 맹세 세로 타임라인 (JS 생성)
+======================================================= */
+.mobile-timeline-scroll-area {
+  padding: var(--space-6) var(--space-4) var(--space-12);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.mobile-s2-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-timeline-item {
+  position: relative;
+  display: flex;
+  margin-bottom: var(--space-6);
+}
+
+.mobile-timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 32px;
+  margin-right: var(--space-3);
+}
+
+.step-num {
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--red);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  box-shadow: 0 0 0 4px var(--bg-base);
+}
+
+.step-line {
+  flex: 1;
+  width: 2px;
+  margin-top: var(--space-1);
+  background: linear-gradient(180deg, rgba(var(--red-rgb), 0.55), rgba(var(--red-rgb), 0.15));
+}
+
+.mobile-timeline-item:last-child .step-line {
+  display: none;
+}
+
+.timeline-content {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-4) var(--space-4) var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.timeline-title {
+  margin-bottom: var(--space-3);
+  color: var(--white);
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+}
+
+.timeline-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.timeline-addr {
+  display: grid;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: rgba(var(--white-rgb), 0.04);
+}
+
+.timeline-addr p {
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+}
+
+.timeline-addr strong {
+  color: var(--gold);
+}
+
+.timeline-desc {
+  color: var(--text-body);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+}

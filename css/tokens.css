@@ -1,0 +1,167 @@
+@charset "utf-8";
+
+/* =======================================================
+   Design Tokens
+   - Primitive: 원색 팔레트 (직접 사용 지양)
+   - Semantic: 용도별 토큰 (컴포넌트에서 사용)
+======================================================= */
+
+:root {
+  color-scheme: dark;
+
+  /* ---------- 1. Primitive · Brand ---------- */
+  --red: #a83228;
+  --red-rgb: 168, 50, 40;
+  --red-light: #d9594c;
+  /* 어두운 배경 위 텍스트용 (대비 5.1:1) */
+  --gold: #b8922e;
+  --gold-rgb: 184, 146, 46;
+  --gold-light: #d4af5a;
+  --navy: #2b5c8f;
+  --navy-rgb: 43, 92, 143;
+  --navy-light: #5b8fc7;
+  --green: #2d7a4d;
+  --green-light: #4fa874;
+  --purple: #6a4c9c;
+  --purple-light: #9478c7;
+
+  /* ---------- 2. Primitive · Neutral ---------- */
+  --white: #ffffff;
+  --white-rgb: 255, 255, 255;
+  --cream: #eee6d8;
+  --cream-rgb: 238, 230, 216;
+  --paper: #d8d0c2;
+  --muted: #9a8f82;
+  /* 기존 #81776b → 대비 4.45 → 6.17 보정 */
+  --black: #000000;
+  --black-rgb: 0, 0, 0;
+
+  --ink: #0d0c0b;
+  /* 최하단 배경 */
+  --ink-rgb: 13, 12, 11;
+  --charcoal: #15120f;
+  /* 섹션 배경 */
+  --charcoal-rgb: 21, 18, 15;
+  --umber: #1a1714;
+  /* 카드 표면 */
+  --umber-rgb: 26, 23, 20;
+  --dark-brown: #1f1b12;
+  /* 강조 표면 */
+
+  /* ---------- 3. Semantic · Surface ---------- */
+  --bg-base: var(--ink);
+  --bg-section: var(--charcoal);
+  --surface: var(--umber);
+  --surface-raised: var(--dark-brown);
+  --surface-glass: rgba(var(--charcoal-rgb), 0.82);
+  --surface-glass-strong: rgba(var(--charcoal-rgb), 0.95);
+  --surface-sunken: rgba(var(--black-rgb), 0.35);
+  --surface-hover: rgba(var(--white-rgb), 0.06);
+  --scrim: rgba(var(--ink-rgb), 0.88);
+
+  /* ---------- 4. Semantic · Text ---------- */
+  --text-primary: var(--white);
+  --text-body: rgba(var(--cream-rgb), 0.85);
+  --text-secondary: rgba(var(--cream-rgb), 0.7);
+  --text-tertiary: rgba(var(--cream-rgb), 0.5);
+  --text-muted: var(--muted);
+  --text-accent: var(--red-light);
+  --text-highlight: var(--gold);
+
+  /* ---------- 5. Semantic · Border ---------- */
+  --border-subtle: rgba(var(--white-rgb), 0.08);
+  --border-default: rgba(var(--white-rgb), 0.14);
+  --border-strong: rgba(var(--white-rgb), 0.28);
+  --border-accent: rgba(var(--red-rgb), 0.45);
+
+  /* ---------- 6. Semantic · Accent ---------- */
+  --accent: var(--red);
+  --accent-soft: rgba(var(--red-rgb), 0.16);
+  --accent-glow: rgba(var(--red-rgb), 0.55);
+  --focus-ring: var(--gold-light);
+
+  /* ---------- 7. Typography ---------- */
+  --font-sans: "Pretendard Variable", Pretendard, "Noto Sans KR", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-serif: "Noto Serif KR", "Nanum Myeongjo", serif;
+  --font-display: "Playfair Display", "Noto Serif KR", serif;
+
+  --fs-2xs: 0.6875rem;
+  /* 11px */
+  --fs-xs: 0.75rem;
+  /* 12px */
+  --fs-sm: 0.875rem;
+  /* 14px */
+  --fs-md: 1rem;
+  /* 16px */
+  --fs-lg: 1.125rem;
+  /* 18px */
+  --fs-xl: 1.375rem;
+  /* 22px */
+  --fs-2xl: clamp(1.5rem, 1.2rem + 1vw, 1.875rem);
+  --fs-3xl: clamp(1.875rem, 1.4rem + 1.6vw, 2.5rem);
+  --fs-4xl: clamp(2.25rem, 1.6rem + 2.4vw, 3.25rem);
+
+  --lh-tight: 1.25;
+  --lh-snug: 1.45;
+  --lh-body: 1.75;
+
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.12em;
+  --tracking-wider: 0.24em;
+
+  /* ---------- 8. Spacing (4px base) ---------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ---------- 9. Radius ---------- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* ---------- 10. Elevation ---------- */
+  --shadow-sm: 0 2px 8px rgba(var(--black-rgb), 0.35);
+  --shadow-md: 0 8px 24px rgba(var(--black-rgb), 0.45);
+  --shadow-lg: 0 20px 48px rgba(var(--black-rgb), 0.6);
+  --shadow-accent: 0 8px 24px rgba(var(--red-rgb), 0.35);
+  --blur-glass: 12px;
+
+  /* ---------- 11. Motion ---------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 0.15s;
+  --dur-base: 0.25s;
+  --dur-slow: 0.5s;
+  --dur-reveal: 0.9s;
+
+  /* ---------- 12. Layer (z-index) ---------- */
+  --z-base: 1;
+  --z-content: 10;
+  --z-map-ui: 1000;
+  --z-map-overlay: 1100;
+  --z-nav: 900;
+  --z-floating: 950;
+  --z-modal: 10000;
+
+  /* ---------- 13. Layout ---------- */
+  --container-max: 1200px;
+  --viewport-h: 100vh;
+  --control-h: 44px;
+  /* 최소 터치 타깃 */
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --viewport-h: 100dvh;
+  }
+}

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>서울 히스토리맵, 1919년 3월 그날의 발자취</title>
+  <meta name="description" content="1919년 3·1운동의 준비 과정, 만세 시위 경로, 역사 현장과 인물을 스마트서울맵 위에 기록한 디지털 스토리맵" />
+  <meta name="theme-color" content="#0d0c0b" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="서울 히스토리맵, 1919년 3월 그날의 발자취" />
+  <meta property="og:description" content="스마트서울맵으로 되짚는 3·1운동의 현장과 발자취" />
+
+  <!-- 웹폰트: Pretendard(본문) / Noto Serif KR(제목) / Playfair Display(영문 숫자) -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" />
+
+  <!-- Leaflet 1.9.4 (스마트서울맵 OpenAPI 의존 라이브러리) -->
+  <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Swiper 11 (모바일 카드 슬라이드) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+  <!-- 공통 스타일 (사이트 루트 기준 절대경로) -->
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+
+  <!-- PC 섹션 스타일 -->
+  <link rel="stylesheet" href="/css/pc-sections/section0.css" />
+  <link rel="stylesheet" href="/css/pc-sections/section1.css" />
+  <link rel="stylesheet" href="/css/pc-sections/section2.css" />
+  <link rel="stylesheet" href="/css/pc-sections/section3.css" />
+  <link rel="stylesheet" href="/css/pc-sections/section4.css" />
+  <link rel="stylesheet" href="/css/pc-sections/section5.css" />
+  <link rel="stylesheet" href="/css/pc-sections/section6.css" />
+
+  <!-- 모바일 스타일 (768px 이하에서만 적용) -->
+  <link rel="stylesheet" href="/css/mobile-sections/index-mobile.css" media="(max-width: 768px)" />
+  <link rel="stylesheet" href="/css/mobile-sections/mobile-section1.css" media="(max-width: 768px)" />
+  <link rel="stylesheet" href="/css/mobile-sections/mobile-section2.css" media="(max-width: 768px)" />
+  <link rel="stylesheet" href="/css/mobile-sections/mobile-section3.css" media="(max-width: 768px)" />
+  <link rel="stylesheet" href="/css/mobile-sections/mobile-section4.css" media="(max-width: 768px)" />
+  <link rel="stylesheet" href="/css/mobile-sections/mobile-section5.css" media="(max-width: 768px)" />
+  <link rel="stylesheet" href="/css/mobile-sections/mobile-section6.css" media="(max-width: 768px)" />
+</head>
+
+<body class="global-body">
+
+  <!-- ==============================================================
+       [모바일 전용 영역] 768px 이하에서만 노출 (카드형 스와이프 UI)
+       ============================================================== -->
+  <div id="mobile-story-container" class="mobile-only">
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper">
+
+        <!-- [모바일 카드 1] 인트로 -->
+        <div class="swiper-slide card-slide">
+          <div class="card-content full-text-card">
+            <p class="card-date">MARCH 1, 1919</p>
+            <h1 class="card-title">3·1운동</h1>
+            <p class="card-desc">세상을 깨운 1919년 3월의 뜨거운 외침.<br>태극기가 물결치기 전, 서울 곳곳에 은밀하게 새겨진 그날의 결의와 발자취를 지도 위에서 되짚어본다.</p>
+          </div>
+        </div>
+
+        <!-- [모바일 카드 2] 시대의 부름 (세로 연표) -->
+        <div class="swiper-slide card-slide">
+          <div class="card-content">
+            <p class="card-chapter">01. 시대의 부름</p>
+            <h2 class="card-title-sub">빼앗긴 들에<br>독립의 불씨가 움트다</h2>
+            <p class="card-desc">1910년 경술국치 이후, 가혹한 무단통치 속에서도 조국의 빛을 되찾기 위한 열망은 꺼지지 않았습니다. 도쿄에서 들려온 2·8 독립선언의 메아리는 잠들어 있던 민중의 가슴에 뜨거운 불씨를 당겼습니다.</p>
+          </div>
+          <!-- mobile-sections/section1.js 렌더링 영역 -->
+          <div class="mobile-s1-scroll-area">
+            <ol id="mobile-s1-timeline" class="mobile-s1-timeline"></ol>
+          </div>
+        </div>
+
+        <!-- [모바일 카드 3] 거사의 맹세 -->
+        <div class="swiper-slide card-slide">
+          <div class="card-content">
+            <!-- 스마트서울맵 바로가기 (카드 우측 상단) -->
+            <div class="mobile-map-links">
+              <a href="https://map.seoul.go.kr/smgis2/short/6PTM9" target="_blank" rel="noopener noreferrer" class="mobile-map-link" aria-label="스마트서울맵 지도 열기"><span class="icon icon-map" aria-hidden="true"></span>스마트서울맵</a>
+            </div>
+            <p class="card-chapter">02. 거사의 맹세</p>
+            <h2 class="card-title-sub">세상을 깨울 함성을<br>준비하다</h2>
+            <p class="card-desc">거사 전야, 칠흑 같은 어둠 속 보성사 인쇄소에서는 기미독립선언서가 비밀리에 돌아가고 있었습니다. 일제의 삼엄한 감시를 피해 남촌과 북촌을 오간 이름 없는 청년들의 발걸음이 세상을 깨울 준비를 마쳤습니다.</p>
+          </div>
+          <div class="mobile-timeline-scroll-area">
+            <div id="mobile-s2-timeline" class="mobile-s2-timeline">
+              <!-- mobile-sections/section2.js 렌더링 영역 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- [모바일 카드 4] 함성의 궤적 -->
+        <div class="swiper-slide card-slide">
+          <div class="card-content">
+            <!-- 스마트서울맵 바로가기 (카드 우측 상단) -->
+            <div class="mobile-map-links">
+              <a href="https://map.seoul.go.kr/smgis2/short/6PTXI" target="_blank" rel="noopener noreferrer" class="mobile-map-link" aria-label="스마트서울맵 지도 열기"><span class="icon icon-map" aria-hidden="true"></span>스마트서울맵</a>
+            </div>
+            <p class="card-chapter">03. 함성의 궤적</p>
+            <h2 class="card-title-sub">두려움을 넘어선 발걸음,<br>거리를 덮다</h2>
+            <p class="card-desc">1919년 3월 1일 오후 2시, 탑골공원에 모인 학생과 시민들의 입에서 마침내 억눌렸던 함성이 터져 나왔습니다. 종로를 지나 대한문으로 굽이친 태극기의 물결은 이내 전국 방방곡곡으로 번져갔습니다.</p>
+          </div>
+          <!-- mobile-sections/section3.js 렌더링 영역 -->
+          <div class="mobile-route-scroll-area">
+            <div id="mobile-s3-routes" class="mobile-s3-routes"></div>
+          </div>
+        </div>
+
+        <!-- [모바일 카드 5] 역사의 현장 -->
+        <div class="swiper-slide card-slide">
+          <div class="card-content">
+            <!-- 스마트서울맵 바로가기 (카드 우측 상단) -->
+            <div class="mobile-map-links">
+              <a href="https://map.seoul.go.kr/smgis2/short/6PWJo" target="_blank" rel="noopener noreferrer" class="mobile-map-link" aria-label="스마트서울맵 지도 열기"><span class="icon icon-map" aria-hidden="true"></span>스마트서울맵</a>
+            </div>
+            <p class="card-chapter">04. 역사의 현장</p>
+            <h2 class="card-title-sub">피와 눈물로 새겨진<br>기억의 공간들</h2>
+            <p class="card-desc">태화관의 결연한 건배, 대한문 앞의 통곡, 그리고 피로 물든 십자로까지. 우리가 매일 걷는 서울의 평범한 거리 곳곳에는 신분과 종교를 넘어 오직 '대한독립'을 외쳤던 뜨거운 피와 땀이 서려 있습니다.</p>
+          </div>
+          <!-- mobile-sections/section4.js 렌더링 영역 -->
+          <div class="mobile-place-scroll-area">
+            <div class="mobile-place-tabs" role="tablist" aria-label="장소 분류">
+              <button type="button" class="mobile-place-tab" role="tab" data-filter="hub" aria-selected="true">중요 지점 <span class="mobile-place-count">-</span></button>
+              <button type="button" class="mobile-place-tab" role="tab" data-filter="site" aria-selected="false">시위 장소 <span class="mobile-place-count">-</span></button>
+            </div>
+            <ul id="mobile-s4-list" class="mobile-place-list"></ul>
+          </div>
+        </div>
+
+        <!-- [모바일 카드 6] 독립의 별들 (인물 아카이브: 검색·초성 필터·2열 그리드) -->
+        <div class="swiper-slide card-slide">
+          <div class="card-content">
+            <!-- 스마트서울맵 바로가기 (카드 우측 상단) -->
+            <div class="mobile-map-links">
+              <a href="https://map.seoul.go.kr/smgis2/short/6PTzT" target="_blank" rel="noopener noreferrer" class="mobile-map-link" aria-label="스마트서울맵 지도 열기"><span class="icon icon-map" aria-hidden="true"></span>스마트서울맵</a>
+            </div>
+            <p class="card-chapter">05. 독립의 별들</p>
+            <h2 class="card-title-sub">어둠을 가르고<br>스스로 빛이 된 사람들</h2>
+            <p class="card-desc">역사에 굵게 새겨진 민족대표 33인뿐만이 아닙니다. 장터를 지키던 상인, 앳된 학생, 이름 없는 노동자까지. 조국을 위해 기꺼이 스스로 불꽃이 된 수많은 무명 열사들을 호명합니다.</p>
+          </div>
+
+          <!-- mobile-sections/section5.js 렌더링 영역 -->
+          <div class="mobile-activist-scroll-area">
+            <div class="mobile-activist-toolbar">
+              <label class="mobile-activist-search">
+                <span class="icon icon-search" aria-hidden="true"></span>
+                <input type="search" id="mobile-activist-search" placeholder="독립운동가 이름 검색" autocomplete="off" aria-label="독립운동가 이름 검색">
+              </label>
+              <div class="mobile-activist-filter-row">
+                <!-- swiper-no-swiping: 초성 칩 가로 스크롤 시 슬라이드 전환 차단 -->
+                <div id="mobile-activist-filters" class="mobile-activist-filters swiper-no-swiping" aria-label="초성 필터"></div>
+                <p id="mobile-activist-count" class="mobile-activist-count" aria-live="polite"></p>
+              </div>
+            </div>
+            <div id="mobile-activist-grid" class="mobile-activist-grid"></div>
+          </div>
+        </div>
+
+        <!-- [모바일 카드 7] 남겨진 유산 (의의 카드 + 헌법 전문 인용) -->
+        <div class="swiper-slide card-slide">
+          <div class="card-content">
+            <p class="card-chapter">06. 남겨진 유산</p>
+            <h2 class="card-title-sub">끝이 아닌,<br>거대한 역사의 시작</h2>
+            <p class="card-desc">3월의 붉은 함성은 당장의 광복을 가져오진 못했습니다. 하지만 백성이 주인이 되는 나라, '대한민국 임시정부'의 거대한 뿌리가 되어 오늘날 민주공화국의 굳건한 토대를 쌓아 올렸습니다.</p>
+          </div>
+          <!-- mobile-sections/section6.js 렌더링 영역 -->
+          <div class="mobile-s6-scroll-area">
+            <div id="mobile-s6-legacy" class="mobile-s6-legacy"></div>
+          </div>
+        </div>
+
+        <!-- [모바일 카드 8] 엔딩·출처 -->
+        <div class="swiper-slide card-slide">
+          <div class="card-content full-text-card">
+            <h2 class="card-title-sub mobile-end-title">3·1운동</h2>
+            <p class="mobile-end-sub">디지털 역사 지도</p>
+
+            <div class="mobile-footer">
+              <p>본 사이트는 1919년 3·1운동의 역사적 발자취를<br>기억하고 기록하기 위해 제작되었습니다.</p>
+              <p class="footer-source">자료 출처: 스마트서울맵, 역사편찬원,<br>우리역사넷, 한국근대사료DB, 한국민족대백과사전</p>
+              <p>&copy; 2026 National Independence Archive.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- Swiper 페이지네이션 -->
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+
+
+  <!-- ==============================================================
+       [PC 전용 영역] 769px 이상에서만 노출 (인터랙티브 스크롤 & 지도)
+       ============================================================== -->
+  <div id="pc-story-container" class="pc-only">
+
+    <!-- [우측 챕터 dot 내비게이션] js/utils/uiUtils.js 연동 -->
+    <nav class="global-dot-nav" aria-label="챕터 이동">
+      <button type="button" class="global-dot" data-target-section="0" data-label="인트로" aria-label="인트로"></button>
+      <button type="button" class="global-dot" data-target-section="1" data-label="01 시대의 부름" aria-label="01 시대의 부름"></button>
+      <button type="button" class="global-dot" data-target-section="2" data-label="02 거사의 맹세" aria-label="02 거사의 맹세"></button>
+      <button type="button" class="global-dot" data-target-section="3" data-label="03 함성의 궤적" aria-label="03 함성의 궤적"></button>
+      <button type="button" class="global-dot" data-target-section="4" data-label="04 역사의 현장" aria-label="04 역사의 현장"></button>
+      <button type="button" class="global-dot" data-target-section="5" data-label="05 독립의 별들" aria-label="05 독립의 별들"></button>
+      <button type="button" class="global-dot" data-target-section="6" data-label="06 남겨진 유산" aria-label="06 남겨진 유산"></button>
+    </nav>
+
+    <!-- [섹션 0: 인트로] -->
+    <section data-section="0" class="story-section scroll-section" id="section-0">
+      <img src="/assets/images/history/march-first-walk/declaration-of-independence.jpg" alt="" class="intro-bg-doc" decoding="async" fetchpriority="low" aria-hidden="true">
+
+      <img src="/assets/images/history/march-first-walk/jingwansa-taegeukgi.jpg" alt="" class="intro-bg-flag" decoding="async" fetchpriority="low" aria-hidden="true">
+
+      <div class="sc0-hero-texture" aria-hidden="true"></div>
+      <div class="sc0-hero-ring" aria-hidden="true"></div>
+
+      <div class="sc0-hero-content">
+        <p class="sc0-hero-date">MARCH 1, 1919</p>
+        <h1 class="sc0-hero-title">
+          <span class="ko-text"><strong>3.1</strong>운동</span>
+        </h1>
+        <p class="sc0-hero-desc ko-text">
+          세상을 깨운 1919년 3월의 뜨거운 외침.<br>
+          태극기가 물결치기 전, 서울 곳곳에 은밀하게 새겨진 그날의 결의와 발자취를 지도 위에서 되짚어본다.
+        </p>
+      </div>
+      <a class="sc0-scroll-cue" href="#section-1">Scroll</a>
+    </section>
+
+    <!-- [섹션 1: 시대의 부름] 지도 4개 자동 슬라이더 -->
+    <section data-section="1" class="story-section scroll-section" id="section-1">
+      <header class="story-header sc1-intro-header">
+        <div class="story-header-bg" aria-hidden="true"></div>
+        <div class="story-overlay story-overlay-header" aria-hidden="true"></div>
+        <div class="story-header-content">
+          <div class="story-chapter-group">
+            <span class="story-chapter-num">01</span>
+            <div class="story-divider"></div>
+            <span class="story-chapter-subtitle">시대의 부름</span>
+          </div>
+          <h2 class="story-title">빼앗긴 들에 독립의 불씨가 움트다</h2>
+          <p class="story-desc">일제의 가혹한 억압 속에서도, 조국의 빛을 되찾기 위한 열망은 민중의 가슴 깊은 곳에서 조용히 타오르고 있었다.</p>
+        </div>
+      </header>
+
+      <div class="sc1-slider-wrapper">
+        <div class="sc1-slide active">
+          <div class="sc1-split-layout">
+            <div class="sc1-split-text">
+              <div class="sc1-chapter-num">01</div>
+              <p class="sc1-section-label">배경 · BACKGROUND</p>
+              <h2 class="sc1-section-heading-ko">일본 제국주의, 식민 지배의 시작</h2>
+              <p class="sc1-section-heading-en">Colonial Rule, 1910</p>
+              <div class="sc1-divider">
+                <div class="sc1-divider-line"></div>
+                <div class="sc1-divider-diamond"></div>
+                <div class="sc1-divider-line"></div>
+              </div>
+              <div class="sc1-section-body">
+                <p class="ko-text sc1-desc-text">1910년 &lt;한일강제병합조약&gt;이 조인되면서 일제의 식민지 지배가 본격적으로 시작됐다.<br>
+                  남산에 있던 일본 공사관은 1905년 통감부가 설치되면서 통감관저로 바뀌었으며, 1910년 강제병합 이후에는 조선총독의 관저로 사용되었다.
+                  이곳은 일제가 조선 침략의 상징적인 장소 가운데 하나가 되었다.</p>
+              </div>
+            </div>
+            <div class="sc1-split-visual">
+              <div class="sc1-map-container" id="map-s1-1"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sc1-slide">
+          <div class="sc1-split-layout">
+            <div class="sc1-split-text">
+              <div class="sc1-chapter-num">02</div>
+              <p class="sc1-section-label">기폭제 · CATALYST</p>
+              <h2 class="sc1-section-heading-ko">고종 황제의 승하와 민중들의 분노</h2>
+              <p class="sc1-section-heading-en">Death of Emperor Gojong, 1919</p>
+              <div class="sc1-divider">
+                <div class="sc1-divider-line"></div>
+                <div class="sc1-divider-diamond"></div>
+                <div class="sc1-divider-line"></div>
+              </div>
+              <div class="sc1-section-body">
+                <p class="ko-text sc1-desc-text">1919년 1월, 고종 황제가 덕수궁에서 승하했다.
+                  고종 황제가 독살되었다는 소문이 퍼지면서 민중들의 슬픔과 분노는 더욱 커졌고, 이는 독립을 요구하는 만세운동으로 이어졌다.<br>
+                  고종 황제의 장례를 앞둔 3월 1일에 시작된 만세운동은 고종의 장례일(인산일, 3월 3일)을 거치면서 전국적으로 확산됐다.</p>
+              </div>
+            </div>
+            <div class="sc1-split-visual">
+              <div class="sc1-map-container" id="map-s1-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sc1-slide">
+          <div class="sc1-split-layout">
+            <div class="sc1-split-text">
+              <div class="sc1-chapter-num">03</div>
+              <p class="sc1-section-label">희망 · HOPE</p>
+              <h2 class="sc1-section-heading-ko">도쿄에서 울린 독립의 목소리</h2>
+              <p class="sc1-section-heading-en">February 8th Declaration, 1919</p>
+              <div class="sc1-divider">
+                <div class="sc1-divider-line"></div>
+                <div class="sc1-divider-diamond"></div>
+                <div class="sc1-divider-line"></div>
+              </div>
+              <div class="sc1-section-body">
+                <p class="ko-text sc1-desc-text">1919년 2월 8일, 일본 도쿄의 한국 유학생 600여 명이 조선기독교청년회관(YMCA)에 모여 조선청년독립단을 결성하고 '2·8 독립선언서'를 발표했습니다.
+                  <br>도쿄에서 결행된 이 거사는 국내외 민족지도자들을 고무하여 3·1운동의 직접적인 기폭제가 되었습니다.
+                </p>
+              </div>
+            </div>
+            <div class="sc1-split-visual">
+              <div class="sc1-map-container" id="map-s1-3"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sc1-slide">
+          <div class="sc1-split-layout">
+            <div class="sc1-split-text">
+              <div class="sc1-chapter-num">04</div>
+              <p class="sc1-section-label">결의 · RESOLVE</p>
+              <h2 class="sc1-section-heading-ko">세계를 향한 외침, 민족자결주의</h2>
+              <p class="sc1-section-heading-en">Paris Peace Conference, 1919</p>
+              <div class="sc1-divider">
+                <div class="sc1-divider-line"></div>
+                <div class="sc1-divider-diamond"></div>
+                <div class="sc1-divider-line"></div>
+              </div>
+              <div class="sc1-section-body">
+                <p class="ko-text sc1-desc-text sc1-margin-b">1919년부터 1920년까지 열린 파리강화회의는 제1차 세계대전의 전후 처리를 논의하기 위한 회의였다. 1918년 미국 대통령 윌슨이 제시한 '민족자결주의'는 전후 국제질서를 논의하는 중요한 기준이 되었다.<br>
+                  이는 식민 지배를 받고 있던 한국인에게 독립에 대한 희망을 불러일으켰고, 국제사회에 한국의 독립을 호소하는 움직임으로 이어졌다.</p>
+                <div class="sc1-quote-box">
+                  <p class="sc1-quote-ko">"각 민족은 스스로의 운명을 결정할 권리가 있다"</p>
+                </div>
+              </div>
+            </div>
+            <div class="sc1-split-visual">
+              <div class="sc1-map-container" id="map-s1-4"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sc1-pagination">
+          <div class="sc1-dots">
+            <button class="sc1-dot active" type="button" data-index="0" aria-label="1번째 슬라이드"></button>
+            <button class="sc1-dot" type="button" data-index="1" aria-label="2번째 슬라이드"></button>
+            <button class="sc1-dot" type="button" data-index="2" aria-label="3번째 슬라이드"></button>
+            <button class="sc1-dot" type="button" data-index="3" aria-label="4번째 슬라이드"></button>
+          </div>
+          <!-- material-symbols-outlined: section1.js 재생/정지 문자 교체 대상 (클래스명 변경 금지) -->
+          <button type="button" class="sc1-play-btn" id="sc1-play-pause" aria-label="자동재생 정지/재생">
+            <span class="material-symbols-outlined">||</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- [섹션 2: 거사의 맹세] 스크롤 연동 타임라인 (카드·내비 JS 렌더링) -->
+    <section data-section="2" class="story-section scroll-section" id="section-2">
+      <header class="story-header">
+        <div class="story-header-bg" aria-hidden="true"></div>
+        <div class="story-overlay story-overlay-header" aria-hidden="true"></div>
+        <div class="story-header-content">
+          <div class="story-chapter-group">
+            <span class="story-chapter-num">02</span>
+            <div class="story-divider"></div>
+            <span class="story-chapter-subtitle">거사의 맹세</span>
+          </div>
+          <h2 class="story-title">세상을 깨울 함성을 준비하다.</h2>
+          <p class="story-desc">역사를 바꾼 그날의 외침 뒤에는, 가장 어두운 밤을 지새운 숭고한 계획이 있었다.</p>
+        </div>
+      </header>
+
+      <div class="sc2-content-wrap">
+        <div class="sc2-map-pane">
+          <div class="sc2-map-inner" id="map-s2"></div>
+          <div class="sc2-map-shadow"></div>
+        </div>
+        <div class="sc2-timeline-pane" id="sc2-timeline-container">
+          <div class="sc2-sticky-card-container">
+            <div class="sc2-side-nav" id="sc2-side-nav"></div>
+            <div class="sc2-fixed-card">
+              <div id="sc2-card-content"></div>
+            </div>
+          </div>
+          <div class="sc2-scroll-track" id="sc2-scroll-track"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [섹션 3: 함성의 궤적] 시위 경로 라인 (카드·내비 JS 렌더링) -->
+    <section data-section="3" class="story-section scroll-section" id="section-3">
+      <header class="story-header">
+        <div class="story-header-bg" aria-hidden="true"></div>
+        <div class="story-overlay story-overlay-header" aria-hidden="true"></div>
+        <div class="story-header-content">
+          <div class="story-chapter-group">
+            <span class="story-chapter-num">03</span>
+            <div class="story-divider"></div>
+            <span class="story-chapter-subtitle">함성의 궤적</span>
+          </div>
+          <h2 class="story-title">두려움을 넘어선 발걸음, 거리를 덮다.</h2>
+          <p class="story-desc">탑골공원에서 피어오른 태극기의 물결은 이내 거대한 파도가 되어 서울의 모든 길목으로 뻗어나갔다.</p>
+        </div>
+      </header>
+
+      <div class="sc3-content-wrap">
+        <div class="sc3-map-pane">
+          <div class="sc3-map-inner" id="map-s3"></div>
+          <div class="sc3-map-shadow"></div>
+        </div>
+        <div class="sc3-timeline-pane" id="sc3-timeline-container">
+          <div class="sc3-sticky-card-container">
+            <div class="sc3-side-nav" id="sc3-side-nav"></div>
+            <div class="sc3-fixed-card">
+              <div id="sc3-card-content"></div>
+            </div>
+          </div>
+          <div class="sc3-scroll-track" id="sc3-scroll-track"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [섹션 4: 역사의 현장] 필터 지도 -->
+    <section data-section="4" class="story-section scroll-section" id="section-4">
+      <header class="story-header sc4-header">
+        <div class="story-header-bg" aria-hidden="true"></div>
+        <div class="story-overlay story-overlay-header" aria-hidden="true"></div>
+        <div class="story-header-content">
+          <div class="story-chapter-group">
+            <span class="story-chapter-num">04</span>
+            <div class="story-divider"></div>
+            <span class="story-chapter-subtitle">역사의 현장</span>
+          </div>
+          <h2 class="story-title">피와 눈물로 새겨진 기억의 공간들</h2>
+          <p class="story-desc">남녀노소, 신분과 종교를 넘어 오직 '대한독립' 하나로 뭉쳤던 뜨거운 그날의 무대를 되짚어본다.</p>
+        </div>
+      </header>
+
+      <div class="sc4-map-view">
+        <div id="map-s4" class="sc4-map-container"></div>
+        <button type="button" class="sc4-reset-btn" id="sc4-reset-btn"><span class="icon icon-expand" aria-hidden="true"></span><span>전체 보기</span></button>
+
+        <!-- 플로팅 범례: 헤더 클릭 시 레이어 필터 ON/OFF -->
+        <div class="sc4-floating-legend sc4-reveal">
+          <div class="sc4-legend-header">
+            <h2 class="sc4-legend-title">저항의 물결, 만세의 확산</h2>
+            <p class="sc4-legend-subtitle">아래 카드를 클릭하여 지도의 마커를 필터링해 보세요.</p>
+          </div>
+
+          <ul class="sc4-intro-cols" id="sc4-filter-list">
+            <!-- 중요 지점 (COT_THEME_SUB_ID 4) -->
+            <li class="sc4-col hub-card active" data-filter="hub">
+              <div class="sc4-col-header" tabindex="0" role="button">
+                <h3 class="sc4-col-title">
+                  <span class="ko-text">
+                    <span class="sc4-legend-dot hub-dot" aria-hidden="true"></span> 중요 지점
+                  </span>
+                  <span class="en-text">Strategic Hubs</span>
+                </h3>
+              </div>
+              <ul class="sc4-loc-list" id="sc4-hub-list"></ul>
+            </li>
+
+            <!-- 시위 장소 (COT_THEME_SUB_ID 3) -->
+            <li class="sc4-col site-card active" data-filter="site">
+              <div class="sc4-col-header" tabindex="0" role="button">
+                <h3 class="sc4-col-title">
+                  <span class="ko-text">
+                    <span class="sc4-legend-dot site-dot" aria-hidden="true"></span> 시위 장소
+                  </span>
+                  <span class="en-text">Protest Sites</span>
+                </h3>
+              </div>
+              <ul class="sc4-loc-list" id="sc4-site-list"></ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- [섹션 5: 독립의 별들] 인물 지도 + 캐러셀 -->
+    <section data-section="5" class="story-section scroll-section" id="section-5">
+      <header class="story-header sc5-header">
+        <div class="story-header-bg" aria-hidden="true"></div>
+        <div class="story-overlay story-overlay-header" aria-hidden="true"></div>
+        <div class="story-header-content">
+          <div class="story-chapter-group">
+            <span class="story-chapter-num">05</span>
+            <div class="story-divider"></div>
+            <span class="story-chapter-subtitle">독립의 별들</span>
+          </div>
+          <h2 class="story-title">어둠을 가르고 스스로 빛이 된 사람들</h2>
+          <p class="story-desc">역사에 굵게 새겨진 이름들과 기록되지 못한 무명의 헌신들. 각자의 자리에서 조국을 지켜낸 영웅들을 기억한다.</p>
+        </div>
+      </header>
+
+      <div class="sc5-map-view">
+        <div id="map-s5" class="sc5-map-container"></div>
+        <button type="button" class="sc5-reset-btn" id="sc5-reset-btn"><span class="icon icon-expand" aria-hidden="true"></span><span>전체 보기</span></button>
+
+        <div class="sc5-carousel-wrapper sc5-reveal">
+
+          <!-- 초성·이름 검색 패널 -->
+          <div class="sc5-search-wrapper">
+            <button type="button" class="sc5-search-toggle" id="sc5-search-toggle" aria-controls="sc5-search-panel"><span class="icon icon-search" aria-hidden="true"></span><span>인물 검색</span></button>
+            <div class="sc5-search-panel" id="sc5-search-panel">
+              <input type="text" id="sc5-search-input" class="sc5-search-input" placeholder="인물 이름 검색" autocomplete="off" aria-label="인물 이름 검색">
+              <div class="sc5-filter-container">
+                <button type="button" class="sc5-filter-btn active" data-filter="all">전체</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㄱ">ㄱ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㄴ">ㄴ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㄷ">ㄷ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㄹ">ㄹ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㅁ">ㅁ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㅂ">ㅂ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㅅ">ㅅ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㅇ">ㅇ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㅈ">ㅈ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㅊ">ㅊ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㅋ">ㅋ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㅌ">ㅌ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㅍ">ㅍ</button>
+                <button type="button" class="sc5-filter-btn" data-filter="ㅎ">ㅎ</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 인물 카드 캐러셀 (JS 렌더링) -->
+          <button type="button" class="sc5-nav-btn prev" id="sc5-btn-prev" aria-label="이전 인물"><span class="icon icon-chevron-left" aria-hidden="true"></span></button>
+          <div class="sc5-carousel-track" id="sc5-activist-list"></div>
+          <button type="button" class="sc5-nav-btn next" id="sc5-btn-next" aria-label="다음 인물"><span class="icon icon-chevron-right" aria-hidden="true"></span></button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- [섹션 6: 남겨진 유산] -->
+    <section data-section="6" class="story-section scroll-section" id="section-6">
+      <header class="story-header">
+        <div class="story-header-bg" aria-hidden="true"></div>
+        <div class="story-overlay story-overlay-header" aria-hidden="true"></div>
+        <div class="story-header-content">
+          <div class="story-chapter-group">
+            <span class="story-chapter-num">06</span>
+            <div class="story-divider"></div>
+            <span class="story-chapter-subtitle">남겨진 유산</span>
+          </div>
+          <h2 class="story-title">끝이 아닌, 거대한 역사의 시작</h2>
+          <p class="story-desc">3월의 울림은 당장의 광복을 안겨주진 못했으나, 대한민국 임시정부의 뿌리가 되어 변치 않는 이정표로 남았다.</p>
+        </div>
+      </header>
+
+      <div class="sc6-content-wrap">
+        <div class="sc6-inner-container">
+
+          <p class="sc6-instruction sc6-reveal">아래 카드를 클릭하여 3·1운동의 자세한 역사적 의의를 확인해 보세요.</p>
+
+          <!-- 의의 카드 3종 (상세 내용: js/pc-sections/section6.js) -->
+          <div class="sc6-card-grid">
+            <div class="sc6-card sc6-reveal" tabindex="0" role="button">
+              <span class="sc6-card-num">01</span>
+              <h3 class="sc6-card-title">통치방식의 전환</h3>
+              <p class="sc6-card-en">Shift in Colonial Rule</p>
+
+              <div class="sc6-card-overlay" aria-hidden="true">
+                <span>클릭하여 상세 정보 보기</span>
+              </div>
+            </div>
+            <div class="sc6-card sc6-reveal" tabindex="0" role="button">
+              <span class="sc6-card-num">02</span>
+              <h3 class="sc6-card-title">임시정부의 수립</h3>
+              <p class="sc6-card-en">Founding of the Provisional Govt.</p>
+
+              <div class="sc6-card-overlay" aria-hidden="true">
+                <span>클릭하여 상세 정보 보기</span>
+              </div>
+            </div>
+            <div class="sc6-card sc6-reveal" tabindex="0" role="button">
+              <span class="sc6-card-num">03</span>
+              <h3 class="sc6-card-title">자주정신의 확산</h3>
+              <p class="sc6-card-en">Spread of Self-Reliance</p>
+
+              <div class="sc6-card-overlay" aria-hidden="true">
+                <span>클릭하여 상세 정보 보기</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 헌법 전문 인용 (임시정부 법통 계승 문구 강조) -->
+          <div class="sc6-quote-section sc6-reveal">
+            <div class="sc6-quote-box">
+              <div class="sc6-quote-bg-num" aria-hidden="true">1919</div>
+              <blockquote class="sc6-quote-main">
+                <p>유구한 역사와 전통에 빛나는 우리 대한국민은 <strong>3·1운동으로 건립된 대한민국임시정부의 법통</strong>과 불의에 항거한 4·19민주이념을 계승하고, 
+                  조국의 민주개혁과 평화적 통일의 사명에 입각하여 정의·인도와 동포애로써 민족의 단결을 공고히 하고, 모든 사회적 폐습과 불의를 타파하며, 
+                  자율과 조화를 바탕으로 자유민주적 기본질서를 더욱 확고히 하여 정치·경제·사회·문화의 모든 영역에 있어서 각인의 기회를 균등히 하고, 능력을 최고도로 발휘하게 하며, 
+                  자유와 권리에 따르는 책임과 의무를 완수하게 하여, 안으로는 국민생활의 균등한 향상을 기하고 밖으로는 항구적인 세계평화와 인류공영에 이바지함으로써 
+                  우리들과 우리들의 자손의 안전과 자유와 행복을 영원히 확보할 것을 다짐하면서 1948년 7월 12일에 제정되고 8차에 걸쳐 개정된 헌법을 이제 국회의 의결을 거쳐 
+                  국민투표에 의하여 개정한다.</p>
+                <cite>— 대한민국 헌법 전문</cite>
+              </blockquote>
+              <p class="sc6-quote-sub">오늘날 우리 민주주의의 뿌리는 바로 그날의 만세 소리에 있습니다.</p>
+              <div class="sc6-quote-footer">SMART SEOUL MAP STORY MAP © 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [푸터] -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-top">
+          <h2 class="footer-logo">3·1운동 <span>디지털 역사 지도</span></h2>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-bottom">
+          <div class="footer-info">
+            <p>본 사이트는 1919년 3·1운동의 역사적 발자취를 기억하고 기록하기 위해 제작되었습니다.</p>
+            <p class="footer-source">자료 출처: 스마트서울맵, 오픈스트리트맵(OSM), 역사편찬원, 우리역사넷, 한국근대사료DB, 한국민족대백과사전, 독립기념관 국내항일운동사적지</p>
+          </div>
+          <div class="footer-copyright">
+            &copy; 2026 National Independence Archive.<br>All rights reserved.
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- [TOP 버튼] -->
+    <button type="button" class="floating-top-btn" id="backToTopBtn" aria-label="맨 위로">
+      <span class="icon icon-chevron-up" aria-hidden="true"></span>
+      <span>TOP</span>
+    </button>
+  </div> <!-- // pc-only -->
+
+  <!-- ==============================================================
+       [전역 모달 영역]
+       ============================================================== -->
+  <div id="image-modal" class="global-modal" role="dialog" aria-modal="true" aria-label="이미지 확대 보기">
+    <button type="button" class="close-modal" aria-label="닫기">&times;</button>
+    <img class="global-modal-content" id="img-in-modal" alt="확대된 이미지">
+    <div id="caption-modal"></div>
+  </div>
+
+  <!-- ==============================================================
+       [자바스크립트 로드 영역]
+       ============================================================== -->
+  <script src="/api/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script type="module" src="/js/index.js"></script>
+
+</body>
+
+</html>

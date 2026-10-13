@@ -1,0 +1,183 @@
+/* =======================================================
+   Card 7 · 남겨진 유산 의의 목록 + 헌법 전문 (JS 생성)
+   - 상세 하단 시트 공통 스타일: index-mobile.css (.mobile-modal-*)
+======================================================= */
+.mobile-s6-scroll-area {
+  padding: var(--space-6) var(--space-4) var(--space-12);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.mobile-s6-legacy {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- 그룹 라벨 ---------- */
+.legacy-group-label {
+  margin: 0 0 var(--space-2) var(--space-1);
+  color: var(--text-tertiary);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+}
+
+.legacy-list+.legacy-group-label {
+  margin-top: var(--space-6);
+}
+
+/* ---------- 목록 (그룹 단위 단일 상자 + 구분선) ---------- */
+.legacy-list {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  list-style: none;
+  overflow: hidden;
+}
+
+.legacy-list li+li {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.legacy-list--quote {
+  border-color: rgba(var(--gold-rgb), 0.35);
+  background: linear-gradient(135deg, rgba(var(--gold-rgb), 0.07), var(--surface) 70%);
+}
+
+.legacy-row {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr auto;
+  /* 번호 칸 고정: 01~03 · 憲 제목 시작 위치 정렬 */
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) ease;
+}
+
+.legacy-row:active {
+  background: rgba(var(--white-rgb), 0.05);
+}
+
+.legacy-num {
+  color: var(--red-light);
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-variant-numeric: lining-nums;
+  text-align: center;
+}
+
+.legacy-list--quote .legacy-num {
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-weight: 700;
+}
+
+.legacy-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.legacy-title strong {
+  color: var(--white);
+  font-family: var(--font-serif);
+  font-size: var(--fs-md);
+}
+
+.legacy-title em {
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 헌법 전문 미리보기: 강조 문구 한 줄 */
+.legacy-list--quote .legacy-title em {
+  color: rgba(var(--gold-rgb), 0.8);
+  font-family: var(--font-serif);
+  font-style: normal;
+}
+
+.legacy-arrow {
+  color: var(--text-tertiary);
+  font-size: var(--fs-xl);
+  line-height: 1;
+}
+
+/* ---------- 상세 하단 시트 내용 ---------- */
+.legacy-detail {
+  display: flex;
+  flex-direction: column;
+  padding-right: var(--space-8);
+  /* 닫기 버튼 영역 확보 (제목 줄) */
+}
+
+.legacy-detail-num {
+  align-self: flex-start;
+  margin-bottom: var(--space-3);
+  padding: 2px var(--space-3);
+  border: 1px solid rgba(var(--red-rgb), 0.5);
+  border-radius: var(--radius-pill);
+  color: var(--red-light);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-variant-numeric: lining-nums;
+}
+
+.legacy-detail.is-quote .legacy-detail-num {
+  border-color: rgba(var(--gold-rgb), 0.5);
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-weight: 700;
+}
+
+.legacy-detail-en {
+  margin-top: var(--space-1);
+  color: var(--text-tertiary);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-style: italic;
+}
+
+.legacy-detail-text {
+  margin: var(--space-5) calc(var(--space-8) * -1) 0 0; /* 본문은 닫기 버튼 여백 없이 전체 폭 사용 */
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-body);
+  font-size: var(--fs-sm);
+  line-height: 1.85;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  text-align: justify;
+  text-justify: inter-character;
+  text-align-last: left;
+}
+
+.legacy-detail.is-quote .legacy-detail-text {
+  font-family: var(--font-serif);
+}
+
+.legacy-detail-text strong {
+  color: var(--white);
+  font-weight: 700;
+  background: linear-gradient(transparent 62%, rgba(var(--red-rgb), 0.45) 62%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.legacy-detail-link {
+  align-self: flex-start;
+  margin-top: var(--space-5);
+  color: var(--gold);
+  font-size: var(--fs-xs);
+  text-decoration: none;
+}
