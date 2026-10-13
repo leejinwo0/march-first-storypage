@@ -1,0 +1,314 @@
+/* =======================================================
+   03 함성의 궤적: 좌측 경로 목록 | 우측 기울어진 지도 레이어 3장
+======================================================= */
+.routes {
+  display: grid;
+  grid-template-columns: minmax(360px, 560px) 1fr;
+  gap: 40px;
+  min-height: 720px;
+}
+
+.routes-panel .sec-desc {
+  margin-top: var(--space-4);
+}
+
+/* ---------- 날짜 탭 ---------- */
+.seg-tabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 26px;
+}
+
+.seg-tab {
+  padding: 8px 16px;
+  border: 1px solid var(--sheet-line);
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.seg-tab[aria-selected="true"] {
+  border-color: var(--cream);
+  background: var(--cream);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---------- 경로 목록 ---------- */
+.route-list {
+  margin-top: 10px;
+}
+
+.route-group-title {
+  color: var(--muted);
+}
+
+.route-row {
+  border-top: 1px solid var(--sheet-line);
+}
+
+.route-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  padding: 14px 0;
+  color: var(--text-soft);
+  font-size: 15px;
+  text-align: left;
+}
+
+.route-row-head:hover {
+  color: var(--cream);
+}
+
+.route-row-step {
+  flex-shrink: 0;
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+}
+
+.route-row.active .route-row-head {
+  color: var(--cream);
+  font-weight: 600;
+}
+
+.route-row.active .route-row-title::before {
+  content: "";
+  display: inline-block;
+  width: 22px;
+  height: 3px;
+  margin: 0 10px 4px 0;
+  background: repeating-linear-gradient(90deg, var(--cream) 0 6px, transparent 6px 10px);
+  vertical-align: middle;
+}
+
+.route-row.active .route-row-step {
+  color: var(--muted);
+}
+
+.route-row-body {
+  display: none;
+  padding-bottom: 16px;
+}
+
+.route-row.active .route-row-body {
+  display: block;
+}
+
+.stop-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.stop-chips i {
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  font-style: normal;
+}
+
+.stop-chip {
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  background: rgba(var(--cream-rgb), 0.06);
+  font-size: 12.5px;
+}
+
+.stop-chip.is-start,
+.stop-chip.is-end {
+  background: rgba(var(--cream-rgb), 0.14);
+  color: var(--cream);
+  font-weight: 600;
+}
+
+.route-desc {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+/* ---------- 기울어진 지도 레이어 ---------- */
+.route-stack {
+  position: relative;
+  min-height: 640px;
+  perspective: 2000px;
+}
+
+.route-layer {
+  position: absolute;
+  left: 4%;
+  width: 82%;
+  aspect-ratio: 600 / 380;
+  border-radius: 28px;
+  overflow: hidden;
+  transform: rotateX(54deg) rotateZ(-34deg);
+  box-shadow: 0 0 0 1px rgba(var(--cream-rgb), 0.14), 0 50px 80px rgba(var(--black-rgb), 0.7);
+}
+
+.route-layer-3 {
+  top: 44%;
+  opacity: 0.35;
+  background: linear-gradient(135deg, #2a2320, #141110);
+}
+
+.route-layer-2 {
+  top: 28%;
+  opacity: 0.6;
+  background: linear-gradient(135deg, #2f2724, #171412);
+}
+
+.route-layer-1 {
+  top: 12%;
+  box-shadow: 0 0 0 1px rgba(217, 89, 76, 0.6), 0 60px 100px rgba(var(--red-rgb), 0.35);
+}
+
+/* 지도 컨트롤: 기울어진 상태에서 숨김 (표시 전용 지도) */
+.route-layer-1 .custom-map-toggle {
+  display: none;
+}
+
+.route-tag {
+  /* position · top · left · z-index · padding 기존 유지 */
+  border: 1px solid var(--sheet-line);
+  border-radius: 12px;
+  background: rgba(var(--ink-rgb), 0.85);
+  color: var(--cream);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.route-tag:empty {
+  display: none;
+}
+
+.route-legend {
+  position: absolute;
+  left: 6%;
+  bottom: 4%;
+  z-index: 3;
+  padding: 14px 18px;
+}
+
+.route-legend p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.legend-start {
+  background: var(--gold);
+}
+
+.legend-end {
+  margin-left: 8px;
+  background: var(--red-light);
+}
+
+.legend-line {
+  width: 22px;
+  height: 3px;
+  margin-left: 8px;
+  background: repeating-linear-gradient(90deg, var(--red-light) 0 6px, transparent 6px 10px);
+}
+
+/* ---------- 경로선 · 출발/도착 마커 ---------- */
+#map-s3 path.route-flow {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: route-flow 0.8s linear infinite;
+}
+
+/* 이동 거리 30 = dashArray "15, 15" 한 주기 → 출발 → 도착 방향 흐름 */
+@keyframes route-flow {
+  from {
+    stroke-dashoffset: 30;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.route-point {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.route-point-label {
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.route-point-dot {
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+}
+
+.route-point-start .route-point-dot {
+  background: var(--gold);
+}
+
+.route-point-end .route-point-dot {
+  background: var(--red);
+}
+
+/* ---------- 반응형: 평면 지도 + 목록 세로 배치 ---------- */
+@media (max-width: 1024px) {
+  .routes {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .route-stack {
+    order: -1;
+    min-height: 0;
+    perspective: none;
+  }
+
+  .route-layer-2,
+  .route-layer-3 {
+    display: none;
+  }
+
+  .route-layer-1 {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    max-height: 420px;
+    border-radius: var(--frame-radius);
+    transform: none;
+  }
+
+  .route-tag {
+    top: 14px;
+    left: 14px;
+  }
+
+  .route-legend {
+    position: static;
+    margin-top: 12px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+}

@@ -1,0 +1,198 @@
+/* =======================================================
+   02 거사의 맹세: 단계 버튼 | 상세 카드 | 지도
+======================================================= */
+.pledge {
+  display: grid;
+  grid-template-columns: 42px minmax(340px, 470px) 1fr;
+  gap: 20px;
+  height: min(720px, calc(var(--viewport-h) - 140px));
+  min-height: 560px;
+}
+
+/* ---------- 단계 버튼 ---------- */
+.pledge-nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.step-btn {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--sheet-line);
+  border-radius: 10px;
+  background: rgba(var(--cream-rgb), 0.05);
+  color: #81786e;
+  font-size: 15px;
+  font-weight: 700;
+  transition: background-color var(--dur-base) ease, color var(--dur-base) ease, box-shadow var(--dur-base) ease;
+}
+
+.step-btn:hover {
+  color: var(--cream);
+}
+
+.step-btn.active {
+  border-color: var(--red);
+  background: var(--red);
+  color: var(--white);
+  box-shadow: 0 0 22px rgba(var(--red-rgb), 0.6);
+}
+
+/* ---------- 상세 카드 ---------- */
+.pledge-card {
+  padding: 30px;
+  border: 1px solid var(--sheet-line);
+  border-radius: 24px;
+  background: var(--sheet-bg-raised);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.pledge-step {
+  color: var(--gold-light);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.08em;
+}
+
+.pledge-title {
+  margin-top: 10px;
+  color: var(--gold-light);
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.pledge-photo {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--ink);
+  cursor: zoom-in;
+}
+
+.pledge-photo img {
+  display: block;
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+}
+
+.addr-box {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(var(--ink-rgb), 0.5);
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.addr-box>div {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.addr-box dt {
+  flex-shrink: 0;
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+.pledge-info {
+  margin-top: 16px;
+  color: #cfc7bb;
+  font-size: 13px;
+  line-height: 1.85;
+}
+
+.pledge-info li::before {
+  content: "– ";
+  color: var(--text-faint);
+}
+
+.pledge-body {
+  margin-top: 14px;
+  color: var(--text-soft);
+  font-size: 13px;
+  line-height: 1.85;
+}
+
+.pledge-card .btn-pair {
+  margin-top: 20px;
+}
+
+/* ---------- 지도 ---------- */
+.pledge-map {
+  min-height: 0;
+}
+
+.step-marker {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(var(--white-rgb), 0.3);
+  border-radius: 50%;
+  background: rgba(var(--black-rgb), 0.55);
+  color: rgba(var(--white-rgb), 0.7);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease;
+}
+
+.step-marker.is-active {
+  border: 2px solid var(--white);
+  background: var(--red);
+  color: var(--white);
+  box-shadow: 0 0 0 6px rgba(var(--red-rgb), 0.25), 0 0 18px var(--accent-glow);
+  transform: scale(1.35);
+}
+
+/* ---------- 반응형 ---------- */
+@media (max-width: 1024px) {
+  .pledge {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+  }
+
+  .pledge-nav {
+    flex-direction: row;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .pledge-map {
+    order: 2;
+    height: 380px;
+  }
+
+  .pledge-card {
+    order: 3;
+    max-height: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .pledge-card {
+    padding: 22px 18px;
+  }
+
+  .pledge-map {
+    height: 320px;
+  }
+
+  .step-btn {
+    width: 38px;
+    height: 38px;
+  }
+}

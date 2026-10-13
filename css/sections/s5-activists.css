@@ -1,0 +1,419 @@
+/* =======================================================
+   05 독립의 별들: 지도 | 프로필 → 검색 바 → 인물 카드 줄
+======================================================= */
+.activists {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 18px;
+  height: 520px;
+}
+
+/* ---------- 마커 ---------- */
+.person-pin {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: url("/assets/images/markers/marker-theme-100173-5.png") center bottom / contain no-repeat;
+  filter: drop-shadow(0 4px 6px rgba(var(--black-rgb), 0.5));
+}
+
+/* ---------- 프로필 ---------- */
+.activist-profile {
+  padding: 28px;
+  border: 1px solid var(--sheet-line);
+  border-radius: var(--frame-radius);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(var(--red-rgb), 0.18), transparent 60%),
+    var(--sheet-bg-raised);
+  overflow-y: auto;
+}
+
+.profile-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  height: 100%;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.profile-empty-mark {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 78px;
+  border: 1px solid rgba(var(--gold-rgb), 0.45);
+  border-radius: 12px;
+  color: var(--gold-light);
+  font-family: var(--font-serif);
+  font-size: 26px;
+}
+
+.profile-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+}
+
+.profile-photo {
+  position: relative;
+  flex-shrink: 0;
+  width: 96px;
+  aspect-ratio: 4 / 5;
+  border: 1px solid rgba(var(--gold-rgb), 0.45);
+  border-radius: 12px;
+  background: var(--ink);
+  overflow: hidden;
+}
+
+.profile-photo span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(var(--gold-rgb), 0.6);
+  font-family: var(--font-serif);
+  font-size: 30px;
+}
+
+.profile-photo img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--ink);
+}
+
+.profile-label {
+  color: var(--gold-light);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.08em;
+}
+
+.profile-name {
+  margin-top: 4px;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.profile-addr {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: var(--fs-xs);
+}
+
+.profile-info {
+  margin-top: 20px;
+  border-top: 1px solid var(--sheet-line);
+}
+
+.profile-info>div {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--sheet-line);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.profile-info dt {
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+.profile-info dd {
+  color: #cfc7bb;
+}
+
+.profile-skeleton {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.profile-skeleton span {
+  height: 14px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, rgba(var(--white-rgb), 0.05) 25%, rgba(var(--white-rgb), 0.12) 50%, rgba(var(--white-rgb), 0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.profile-skeleton span:nth-child(2) {
+  width: 80%;
+}
+
+.profile-skeleton span:nth-child(3) {
+  width: 60%;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.profile-btns {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* ---------- 검색 바 ---------- */
+.activist-search {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid var(--sheet-line);
+  border-radius: 22px;
+  background: var(--sheet-bg-raised);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 min(36%, 420px);
+  height: 52px;
+  padding: 0 18px;
+  border: 1px solid rgba(var(--gold-rgb), 0.4);
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--gold-light);
+  transition: border-color var(--dur-base) ease;
+}
+
+.search-box:focus-within {
+  border-color: var(--gold-light);
+}
+
+.search-box input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--cream);
+  font-size: var(--fs-md);
+  outline: none;
+}
+
+.search-box input::placeholder {
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+
+.consonant-chips {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.consonant-chip {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--sheet-line);
+  border-radius: var(--radius-pill);
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.consonant-chip:hover {
+  color: var(--cream);
+}
+
+.consonant-chip[aria-pressed="true"] {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.search-count {
+  flex-shrink: 0;
+  padding: 0 14px;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+
+.search-count b {
+  margin-right: 4px;
+  color: var(--gold-light);
+  font-size: 34px;
+  font-weight: 200;
+}
+
+/* ---------- 인물 카드 줄 ---------- */
+.activist-rail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.rail-btn {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--sheet-line);
+  border-radius: 50%;
+  font-size: 18px;
+}
+
+.rail-btn:hover {
+  background: var(--red);
+  border-color: var(--red);
+}
+
+.rail-track {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  padding: 10px 2px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.rail-track::-webkit-scrollbar {
+  display: none;
+}
+
+.person-card {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 132px;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid rgba(var(--gold-rgb), 0.3);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(var(--gold-rgb), 0.14), transparent 70%),
+    var(--sheet-bg-raised);
+  scroll-snap-align: start;
+  transition: border-color var(--dur-base) ease, box-shadow var(--dur-base) ease, transform var(--dur-base) var(--ease-out);
+}
+
+.person-card:hover {
+  transform: translateY(-4px);
+}
+
+.person-card.active {
+  border-color: var(--red-light);
+  box-shadow: 0 0 0 1px var(--red-light), 0 10px 30px rgba(var(--red-rgb), 0.35);
+}
+
+.person-photo {
+  position: relative;
+  display: block;
+  height: 104px;
+  border-radius: 10px;
+  background: var(--ink);
+  overflow: hidden;
+}
+
+.person-mono {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(var(--gold-rgb), 0.55);
+  font-family: var(--font-serif);
+  font-size: 30px;
+}
+
+.person-photo img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--ink);
+  filter: grayscale(100%);
+  transition: filter var(--dur-base) ease;
+}
+
+.person-card:hover img,
+.person-card.active img {
+  filter: none;
+}
+
+.person-name {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ---------- 반응형 ---------- */
+@media (max-width: 1024px) {
+  .activists {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .activists-map {
+    height: 380px;
+  }
+
+  .activist-profile {
+    min-height: 240px;
+  }
+
+  .activist-search {
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex: 1 1 100%;
+  }
+
+  .consonant-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .consonant-chip {
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .activists-map {
+    height: 320px;
+  }
+
+  .activist-profile {
+    padding: 22px 18px;
+  }
+
+  .profile-btns {
+    grid-template-columns: 1fr;
+  }
+
+  .rail-btn {
+    display: none;
+  }
+
+  .person-card {
+    flex-basis: 112px;
+  }
+
+  .search-count b {
+    font-size: 26px;
+  }
+}

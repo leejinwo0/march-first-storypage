@@ -2,11 +2,11 @@
    역사 지도(WMS) 엔드포인트 및 레이어 관리 객체 (추가됨)
 ======================================================= */
 export const HISTORICAL_MAPS = {
-  wmsUrl: 'https://map.seoul.go.kr/smgis2/proxy?url=prop/tileMapGeoserver/wms?',
-  gyeongseong: 'tile_map:g_old_capital_tms',        // 경성대지도
-  ready31: 'tile_map:g_ready31movement_tms',        // 삼일운동 준비과정
-  capital: 'tile_map:g_capital_tms',                // 대경성부대관
-  relic50s: 'tile_map:g_new_relic_tms'              // 전재표시도(1950년대)
+  wmsUrl: "https://map.seoul.go.kr/smgis2/proxy?url=prop/tileMapGeoserver/wms?",
+  gyeongseong: "tile_map:g_old_capital_tms", // 경성대지도
+  ready31: "tile_map:g_ready31movement_tms", // 삼일운동 준비과정
+  capital: "tile_map:g_capital_tms", // 대경성부대관
+  relic50s: "tile_map:g_new_relic_tms", // 전재표시도(1950년대)
 };
 
 /* =======================================================
@@ -22,7 +22,7 @@ export const MAP_ENDPOINTS = {
   seoulBaseMap_eng: `https://map.seoul.go.kr/openapi/v5/${CONFIG.MAP_API_KEY}/public/map/base/dawul_eng_normal/{z}/{j}/{k}/{x}/{y}/png`,
   seoulBaseMap_eng_air: `https://map.seoul.go.kr/openapi/v5/${CONFIG.MAP_API_KEY}/public/map/base/dawul_eng_air/{z}/{j}/{k}/{x}/{y}/png`,
   themeData_11100550: `https://map.seoul.go.kr/openapi/v5/${CONFIG.THEMA_API_KEY}/public/themes/contents/ko?page_size=999&page_no=1&coord_x=126.974695&coord_y=37.564150&distance=999999&search_type=0&search_name=&theme_id=11100550&content_id=&subcate_id=`,
-  themeData_100173: `https://map.seoul.go.kr/openapi/v5/${CONFIG.THEMA_API_KEY}/public/themes/contents/ko?page_size=999&page_no=1&coord_x=126.974695&coord_y=37.564150&distance=999999&search_type=0&search_name=&theme_id=100173&content_id=&subcate_id=`
+  themeData_100173: `https://map.seoul.go.kr/openapi/v5/${CONFIG.THEMA_API_KEY}/public/themes/contents/ko?page_size=999&page_no=1&coord_x=126.974695&coord_y=37.564150&distance=999999&search_type=0&search_name=&theme_id=100173&content_id=&subcate_id=`,
 };
 
 /* =======================================================
@@ -31,9 +31,12 @@ export const MAP_ENDPOINTS = {
 function transformToGeoJSON(apiData) {
   const items = apiData.body || [];
 
-  const features = items.map(item => {
+  const features = items.map((item) => {
     let geomType = "Point";
-    let coords = [parseFloat(item.COT_COORD_X || 0), parseFloat(item.COT_COORD_Y || 0)];
+    let coords = [
+      parseFloat(item.COT_COORD_X || 0),
+      parseFloat(item.COT_COORD_Y || 0),
+    ];
 
     if (item.COT_COORD_DATA && item.COT_COORD_DATA !== "[]") {
       try {
@@ -59,8 +62,8 @@ function transformToGeoJSON(apiData) {
       properties: item,
       geometry: {
         type: geomType,
-        coordinates: coords
-      }
+        coordinates: coords,
+      },
     };
   });
 

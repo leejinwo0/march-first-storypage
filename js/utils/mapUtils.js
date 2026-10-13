@@ -1,3 +1,5 @@
+import { MAP_ENDPOINTS, HISTORICAL_MAPS } from "/api/mapService.js";
+
 /* =======================================================
    1. 스마트서울맵 OpenAPI V5 동적 로드 (Leaflet 확장팩)
 ======================================================= */
@@ -86,7 +88,67 @@ export function addMapToggleControl(
 }
 
 /* =======================================================
-   3. 곡선 경로 생성기 (섹션 2, 3 용)
+   3. 스토리 지도 생성 (섹션 2~5 공용)
+   - 스마트서울맵 일반지도 + 경성대지도(WMS) 전환 컨트롤
+   - 경성대지도 전환 시 줌 보정(zoomOffset 단계만큼 축소, 복귀 시 복원)
+   - 컨테이너 크기 변경 시 invalidateSize 자동 호출
+======================================================= */
+export function createStoryMap(containerId, options = {}) {
+  const {
+    center = [37.5759, 126.985],
+    zoom = 10,
+    zoomOffset = 0,
+    mapOptions = {},
+  } = options;
+
+  const container = document.getElementById(containerId);
+  const map = L.map(containerId, {
+    zoomControl: false,
+    scrollWheelZoom: false,
+    zoomSnap: 0.5,
+    crs: getCrsEx(),
+    ...mapOptions,
+  }).setView(center, zoom);
+
+  const baseLayer = new L.TileLayer.DAWULGIS_EX(
+    MAP_ENDPOINTS.seoulBaseMap_kor,
+    {
+      minZoom: 1,
+      maxZoom: 15,
+    },
+  );
+  const gyeongseongLayer = L.tileLayer.wms(HISTORICAL_MAPS.wmsUrl, {
+    layers: HISTORICAL_MAPS.gyeongseong,
+    format: "image/png",
+    transparent: true,
+    maxZoom: 18,
+    attribution: "경성대지도",
+  });
+
+  baseLayer.addTo(map);
+  addMapToggleControl(map, baseLayer, gyeongseongLayer, "경성대지도");
+
+  if (zoomOffset) {
+    map.on("layeradd", (e) => {
+      if (e.layer === gyeongseongLayer)
+        map.setZoom(map.getZoom() - zoomOffset, { animate: false });
+      if (e.layer === baseLayer)
+        map.setZoom(map.getZoom() + zoomOffset, { animate: false });
+    });
+  }
+
+  if (container)
+    new ResizeObserver(() => map.invalidateSize()).observe(container);
+
+  // 현재 레이어 기준 줌 값 반환 (경성대지도 표시 중이면 보정값 차감)
+  const zoomFor = (value) =>
+    map.hasLayer(gyeongseongLayer) ? value - zoomOffset : value;
+
+  return { map, baseLayer, gyeongseongLayer, zoomFor };
+}
+
+/* =======================================================
+   4. 곡선 경로 생성기 (섹션 2 용)
 ======================================================= */
 export function generateCurvedPath(coords) {
   if (coords.length < 2) return coords;
