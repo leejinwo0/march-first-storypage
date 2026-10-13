@@ -4,7 +4,7 @@
    - 목록 클릭 → 활성 경로 강조(빨간 점선 흐름 애니메이션) + 출발/도착 마커 + 경유지 칩
    - 날짜 탭 전환 → 해당 날짜 첫 경로 활성화
 ======================================================= */
-import { fetchTimeTravelData } from "/api/mapService.js";
+import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
 import { setStat } from "/js/utils/uiUtils.js";
 

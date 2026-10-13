@@ -4,7 +4,7 @@
    - 카드·마커 클릭 → 지도 이동 + 프로필 표시 (상세 API 1회 호출 후 캐시)
    - 이름 검색 + 초성 필터 → 카드·마커 동시 필터링, 인원 수 갱신
 ======================================================= */
-import { fetchDailyLifeData, MAP_ENDPOINTS } from "/api/mapService.js";
+import { fetchDailyLifeData, MAP_ENDPOINTS } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
 import {
   getInitialConsonant,

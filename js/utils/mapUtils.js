@@ -1,4 +1,4 @@
-import { MAP_ENDPOINTS, HISTORICAL_MAPS } from "/api/mapService.js";
+import { MAP_ENDPOINTS, HISTORICAL_MAPS } from "/services/mapService.js";
 
 /* =======================================================
    1. 스마트서울맵 OpenAPI V5 동적 로드 (Leaflet 확장팩)

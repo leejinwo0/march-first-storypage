@@ -5,7 +5,7 @@
    - 필터 카드: 레이어 ON/OFF / 목록·마커 클릭: 확대 + 팝업, 재클릭 시 전체 보기 복귀
    - 범례 목록: 중요 지점 → 시위 장소 순 그룹 표시
 ======================================================= */
-import { fetchTimeTravelData } from "/api/mapService.js";
+import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
 import { setStat } from "/js/utils/uiUtils.js";
 

@@ -4,7 +4,7 @@
    - 단계 버튼·마커 클릭 → 카드 갱신, 해당 마커로 이동, 경로선 해당 단계까지 표시
    - 경성대지도 전환 시 줌 1.5단계 보정
 ======================================================= */
-import { fetchTimeTravelData } from "/api/mapService.js";
+import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap, generateCurvedPath } from "/js/utils/mapUtils.js";
 import {
   getImageCandidates,
