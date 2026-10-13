@@ -53,6 +53,7 @@ export async function initRoutes() {
       zoomAnimation: false,
       fadeAnimation: false,
       markerZoomAnimation: false,
+      zoomSnap: 1,
     },
   });
 
@@ -208,7 +209,7 @@ export async function initRoutes() {
     map.invalidateSize({ animate: false });
     map.fitBounds(allBounds, {
       padding: [40, 40],
-      maxZoom: 13,
+      maxZoom: 11,
       animate: false,
     });
   };

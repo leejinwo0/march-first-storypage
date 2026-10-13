@@ -145,7 +145,7 @@
   aspect-ratio: 600 / 380;
   border-radius: 28px;
   overflow: hidden;
-  transform: rotateX(54deg) rotateZ(-34deg);
+  transform: rotateX(32deg) rotateZ(-18deg);
   box-shadow: 0 0 0 1px rgba(var(--cream-rgb), 0.14), 0 50px 80px rgba(var(--black-rgb), 0.7);
 }
 
