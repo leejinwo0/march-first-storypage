@@ -4,6 +4,7 @@
    - 섹션 진입 시 마커 150ms 간격 순차 표시
    - 필터 카드: 레이어 ON/OFF / 목록·마커 클릭: 확대 + 팝업, 재클릭 시 전체 보기 복귀
    - 범례 목록: 중요 지점 → 시위 장소 순 그룹 표시
+   - 범례 목록: 중요 지점(좌) · 시위 장소(우) 2열 분리, 필터 OFF 시 해당 열 흐리게 표시
 ======================================================= */
 import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
@@ -24,15 +25,22 @@ const CATEGORY = {
 
 export async function initPlaces() {
   const list = document.getElementById("s4-list");
+  const columns = {
+    hub: document.getElementById("s4-list-hub"),
+    site: document.getElementById("s4-list-site"),
+  };
   const resetBtn = document.getElementById("s4-reset");
   const filterBtns = document.querySelectorAll("#s4-filters .places-filter");
   const mapEl = document.getElementById("map-s4");
-  if (!mapEl || !list) return;
+  if (!mapEl || !list || !columns.hub || !columns.site) return;
 
+  // 정수 줌 고정: 소수 줌 단계에서 기본지도 타일 미표시 방지
   const { map } = createStoryMap("map-s4", {
     center: [37.5586, 126.9369],
     zoom: 7,
+    mapOptions: { zoomSnap: 1 },
   });
+
   const layers = {
     hub: L.layerGroup().addTo(map),
     site: L.layerGroup().addTo(map),
@@ -43,7 +51,7 @@ export async function initPlaces() {
   // 범례 패널(좌측) 영역 제외 여백
   const fitPadding = () =>
     isDesktop()
-      ? { paddingTopLeft: [400, 40], paddingBottomRight: [40, 40] }
+      ? { paddingTopLeft: [480, 40], paddingBottomRight: [40, 40] }
       : { padding: [30, 30] };
 
   const showAll = () => {
@@ -98,10 +106,6 @@ export async function initPlaces() {
   if (places.length)
     defaultBounds = L.latLngBounds(places.map((p) => p.latlng));
 
-  // 목록 순서: 중요 지점 → 시위 장소 (분류별 그룹)
-  places.sort((a, b) => (a.key === b.key ? 0 : a.key === "hub" ? -1 : 1));
-  let lastKey = "";
-
   // 1. 목록 + 마커 생성
   places.forEach((place) => {
     const mapLink = `https://map.seoul.go.kr/smgis2/poiViewMap?ti=11100550&pi=${place.poiId}&lang=ko`;
@@ -121,25 +125,15 @@ export async function initPlaces() {
         <div class="popup-desc">${place.desc}</div>
         <div class="btn-pair">
           <a class="line-btn line-btn-red" href="${mapLink}" target="_blank" rel="noopener noreferrer">스마트서울맵</a>
-          <a class="line-btn line-btn-gold" href="https://history.seoul.go.kr/" target="_blank" rel="noopener noreferrer">역사편찬원</a>
         </div>
       </div>`,
       { className: "story-popup", maxWidth: 420, offset: [0, -12] },
     );
 
-    // 분류가 바뀌는 지점에 그룹 제목 삽입
-    if (place.key !== lastKey) {
-      const head = document.createElement("li");
-      head.className = `places-group places-group-${place.key}`;
-      head.innerHTML = `<i class="legend-dot legend-${place.key}"></i>${CATEGORY[place.key].label}`;
-      list.appendChild(head);
-      lastKey = place.key;
-    }
-
     const li = document.createElement("li");
     li.className = `places-item places-item-${place.key}`;
     li.innerHTML = `<button type="button"><i class="legend-dot legend-${place.key}"></i>${place.name}</button>`;
-    list.appendChild(li);
+    columns[place.key].appendChild(li);
     place.li = li;
 
     const activate = () => {
@@ -162,7 +156,7 @@ export async function initPlaces() {
       // 데스크톱: 좌측 범례 패널을 피하도록 X -180px, 팝업 공간 확보용 Y -120px 오프셋
       const zoom = 13;
       const point = map.project(place.latlng, zoom);
-      if (isDesktop()) point.x -= 180;
+      if (isDesktop()) point.x -= 220;
       point.y -= 120;
       map.setView(map.unproject(point, zoom), zoom, {
         animate: true,
@@ -184,11 +178,18 @@ export async function initPlaces() {
     if (on) map.addLayer(layers[key]);
     else map.removeLayer(layers[key]);
     list.querySelectorAll(`.places-group-${key}`).forEach((head) => {
-      head.hidden = !on;
+      columns[key].classList.toggle("is-off", !on);
+      if (!on)
+        columns[key]
+          .querySelectorAll(".places-item")
+          .forEach((li) => li.classList.remove("active"));
     });
     list.querySelectorAll(`.places-item-${key}`).forEach((li) => {
-      li.hidden = !on;
-      if (!on) li.classList.remove("active");
+      columns[key].classList.toggle("is-off", !on);
+      if (!on)
+        columns[key]
+          .querySelectorAll(".places-item")
+          .forEach((li) => li.classList.remove("active"));
     });
   }
   filterBtns.forEach((btn) =>

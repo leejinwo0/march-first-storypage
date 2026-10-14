@@ -5,7 +5,6 @@
   display: grid;
   grid-template-columns: minmax(360px, 560px) 1fr;
   gap: 40px;
-  min-height: 720px;
 }
 
 .routes-panel .sec-desc {
@@ -15,6 +14,7 @@
 /* ---------- 날짜 탭 ---------- */
 .seg-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 26px;
 }
@@ -36,7 +36,7 @@
 
 /* ---------- 경로 목록 ---------- */
 .route-list {
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .route-group-title {
@@ -47,31 +47,79 @@
   border-top: 1px solid var(--sheet-line);
 }
 
+/* 행 머리: 경로명(좌) + 자세히 보기(우) */
 .route-row-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--space-4);
-  width: 100%;
-  padding: 14px 0;
+  padding: 10px 0;
+}
+
+.route-row-title {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 0;
   color: var(--text-soft);
   font-size: 15px;
   text-align: left;
 }
 
-.route-row-head:hover {
+.route-row-title:hover {
   color: var(--cream);
 }
 
-.route-row-step {
-  flex-shrink: 0;
-  color: var(--text-faint);
-  font-size: var(--fs-xs);
-}
-
-.route-row.active .route-row-head {
+.route-row.active .route-row-title {
   color: var(--cream);
   font-weight: 600;
+}
+
+.route-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--sheet-line);
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  transition: border-color var(--dur-base) ease, color var(--dur-base) ease, background-color var(--dur-base) ease;
+}
+
+.route-more:hover,
+.route-row.is-open .route-more {
+  border-color: rgba(var(--cream-rgb), 0.4);
+  color: var(--cream);
+}
+
+/* + / − 아이콘 */
+.route-more-sign {
+  position: relative;
+  width: 9px;
+  height: 9px;
+}
+
+.route-more-sign::before,
+.route-more-sign::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: currentColor;
+  transform: translateY(-50%);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.route-more-sign::after {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.route-row.is-open .route-more-sign::after {
+  transform: translateY(-50%) rotate(0deg);
 }
 
 .route-row.active .route-row-title::before {
@@ -88,13 +136,23 @@
   color: var(--muted);
 }
 
+/* 상세 펼침: grid-template-rows 0fr → 1fr 전환 */
 .route-row-body {
-  display: none;
-  padding-bottom: 16px;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur-slow) var(--ease-out);
 }
 
-.route-row.active .route-row-body {
-  display: block;
+.route-row.is-open .route-row-body {
+  grid-template-rows: 1fr;
+}
+
+.route-row-inner {
+  overflow: hidden;
+}
+
+.route-row.is-open .route-row-inner {
+  padding-bottom: 16px;
 }
 
 .stop-chips {
@@ -133,15 +191,27 @@
 
 /* ---------- 기울어진 지도 레이어 ---------- */
 .route-stack {
+  /* 기울기 조절값: tilt-x 클수록 눕고, tilt-z 클수록 회전 */
+  --tilt-x: 32deg;
+  --tilt-z: -18deg;
+  /* 지도 카드 가로 위치: 값이 클수록 오른쪽 */
+  --stack-left: 14%;
   position: relative;
-  min-height: 640px;
-  perspective: 2000px;
+  /* 높이를 너비 비율로 고정: 카드(너비 %)·범례(높이 %) 위치가 화면 크기와 무관하게 같은 비율 유지 */
+  align-self: center;
+  justify-self: end;
+  width: 100%;
+  max-width: 1000px;
+  aspect-ratio: 10 / 8;
+  margin-bottom: max(0px, calc(80px - 11.2%));
+  /* 카드 아래 범례 공간 */
+  perspective: 2400px;
 }
 
 .route-layer {
   position: absolute;
-  left: 4%;
-  width: 82%;
+  left: var(--stack-left);
+  width: 78%;
   aspect-ratio: 600 / 380;
   border-radius: 28px;
   overflow: hidden;
@@ -150,19 +220,19 @@
 }
 
 .route-layer-3 {
-  top: 44%;
+  top: 30%;
   opacity: 0.35;
   background: linear-gradient(135deg, #2a2320, #141110);
 }
 
 .route-layer-2 {
-  top: 28%;
+  top: 20%;
   opacity: 0.6;
   background: linear-gradient(135deg, #2f2724, #171412);
 }
 
 .route-layer-1 {
-  top: 12%;
+  top: 10%;
   box-shadow: 0 0 0 1px rgba(217, 89, 76, 0.6), 0 60px 100px rgba(var(--red-rgb), 0.35);
 }
 
@@ -188,8 +258,8 @@
 
 .route-legend {
   position: absolute;
-  left: 6%;
-  bottom: 4%;
+  left: var(--stack-left);
+  top: 86%;
   z-index: 3;
   padding: 14px 18px;
 }
@@ -203,13 +273,16 @@
   font-size: 13px;
 }
 
-.legend-start {
-  background: var(--gold);
+.legend-start,
+.legend-end {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--cream);
+  background: var(--ink);
 }
 
 .legend-end {
   margin-left: 8px;
-  background: var(--red-light);
 }
 
 .legend-line {
@@ -261,12 +334,9 @@
   border-radius: 50%;
 }
 
-.route-point-start .route-point-dot {
-  background: var(--gold);
-}
-
+.route-point-start .route-point-dot,
 .route-point-end .route-point-dot {
-  background: var(--red);
+  background: var(--ink);
 }
 
 /* ---------- 반응형: 평면 지도 + 목록 세로 배치 ---------- */
@@ -278,7 +348,8 @@
 
   .route-stack {
     order: -1;
-    min-height: 0;
+    aspect-ratio: auto;
+    margin-bottom: 0;
     perspective: none;
   }
 

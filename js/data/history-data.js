@@ -12,7 +12,7 @@ const WALK = "/assets/images/history/march-first-walk";
 export const S1_ERA = [
   {
     label: "배경 · BACKGROUND",
-    date: "1910",
+    date: "1910.08.22",
     title: "일본 제국주의, 식민 지배의 시작",
     en: "Colonial Rule, 1910",
     place: "남산 통감관저 터",
@@ -26,7 +26,7 @@ export const S1_ERA = [
   },
   {
     label: "기폭제 · CATALYST",
-    date: "01.21",
+    date: "1919.01.21",
     title: "고종 황제의 승하와 민중들의 분노",
     en: "Death of Emperor Gojong, 1919",
     place: "덕수궁 대한문",
@@ -40,7 +40,7 @@ export const S1_ERA = [
   },
   {
     label: "희망 · HOPE",
-    date: "02.08",
+    date: "1919.02.08",
     title: "도쿄에서 울린 독립의 목소리",
     en: "February 8th Declaration, 1919",
     place: "도쿄 YMCA",
@@ -54,7 +54,7 @@ export const S1_ERA = [
   },
   {
     label: "결의 · RESOLVE",
-    date: "01–06",
+    date: "1919.01 ~ 1920.06",
     title: "세계를 향한 외침, 민족자결주의",
     en: "Paris Peace Conference, 1919",
     place: "파리 강화 회의장",

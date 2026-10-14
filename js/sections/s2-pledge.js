@@ -172,17 +172,21 @@ export async function initPledge() {
       document.querySelectorAll("#map-s2 .step-marker").forEach((el) => {
         el.classList.toggle("is-active", Number(el.dataset.index) === index);
       });
-      markers.forEach((m, i) => {
-        if (!m) return;
-        if (i === index) m.openPopup();
-        else m.closePopup();
-      });
       const visible = steps
         .slice(0, index + 1)
         .map((s) => s.pos)
         .filter(Boolean);
       pathLine.setLatLngs(generateCurvedPath(visible));
     }
+
+    // 팝업 동기화: Leaflet 기본 클릭 토글(재클릭 시 닫힘) 이후 실행 → 활성 마커 팝업 항상 표시
+    markers.forEach((m, i) => {
+      if (!m) return;
+      if (i === index) m.openPopup();
+      else m.closePopup();
+    });
+
+    if (!step.pos) return;
 
     if (!step.pos) return;
     // 같은 마커 재클릭 시 기본 줌 복귀, 그 외 확대 줌

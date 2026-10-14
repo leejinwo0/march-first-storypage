@@ -150,8 +150,8 @@ export async function initActivists() {
       </div>
       ${rows}
       <div class="profile-btns">
-        <a class="solid-btn" href="${person.historyUrl}" target="_blank" rel="noopener noreferrer">일제감시대상인물카드 보기 ↗</a>
         <a class="line-btn line-btn-red" href="${mapLink}" target="_blank" rel="noopener noreferrer">스마트서울맵</a>
+        <a class="line-btn line-btn-red" href="${person.historyUrl}" target="_blank" rel="noopener noreferrer">일제감시대상인물카드 보기 ↗</a>
       </div>
     `;
   }
@@ -209,15 +209,12 @@ export async function initActivists() {
         iconAnchor: [18, 36],
       }),
     }).addTo(map);
-    person.marker.bindPopup(
-      `<p class="popup-mini-title">${person.name}</p><p class="popup-mini-sub">클릭 시 상세 시트</p>`,
-      {
-        className: "story-popup story-popup-mini",
-        offset: [0, -30],
-        closeButton: false,
-        autoPan: false,
-      },
-    );
+    person.marker.bindPopup(`<p class="popup-mini-title">${person.name}</p>`, {
+      className: "story-popup story-popup-mini",
+      offset: [0, -30],
+      closeButton: false,
+      autoPan: false,
+    });
     person.marker.on("click", () => select(person));
   });
 

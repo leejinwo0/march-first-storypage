@@ -226,6 +226,14 @@ ol {
   background: rgba(var(--umber-rgb), 0.94);
 }
 
+.leaflet-container .line-btn-red {
+  color: var(--red-light);
+}
+
+.leaflet-container .line-btn-red:hover {
+  color: var(--white);
+}
+
 .story-popup a.leaflet-popup-close-button {
   top: 10px;
   right: 10px;

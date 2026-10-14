@@ -15,7 +15,7 @@
   z-index: 800;
   display: flex;
   flex-direction: column;
-  width: 340px;
+  width: 420px;
   padding: 22px;
 }
 
@@ -82,49 +82,46 @@
   font-size: var(--fs-2xs);
 }
 
-.places-list {
+/* 목록 2열: 좌 중요 지점 · 우 시위 장소 (필터 카드 바로 아래 열 정렬) */
+.places-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
   flex: 1;
   min-height: 0;
   margin-top: 12px;
+}
+
+.places-list {
+  min-height: 0;
   overflow-y: auto;
+  transition: opacity var(--dur-base) ease;
   overscroll-behavior: contain;
   -webkit-mask-image: linear-gradient(180deg, #000 88%, transparent);
   mask-image: linear-gradient(180deg, #000 88%, transparent);
 }
 
-.places-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 4px 6px;
-  border-bottom: 1px solid var(--sheet-line);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-
-.places-group:first-child {
-  padding-top: 4px;
-}
-
-.places-group-hub {
-  color: var(--red-light);
-}
-
-.places-group-site {
-  color: var(--gold-light);
+.places-list.is-off {
+  opacity: 0.3;
 }
 
 .places-item button {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 8px;
   width: 100%;
   padding: 9px 4px;
   border-bottom: 1px solid var(--sheet-line);
   color: #cfc7bb;
-  font-size: 13.5px;
+  font-size: 13px;
+  line-height: 1.45;
   text-align: left;
+  word-break: keep-all;
+}
+
+/* 2열 폭 축소에 따른 줄바꿈 시 점 위치 첫 줄 고정 */
+.places-item .legend-dot {
+  margin-top: 6px;
 }
 
 .places-item button:hover,
