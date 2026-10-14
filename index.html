@@ -155,35 +155,50 @@
     <!-- ============================================================
          [03] 함성의 궤적: 날짜별 경로 목록 + 기울어진 지도 레이어 (js/sections/s3-routes.js)
          ============================================================ -->
-    <section class="sheet sheet-dark" id="section-3" data-section="3">
-      <div class="routes">
-        <div class="routes-panel">
+    <section class="sheet" id="section-3" data-section="3">
+      <header class="sec-head">
+        <div class="sec-head-main">
           <p class="eyebrow">03 · 함성의 궤적</p>
           <h2 class="sec-title">두려움을 넘어선 발걸음,<br><span class="dim">거리를 덮다.</span></h2>
+        </div>
+        <div class="sec-head-side">
           <p class="sec-desc">1919년 3월 1일 오후 2시, 탑골공원에 모인 학생과 시민들의 입에서 마침내 억눌렸던 함성이 터져 나왔다. 종로를 지나 대한문으로 굽이친 태극기의 물결은 이내 서울의 모든 길목으로 뻗어나갔다.</p>
           <div class="chip-row">
-            <a class="chip chip-red" href="https://map.seoul.go.kr/smgis2/short/6PTXI" target="_blank" rel="noopener noreferrer">스마트서울맵 - 3.1운동 이동경로</a>
+            <a class="chip chip-red" href="https://map.seoul.go.kr/smgis2/short/6PTXI" target="_blank" rel="noopener noreferrer">스마트서울맵</a>
           </div>
-          <div class="seg-tabs" id="s3-tabs" role="tablist" aria-label="시위 구분">
-            <button type="button" class="seg-tab" role="tab" data-group="east" aria-selected="true">3월 1일 동부</button>
-            <button type="button" class="seg-tab" role="tab" data-group="west" aria-selected="false">3월 1일 서부</button>
-            <button type="button" class="seg-tab" role="tab" data-group="0305" aria-selected="false">3월 5일</button>
+        </div>
+      </header>
+
+      <div class="routes">
+        <div class="routes-panel">
+          <div class="route-seg" id="s3-tabs" role="tablist" aria-label="시위 구분">
+            <button type="button" class="route-seg-btn" role="tab" data-group="east" aria-selected="true">3월 1일 동부<b data-count="east" aria-label="경로 수">-</b></button>
+            <button type="button" class="route-seg-btn" role="tab" data-group="west" aria-selected="false">3월 1일 서부<b data-count="west" aria-label="경로 수">-</b></button>
+            <button type="button" class="route-seg-btn" role="tab" data-group="0305" aria-selected="false">3월 5일<b data-count="0305" aria-label="경로 수">-</b></button>
           </div>
-          <div class="route-list" id="s3-list">
+          <div class="route-cards" id="s3-list">
             <p class="status-text">경로 정보를 불러오는 중입니다.</p>
           </div>
         </div>
 
-        <div class="route-stack">
-          <div class="route-layer route-layer-3" aria-hidden="true"></div>
-          <div class="route-layer route-layer-2" aria-hidden="true"></div>
-          <div class="route-layer route-layer-1">
-            <div id="map-s3" class="map-canvas"></div>
+        <div class="map-frame routes-map">
+          <div id="map-s3" class="map-canvas"></div>
+
+          <!-- 현재 경로 정보 -->
+          <div class="glass-card route-info" id="s3-info" aria-live="polite"></div>
+
+          <!-- 크게 보기 (팝업 전환) -->
+          <div class="glass-card route-zoom">
+            <button type="button" id="s3-expand" aria-label="지도 크게 보기">⤢</button>
           </div>
-          <span class="route-tag" id="s3-tag"></span>
-          <div class="glass-card route-legend">
-            <small>경로 표시</small>
-            <p><span class="legend-dot legend-start"></span>출발 <span class="legend-dot legend-end"></span>도착 <span class="legend-line"></span>진행 방향</p>
+
+          <!-- 경로 재생 -->
+          <div class="glass-card route-player">
+            <button type="button" class="route-play" id="s3-play" aria-label="경로 재생"><i aria-hidden="true"></i></button>
+            <div class="route-progress">
+              <p class="route-progress-label"><span id="s3-play-label">▶ 눌러 경로 따라가기</span><b id="s3-play-pct">0%</b></p>
+              <div class="route-bar" id="s3-bar"><span class="route-bar-fill"></span><span class="route-bar-knob"></span></div>
+            </div>
           </div>
         </div>
       </div>
