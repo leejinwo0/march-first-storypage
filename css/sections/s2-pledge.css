@@ -1,46 +1,26 @@
 /* =======================================================
-   02 거사의 맹세: 단계 버튼 | 상세 카드 | 지도
+   02 거사의 맹세: 좌측(스테퍼 · 진행 막대 · 상세 카드) | 우측 지도
 ======================================================= */
 .pledge {
   display: grid;
-  grid-template-columns: 42px minmax(340px, 470px) 1fr;
+  grid-template-columns: minmax(340px, 470px) 1fr;
   gap: 20px;
   height: min(720px, calc(var(--viewport-h) - 140px));
   min-height: 560px;
 }
 
-/* ---------- 단계 버튼 ---------- */
-.pledge-nav {
+/* 좌측 열: 스테퍼·막대 고정, 카드만 내부 스크롤 */
+.pledge-side {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 8px;
+  min-height: 0;
 }
 
-.step-btn {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--sheet-line);
-  border-radius: 10px;
-  background: rgba(var(--cream-rgb), 0.05);
-  color: #81786e;
-  font-size: 15px;
-  font-weight: 700;
-  transition: background-color var(--dur-base) ease, color var(--dur-base) ease, box-shadow var(--dur-base) ease;
-}
-
-.step-btn:hover {
-  color: var(--cream);
-}
-
-.step-btn.active {
-  border-color: var(--red);
-  background: var(--red);
-  color: var(--white);
-  box-shadow: 0 0 22px rgba(var(--red-rgb), 0.6);
+.pledge-side .pledge-card {
+  flex: 1;
+  min-height: 0;
+  margin-top: 6px;
 }
 
 /* ---------- 상세 카드 ---------- */
@@ -156,24 +136,131 @@
   transform: scale(1.35);
 }
 
+/* ---------- 이전/다음 스테퍼 ---------- */
+.pledge-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px;
+  border: 1px solid var(--sheet-line);
+  border-radius: 16px;
+  background: var(--sheet-bg-raised);
+}
+
+.pledge-stepper-arrow {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(var(--cream-rgb), 0.14);
+  border-radius: 50%;
+  color: #cfc7bb;
+  font-size: 20px;
+  line-height: 1;
+  transition: background-color var(--dur-base) ease, opacity var(--dur-base) ease;
+}
+
+.pledge-stepper-arrow:not(:disabled):hover {
+  background: rgba(var(--cream-rgb), 0.08);
+}
+
+.pledge-stepper-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.pledge-stepper-text {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.pledge-stepper-count {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pledge-stepper-count b {
+  color: var(--white);
+  font-size: 13px;
+}
+
+.pledge-stepper-name {
+  display: block;
+  margin-top: 1px;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 단계 진행 막대: 칸 클릭 시 해당 단계 이동 (클릭 영역 18px, 막대 4px) ---------- */
+.pledge-nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.pledge-nav .step-btn {
+  position: relative;
+  width: auto;
+  height: 18px;
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font-size: 0;
+  cursor: pointer;
+}
+
+.pledge-nav .step-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(var(--cream-rgb), 0.14);
+  transform: translateY(-50%);
+  transition: background-color var(--dur-base) ease;
+}
+
+.pledge-nav .step-btn:hover::before {
+  background: rgba(var(--cream-rgb), 0.3);
+}
+
+.pledge-nav .step-btn.active {
+  background: none;
+  box-shadow: none;
+}
+
+.pledge-nav .step-btn.active::before {
+  background: var(--red-light);
+}
+
 /* ---------- 반응형 ---------- */
 @media (max-width: 1024px) {
   .pledge {
     grid-template-columns: 1fr;
+    gap: 8px;
     height: auto;
     min-height: 0;
   }
 
-  .pledge-nav {
-    flex-direction: row;
-    justify-content: flex-start;
-    overflow-x: auto;
-    scrollbar-width: none;
+  /* 모바일 배치: 스테퍼 → 진행 막대 → 지도 → 카드 */
+  .pledge-side {
+    display: contents;
   }
 
   .pledge-map {
     order: 2;
     height: 380px;
+    margin-top: 6px;
   }
 
   .pledge-card {
@@ -189,10 +276,5 @@
 
   .pledge-map {
     height: 320px;
-  }
-
-  .step-btn {
-    width: 38px;
-    height: 38px;
   }
 }

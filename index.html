@@ -138,10 +138,21 @@
       </header>
 
       <div class="pledge">
-        <nav class="pledge-nav" id="s2-nav" aria-label="거점 단계"></nav>
-        <article class="pledge-card" id="s2-card" aria-live="polite">
-          <p class="status-text">거점 정보를 불러오는 중입니다.</p>
-        </article>
+        <div class="pledge-side">
+          <!-- 이전/다음 스테퍼 + 단계 진행 막대 (PC·모바일 공통) -->
+          <div class="pledge-stepper" id="s2-stepper">
+            <button type="button" class="pledge-stepper-arrow" id="s2-prev" aria-label="이전 장소">‹</button>
+            <p class="pledge-stepper-text" aria-live="polite">
+              <span class="pledge-stepper-count"><b id="s2-step-num">01</b> / <span id="s2-step-total">09</span></span>
+              <span class="pledge-stepper-name" id="s2-step-name"></span>
+            </p>
+            <button type="button" class="pledge-stepper-arrow" id="s2-next" aria-label="다음 장소">›</button>
+          </div>
+          <nav class="pledge-nav" id="s2-nav" aria-label="거점 단계"></nav>
+          <article class="pledge-card" id="s2-card" aria-live="polite">
+            <p class="status-text">거점 정보를 불러오는 중입니다.</p>
+          </article>
+        </div>
         <div class="map-frame pledge-map">
           <div id="map-s2" class="map-canvas"></div>
         </div>

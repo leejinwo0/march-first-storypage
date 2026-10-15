@@ -1,8 +1,10 @@
 /* =======================================================
-   02 거사의 맹세: 단계 버튼 + 상세 카드 + 지도
+   02 거사의 맹세: 스테퍼 · 진행 막대 · 상세 카드 + 지도
    - 데이터: 스마트서울맵 테마 11100550 (start_xx 거점 9곳)
    - 단계 버튼·마커 클릭 → 카드 갱신, 해당 마커로 이동, 경로선 해당 단계까지 표시
    - 경성대지도 전환 시 줌 1.5단계 보정
+   - 활성 마커 팝업 고정 표시 (마커 재클릭 시에도 유지)
+   - 이전/다음 스테퍼(단계 번호·장소명) + 단계 버튼 9칸 진행 막대 표시 (PC·모바일 공통)
 ======================================================= */
 import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap, generateCurvedPath } from "/js/utils/mapUtils.js";
@@ -37,6 +39,15 @@ const toLines = (value) =>
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
+
+// 사적지 검색어 직접 지정 (장소 ID → 검색어), 자동 추출로 검색 결과가 없는 장소만 등록
+const SAJEOK_KEYWORDS = {
+  // start_02: "3·1운동 단일화 합의 장소",
+};
+
+// 사적지 검색어: 제목이 "사적지 명칭 - 부가 설명" 형태이면 " - " 앞부분만 사용
+const toSajeokKeyword = (step) =>
+  SAJEOK_KEYWORDS[step.id] || step.title.split(" - ")[0].trim();
 
 export async function initPledge() {
   const nav = document.getElementById("s2-nav");
@@ -88,7 +99,7 @@ export async function initPledge() {
     return;
   }
 
-  // 1. 단계 버튼
+  // 1. 단계 버튼 (CSS로 9칸 진행 막대 표시)
   nav.innerHTML = steps
     .map(
       (step, i) =>
@@ -120,10 +131,26 @@ export async function initPledge() {
 
   let currentIndex = -1;
 
+  // 스테퍼 요소 (단계 번호 · 장소명 · 이전/다음)
+  const stepNum = document.getElementById("s2-step-num");
+  const stepTotal = document.getElementById("s2-step-total");
+  const stepName = document.getElementById("s2-step-name");
+  const prevBtn = document.getElementById("s2-prev");
+  const nextBtn = document.getElementById("s2-next");
+  if (stepTotal) stepTotal.textContent = String(steps.length).padStart(2, "0");
+
+  const updateStepper = (index) => {
+    if (stepNum) stepNum.textContent = String(index + 1).padStart(2, "0");
+    if (stepName) stepName.textContent = steps[index].title;
+    if (prevBtn) prevBtn.disabled = index === 0;
+    if (nextBtn) nextBtn.disabled = index === steps.length - 1;
+  };
+
   // 3. 상세 카드 렌더링
   function renderCard(step, index) {
     const mapLink = `https://map.seoul.go.kr/smgis2/poiViewMap?ti=11100550&pi=${step.id}&lang=ko`;
-    const sajeokLink = `http://sajeok.i815.or.kr/i815/search_list?keyword=${encodeURIComponent(step.title)}`;
+    // 국내 독립운동·국가수호 사적지 통합검색 결과 페이지 (경로형 검색 주소: /search/index/q/검색어)
+    const sajeokLink = `http://sajeok.i815.or.kr/search/index/q/${encodeURIComponent(toSajeokKeyword(step))}`;
     const info = step.infoLines.length
       ? `<ul class="pledge-info">${step.infoLines.map((l) => `<li>${l.replace(/^-\s*/, "")}</li>`).join("")}</ul>`
       : "";
@@ -169,6 +196,7 @@ export async function initPledge() {
       currentIndex = index;
       renderCard(step, index);
       navBtns.forEach((btn, i) => btn.classList.toggle("active", i === index));
+      updateStepper(index);
       document.querySelectorAll("#map-s2 .step-marker").forEach((el) => {
         el.classList.toggle("is-active", Number(el.dataset.index) === index);
       });
@@ -187,8 +215,6 @@ export async function initPledge() {
     });
 
     if (!step.pos) return;
-
-    if (!step.pos) return;
     // 같은 마커 재클릭 시 기본 줌 복귀, 그 외 확대 줌
     const zoomValue =
       fromMarker && isSame && map.getZoom() > zoomFor(DEFAULT_ZOOM)
@@ -201,7 +227,15 @@ export async function initPledge() {
     btn.addEventListener("click", () => activate(Number(btn.dataset.index))),
   );
 
-  // 키보드: 방향키로 단계 이동 (단계 버튼 포커스 상태)
+  // 스테퍼: 이전/다음 장소 이동
+  prevBtn?.addEventListener("click", () => {
+    if (currentIndex > 0) activate(currentIndex - 1);
+  });
+  nextBtn?.addEventListener("click", () => {
+    if (currentIndex < steps.length - 1) activate(currentIndex + 1);
+  });
+
+  // 키보드: 방향키로 단계 이동 (진행 막대 포커스 상태)
   nav.addEventListener("keydown", (e) => {
     if (!["ArrowDown", "ArrowUp", "ArrowRight", "ArrowLeft"].includes(e.key))
       return;

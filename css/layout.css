@@ -623,6 +623,14 @@
     display: none;
   }
 
+  .top-nav-logo,
+  .top-nav.is-scrolled .top-nav-logo {
+    gap: 0;
+    padding: 0;
+    border-color: transparent;
+    background: none;
+  }
+
   .footer-top {
     grid-template-columns: 1fr;
   }

@@ -119,10 +119,15 @@ export async function initPlaces() {
         <div class="popup-desc">${place.desc}</div>
         <div class="btn-pair">
           <a class="line-btn line-btn-red" href="${mapLink}" target="_blank" rel="noopener noreferrer">스마트서울맵</a>
-          <a class="line-btn line-btn-red" href="https://history.seoul.go.kr/" target="_blank" rel="noopener noreferrer">역사편찬원</a>
         </div>
       </div>`,
-      { className: "story-popup", maxWidth: 420, offset: [0, -12] },
+      {
+        className: "story-popup",
+        maxWidth: 420,
+        offset: [0, -12],
+        autoPanPaddingTopLeft: [12, 60],
+        autoPanPaddingBottomRight: [12, 12],
+      },
     );
 
     // 분류별 열(좌 중요 지점 / 우 시위 장소)에 항목 추가
@@ -150,17 +155,31 @@ export async function initPlaces() {
       li.scrollIntoView({ block: "nearest", behavior: "smooth" });
 
       // 팝업 공간 확보용 Y -120px 오프셋 (범례 패널이 지도 밖 → X 오프셋 불필요)
+      // 팝업 공간 확보용 Y 오프셋: 지도 높이의 30% (최대 120px, 모바일 지도 높이 대응)
       const zoom = 13;
       const point = map.project(place.latlng, zoom);
-      point.y -= 120;
+      point.y -= Math.min(120, mapEl.clientHeight * 0.3);
+
+      // 팝업은 지도 이동 완료 후 열기
+      // (이동 애니메이션 중 팝업 autoPan 실행 시 줌 애니메이션 중단 → 타일 미표시 회색 화면 발생)
+      place.marker.closePopup();
+      let opened = false;
+      const openAfterMove = () => {
+        if (opened) return;
+        opened = true;
+        place.marker.openPopup();
+      };
+      map.once("moveend", openAfterMove);
+      setTimeout(openAfterMove, 1000); // 이동 없음(moveend 미발생) 대비
       map.setView(map.unproject(point, zoom), zoom, {
         animate: true,
         duration: 0.8,
       });
-      setTimeout(() => place.marker.openPopup(), 350);
     };
 
     li.querySelector("button").addEventListener("click", activate);
+    // 마커 클릭: Leaflet 기본 즉시 팝업 열림 해제 후 activate에서 이동 완료 시점에 열기
+    place.marker.off("click", place.marker._openPopup, place.marker);
     place.marker.on("click", activate);
   });
 
