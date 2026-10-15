@@ -1,9 +1,8 @@
 /* =======================================================
-   04 역사의 현장: 필터 지도 + 범례 (중요 지점 / 시위 장소)
+   04 역사의 현장: 좌측 범례 패널(필터 카드 + 2열 목록) | 우측 지도
    - 데이터: 스마트서울맵 테마 11100550, COT_THEME_SUB_ID '4' 중요 지점 / '3' 시위 장소
-   - 섹션 진입 시 마커 150ms 간격 순차 표시
+   - 섹션 진입 시 마커 120ms 간격 순차 표시
    - 필터 카드: 레이어 ON/OFF / 목록·마커 클릭: 확대 + 팝업, 재클릭 시 전체 보기 복귀
-   - 범례 목록: 중요 지점 → 시위 장소 순 그룹 표시
    - 범례 목록: 중요 지점(좌) · 시위 장소(우) 2열 분리, 필터 OFF 시 해당 열 흐리게 표시
 ======================================================= */
 import { fetchTimeTravelData } from "/services/mapService.js";
@@ -40,24 +39,19 @@ export async function initPlaces() {
     zoom: 7,
     mapOptions: { zoomSnap: 1 },
   });
-
   const layers = {
     hub: L.layerGroup().addTo(map),
     site: L.layerGroup().addTo(map),
   };
   let defaultBounds = null;
 
-  const isDesktop = () => window.matchMedia("(min-width: 1025px)").matches;
-  // 범례 패널(좌측) 영역 제외 여백
-  const fitPadding = () =>
-    isDesktop()
-      ? { paddingTopLeft: [480, 40], paddingBottomRight: [40, 40] }
-      : { padding: [30, 30] };
+  // 범례 패널이 지도 밖에 위치 → 균등 여백
+  const FIT_PADDING = { padding: [40, 40] };
 
   const showAll = () => {
     if (defaultBounds)
       map.fitBounds(defaultBounds, {
-        ...fitPadding(),
+        ...FIT_PADDING,
         maxZoom: 11,
         animate: true,
       });
@@ -125,11 +119,13 @@ export async function initPlaces() {
         <div class="popup-desc">${place.desc}</div>
         <div class="btn-pair">
           <a class="line-btn line-btn-red" href="${mapLink}" target="_blank" rel="noopener noreferrer">스마트서울맵</a>
+          <a class="line-btn line-btn-red" href="https://history.seoul.go.kr/" target="_blank" rel="noopener noreferrer">역사편찬원</a>
         </div>
       </div>`,
       { className: "story-popup", maxWidth: 420, offset: [0, -12] },
     );
 
+    // 분류별 열(좌 중요 지점 / 우 시위 장소)에 항목 추가
     const li = document.createElement("li");
     li.className = `places-item places-item-${place.key}`;
     li.innerHTML = `<button type="button"><i class="legend-dot legend-${place.key}"></i>${place.name}</button>`;
@@ -153,10 +149,9 @@ export async function initPlaces() {
       li.classList.add("active");
       li.scrollIntoView({ block: "nearest", behavior: "smooth" });
 
-      // 데스크톱: 좌측 범례 패널을 피하도록 X -180px, 팝업 공간 확보용 Y -120px 오프셋
+      // 팝업 공간 확보용 Y -120px 오프셋 (범례 패널이 지도 밖 → X 오프셋 불필요)
       const zoom = 13;
       const point = map.project(place.latlng, zoom);
-      if (isDesktop()) point.x -= 220;
       point.y -= 120;
       map.setView(map.unproject(point, zoom), zoom, {
         animate: true,
@@ -177,20 +172,12 @@ export async function initPlaces() {
     btn.setAttribute("aria-pressed", String(on));
     if (on) map.addLayer(layers[key]);
     else map.removeLayer(layers[key]);
-    list.querySelectorAll(`.places-group-${key}`).forEach((head) => {
-      columns[key].classList.toggle("is-off", !on);
-      if (!on)
-        columns[key]
-          .querySelectorAll(".places-item")
-          .forEach((li) => li.classList.remove("active"));
-    });
-    list.querySelectorAll(`.places-item-${key}`).forEach((li) => {
-      columns[key].classList.toggle("is-off", !on);
-      if (!on)
-        columns[key]
-          .querySelectorAll(".places-item")
-          .forEach((li) => li.classList.remove("active"));
-    });
+    // 목록 열: 숨기지 않고 흐리게 표시 (항목 클릭 시 필터 자동 재활성화)
+    columns[key].classList.toggle("is-off", !on);
+    if (!on)
+      columns[key]
+        .querySelectorAll(".places-item")
+        .forEach((li) => li.classList.remove("active"));
   }
   filterBtns.forEach((btn) =>
     btn.addEventListener("click", () => toggleFilter(btn)),
@@ -206,7 +193,7 @@ export async function initPlaces() {
       map.invalidateSize();
       if (defaultBounds)
         map.fitBounds(defaultBounds, {
-          ...fitPadding(),
+          ...FIT_PADDING,
           maxZoom: 11,
           animate: false,
         });

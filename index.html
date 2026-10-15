@@ -216,19 +216,14 @@
         <div class="sec-head-side">
           <p class="sec-desc">태화관의 결연한 건배, 대한문 앞의 통곡, 그리고 피로 물든 십자로까지. 남녀노소, 신분과 종교를 넘어 오직 '대한독립' 하나로 뭉쳤던 뜨거운 그날의 무대를 되짚어본다.</p>
           <div class="chip-row">
-            <a class="chip chip-red" href="https://map.seoul.go.kr/smgis2/short/6PUiG" target="_blank" rel="noopener noreferrer">스마트서울맵 – 3.1운동 중요지점</a>
-            <a class="chip chip-red" href="https://map.seoul.go.kr/smgis2/short/6PUjX" target="_blank" rel="noopener noreferrer">스마트서울맵 – 3.1운동 시위장소</a>
+            <a class="chip chip-red" href="https://map.seoul.go.kr/smgis2/short/6PUiG" target="_blank" rel="noopener noreferrer">스마트서울맵 – 중요지점</a>
+            <a class="chip chip-red" href="https://map.seoul.go.kr/smgis2/short/6PUjX" target="_blank" rel="noopener noreferrer">스마트서울맵 – 시위장소</a>
           </div>
         </div>
       </header>
 
-      <div class="map-frame places-map">
-        <div id="map-s4" class="map-canvas"></div>
-        <button type="button" class="map-reset-btn" id="s4-reset"><span class="icon icon-expand" aria-hidden="true"></span>전체 보기</button>
-
-        <aside class="glass-card places-legend">
-          <h3 class="places-legend-title">저항의 물결, 만세의 확산</h3>
-          <p class="places-legend-note">카드를 클릭하여 지도의 마커를 필터링해 보세요.</p>
+      <div class="places">
+        <aside class="places-panel">
           <div class="places-filters" id="s4-filters">
             <button type="button" class="places-filter is-on" data-filter="hub" aria-pressed="true">
               <b data-stat="hub">-</b><span class="places-filter-name"><i class="legend-dot legend-hub"></i>중요 지점</span><small>Strategic Hubs</small>
@@ -242,6 +237,11 @@
             <ul class="places-list places-list-site" id="s4-list-site" aria-label="시위 장소 목록"></ul>
           </div>
         </aside>
+
+        <div class="map-frame places-map">
+          <div id="map-s4" class="map-canvas"></div>
+          <button type="button" class="map-reset-btn" id="s4-reset"><span class="icon icon-expand" aria-hidden="true"></span>전체 보기</button>
+        </div>
       </div>
 
       <dl class="mini-stats">

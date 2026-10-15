@@ -1,41 +1,33 @@
 /* =======================================================
-   04 역사의 현장: 필터 지도 + 범례 + 하단 수치
+   04 역사의 현장: 좌측 범례 패널 | 우측 지도 + 하단 수치
 ======================================================= */
-.places-map {
-  height: min(78vh, 720px);
+/* 섹션3과 동일한 2단 구조: 화면 높이 기준, 좌측 목록만 내부 스크롤 */
+.places {
+  display: grid;
+  grid-template-columns: minmax(340px, 460px) 1fr;
+  gap: 24px;
+  height: min(760px, calc(var(--viewport-h) - 140px));
   min-height: 520px;
 }
 
-/* ---------- 범례 패널 ---------- */
-.places-legend {
-  position: absolute;
-  top: 22px;
-  left: 22px;
-  bottom: 22px;
-  z-index: 800;
+/* ---------- 범례 패널: 섹션3 좌측 열과 동일 (상단 필터 카드 + 하단 목록 박스) ---------- */
+.places-panel {
   display: flex;
   flex-direction: column;
-  width: 420px;
-  padding: 22px;
+  min-height: 0;
 }
 
-.places-legend-title {
-  font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 600;
+.places-map {
+  min-height: 0;
+  border-radius: 28px;
+  box-shadow: 0 40px 90px rgba(var(--black-rgb), 0.6);
 }
 
-.places-legend-note {
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: var(--fs-xs);
-}
-
+/* 필터 카드: 섹션3 구분 탭 위치 (목록 열과 같은 2열 정렬) */
 .places-filters {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin-top: 14px;
 }
 
 .places-filter {
@@ -44,8 +36,8 @@
   align-items: flex-start;
   padding: 12px 14px;
   border: 1px solid var(--sheet-line);
-  border-radius: 14px;
-  background: rgba(var(--cream-rgb), 0.04);
+  border-radius: 16px;
+  background: var(--sheet-bg-raised);
   text-align: left;
   opacity: 0.5;
   transition: opacity var(--dur-base) ease, border-color var(--dur-base) ease;
@@ -82,14 +74,18 @@
   font-size: var(--fs-2xs);
 }
 
-/* 목록 2열: 좌 중요 지점 · 우 시위 장소 (필터 카드 바로 아래 열 정렬) */
+/* 목록 2열 박스: 좌 중요 지점 · 우 시위 장소 (섹션3 경로 카드와 같은 배경·테두리) */
 .places-lists {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 16px;
   flex: 1;
   min-height: 0;
-  margin-top: 12px;
+  margin-top: 14px;
+  padding: 8px 14px;
+  border: 1px solid var(--sheet-line);
+  border-radius: 16px;
+  background: var(--sheet-bg-raised);
 }
 
 .places-list {
@@ -131,12 +127,6 @@
 
 .places-item.active button {
   background: rgba(var(--cream-rgb), 0.06);
-}
-
-/* 전체 보기 버튼: 범례 패널 우측 */
-.places-map .map-reset-btn {
-  left: auto;
-  right: var(--space-4);
 }
 
 /* ---------- 마커 ---------- */
@@ -209,39 +199,23 @@
   font-size: 13px;
 }
 
-/* ---------- 반응형: 범례를 지도 아래로 ---------- */
+/* ---------- 반응형: 지도 상단, 범례 패널 하단 ---------- */
 @media (max-width: 1024px) {
-  .places-map {
-    display: flex;
-    flex-direction: column;
+  .places {
+    grid-template-columns: 1fr;
+    gap: 12px;
     height: auto;
     min-height: 0;
-    overflow: visible;
-    border: none;
   }
 
-  .places-map::after {
-    display: none;
-  }
-
-  .places-map .map-canvas {
-    position: relative;
+  .places-map {
+    order: -1;
     height: 420px;
-    border: 1px solid var(--sheet-line);
     border-radius: var(--frame-radius);
-    overflow: hidden;
   }
 
-  .places-legend {
-    position: static;
-    width: auto;
+  .places-lists {
     max-height: 420px;
-    margin-top: 12px;
-  }
-
-  .places-map .map-reset-btn {
-    top: 14px;
-    bottom: auto;
   }
 
   .mini-stats>div {
@@ -256,7 +230,12 @@
 }
 
 @media (max-width: 480px) {
-  .places-map .map-canvas {
+  .places-map {
     height: 340px;
+  }
+
+  .places-lists {
+    gap: 10px;
+    padding: 6px 10px;
   }
 }

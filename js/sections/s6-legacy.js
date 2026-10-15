@@ -12,7 +12,7 @@ export function initLegacy() {
   if (quote) {
     quote.innerHTML = `
       <span class="legacy-quote-year" aria-hidden="true">1919</span>
-      <p class="legacy-quote-src"><span class="legacy-quote-mark" aria-hidden="true">憲</span>${S6_QUOTE.source} · Preamble of the Constitution</p>
+      <p class="legacy-quote-src"><span class="legacy-quote-mark" aria-hidden="true">憲</span>${S6_QUOTE.source} · The Constitution of the Republic of Korea</p>
       <p class="legacy-quote-text">${S6_QUOTE.html}</p>
     `;
   }
