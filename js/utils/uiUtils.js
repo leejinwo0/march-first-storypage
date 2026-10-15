@@ -4,25 +4,63 @@
 export function initGlobalUI() {
   const topNav = document.querySelector(".top-nav");
   const navLinks = document.querySelectorAll(".top-nav-link");
-  const sections = document.querySelectorAll("[data-section]");
+  const sections = [...document.querySelectorAll("[data-section]")];
+  const navMenu = document.querySelector(".top-nav-menu");
+  let activeSection = null;
 
-  // 화면 중앙 40% 구간에 들어온 섹션 기준 내비 활성 표시
-  const sectionObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        const current = entry.target.getAttribute("data-section");
-        navLinks.forEach((link) => {
-          link.classList.toggle(
-            "active",
-            link.getAttribute("data-target-section") === current,
-          );
-        });
+  // 모바일 가로 스크롤 메뉴: 활성 링크를 메뉴 가운데로 이동 (페이지 세로 스크롤 영향 없음)
+  const centerActiveLink = (link) => {
+    if (!navMenu || navMenu.scrollWidth <= navMenu.clientWidth) return;
+    const menuRect = navMenu.getBoundingClientRect();
+    const linkRect = link.getBoundingClientRect();
+    const target =
+      navMenu.scrollLeft +
+      (linkRect.left - menuRect.left) -
+      (menuRect.width - linkRect.width) / 2;
+    const left = Math.max(
+      0,
+      Math.min(target, navMenu.scrollWidth - navMenu.clientWidth),
+    );
+    if (typeof navMenu.scrollTo === "function")
+      navMenu.scrollTo({ left, behavior: "smooth" });
+    else navMenu.scrollLeft = left;
+  };
+
+  // 화면 세로 중앙선을 지나는 섹션 기준 내비 활성 표시 (긴 섹션 중간에서도 유지)
+  const updateActive = () => {
+    const mid = window.innerHeight / 2;
+    const current = sections.find((sec) => {
+      const r = sec.getBoundingClientRect();
+      return r.top <= mid && r.bottom >= mid;
+    });
+    const id = current ? current.getAttribute("data-section") : null;
+    if (id === activeSection) return;
+    activeSection = id;
+    navLinks.forEach((link) => {
+      const on = link.getAttribute("data-target-section") === id;
+      link.classList.toggle("active", on);
+      if (on) centerActiveLink(link);
+    });
+  };
+
+  let navTicking = false;
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (navTicking) return;
+      navTicking = true;
+      requestAnimationFrame(() => {
+        updateActive();
+        navTicking = false;
       });
     },
-    { rootMargin: "-40% 0px -40% 0px", threshold: 0 },
+    { passive: true },
   );
-  sections.forEach((section) => sectionObserver.observe(section));
+  window.addEventListener("resize", () => {
+    activeSection = null;
+    updateActive();
+  });
+  updateActive();
 
   const backToTopBtn = document.getElementById("backToTopBtn");
   window.addEventListener(
@@ -58,7 +96,7 @@ export function initGlobalUI() {
 
 /* =======================================================
    2. 전역 이미지 확대 모달
-   - 섹션 JS에서 window.openGlobalModal(이미지 URL, 캡션) 호출
+   - 섹션 JS에서 window.openGlobalModal(이미지 URL, 캡션, { full }) 호출
 ======================================================= */
 export function initGlobalModal() {
   const modal = document.getElementById("image-modal");
@@ -66,6 +104,7 @@ export function initGlobalModal() {
   const caption = document.getElementById("caption-modal");
   if (!modal || !modalImg || !caption) return;
 
+  // options.full: 전체 화면 모드 (뷰포트 기준 최대 크기)
   window.openGlobalModal = (imgUrl, text, options = {}) => {
     modal.classList.toggle("is-full", Boolean(options.full));
     modalImg.src = imgUrl;
