@@ -105,7 +105,7 @@
     </section>
 
     <!-- ============================================================
-         [01] 시대의 부름: 배경 카드 4종 (js/sections/s1-era.js)
+         [01] 시대의 부름: 배경 카드 4종 + 세계지도 (js/sections/s1-era.js)
          ============================================================ -->
     <section class="sheet" id="section-1" data-section="1">
       <header class="sec-head">
@@ -118,6 +118,10 @@
         </div>
       </header>
       <div class="era-grid" id="s1-era"></div>
+      <div class="map-frame era-map">
+        <div id="map-s1" class="map-canvas"></div>
+        <button type="button" class="map-reset-btn" id="s1-reset"><span class="icon icon-expand" aria-hidden="true"></span>전체 보기</button>
+      </div>
     </section>
 
     <!-- ============================================================
@@ -284,18 +288,6 @@
         </div>
       </header>
 
-      <div class="activists">
-        <div class="map-frame activists-map">
-          <div id="map-s5" class="map-canvas"></div>
-          <button type="button" class="map-reset-btn" id="s5-reset"><span class="icon icon-expand" aria-hidden="true"></span>전체 보기</button>
-        </div>
-        <aside class="activist-profile" id="s5-profile" aria-live="polite">
-          <div class="profile-empty">
-            <p>지도 마커나 아래 인물 카드를 선택하면<br>인물 정보가 표시됩니다.</p>
-          </div>
-        </aside>
-      </div>
-
       <div class="activist-search">
         <label class="search-box">
           <span class="icon icon-search" aria-hidden="true"></span>
@@ -309,6 +301,18 @@
         <button type="button" class="rail-btn" id="s5-prev" aria-label="이전 인물"><span class="icon icon-chevron-left" aria-hidden="true"></span></button>
         <div class="rail-track" id="s5-rail"></div>
         <button type="button" class="rail-btn" id="s5-next" aria-label="다음 인물"><span class="icon icon-chevron-right" aria-hidden="true"></span></button>
+      </div>
+
+      <div class="activists">
+        <div class="map-frame activists-map">
+          <div id="map-s5" class="map-canvas"></div>
+          <button type="button" class="map-reset-btn" id="s5-reset"><span class="icon icon-expand" aria-hidden="true"></span>전체 보기</button>
+        </div>
+        <aside class="activist-profile" id="s5-profile" aria-live="polite">
+          <div class="profile-empty">
+            <p>지도 마커나 위 인물 카드를 선택하면<br>인물 정보가 표시됩니다.</p>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -340,7 +344,7 @@
       <div class="cta-content">
         <p class="eyebrow eyebrow-gold eyebrow-center">1919 → 2026</p>
         <h2 class="cta-title">지도 위에서<br>그날을 다시 걸어보세요.</h2>
-        <a class="pill-btn pill-btn-red" href="https://map.seoul.go.kr/smgis2/short/6PXG1" target="_blank" rel="noopener noreferrer">스마트서울맵 →</a>
+        <a class="pill-btn pill-btn-red" href="https://map.seoul.go.kr/smgis2/short/6PYb1" target="_blank" rel="noopener noreferrer">스마트서울맵 →</a>
       </div>
     </section>
 
@@ -353,18 +357,14 @@
         <div class="footer-col">
           <h3>지도</h3>
           <ul>
-            <li>스마트서울맵OpenAPI</li>
-            <li>오픈스트리트맵(OSM)</li>
-            <li>경성대지도 WMS</li>
+            <li>스마트서울맵 OpenAPI <small>서울 지도</small><small>경성대지도</small></li>
+            <li>오픈스트리트맵 <small>세계 지도</small></li>
           </ul>
         </div>
         <div class="footer-col">
           <h3>자료 출처</h3>
           <ul>
-            <li>서울역사편찬원</li>
-            <li>한국근대사료DB</li>
-            <li>한국민족문화대백과사전</li>
-            <li>국내항일운동사적지</li>
+            <li>스마트서울맵 OpenAPI <small>3·1운동 시간여행 테마</small><small>3·1운동 생활 속 현장 테마</small></li>
           </ul>
         </div>
       </div>

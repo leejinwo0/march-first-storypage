@@ -195,12 +195,32 @@ export async function initRoutes() {
     window.matchMedia("(min-width: 1025px)").matches
       ? { paddingTopLeft: [60, 150], paddingBottomRight: [60, 120] }
       : { paddingTopLeft: [30, 110], paddingBottomRight: [30, 100] };
-  const fitRoute = (route) =>
-    map.fitBounds(L.latLngBounds(route.coords), {
-      ...fitPadding(),
-      maxZoom: FIT_MAX_ZOOM,
-      animate: false,
+  const commonZoom = () => {
+    const { paddingTopLeft: tl, paddingBottomRight: br } = fitPadding();
+    const pad = L.point(tl).add(br);
+    const counts = new Map();
+    routes.forEach((r) => {
+      const z = Math.min(
+        FIT_MAX_ZOOM,
+        map.getBoundsZoom(L.latLngBounds(r.coords), false, pad),
+      );
+      counts.set(z, (counts.get(z) || 0) + 1);
     });
+    // 최빈 줌 (동률 시 높은 줌)
+    return [...counts.entries()].sort(
+      (a, b) => b[1] - a[1] || b[0] - a[0],
+    )[0][0];
+  };
+
+  // 경로 범위 중심 기준 배치, 상단 정보 패널·하단 재생 바 여백 차이만큼 중심 보정
+  const fitRoute = (route) => {
+    const { paddingTopLeft: tl, paddingBottomRight: br } = fitPadding();
+    const zoom = commonZoom();
+    const center = map.project(L.latLngBounds(route.coords).getCenter(), zoom);
+    center.x -= (tl[0] - br[0]) / 2;
+    center.y -= (tl[1] - br[1]) / 2;
+    map.setView(map.unproject(center, zoom), zoom, { animate: false });
+  };
 
   // 2. 경로 활성화
   function activate(index) {

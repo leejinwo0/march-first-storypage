@@ -366,6 +366,10 @@
   }
 }
 
+.routes-map .leaflet-bottom.leaflet-right {
+  bottom: 88px;
+}
+
 /* 경로 재생 (하단) */
 .route-player {
   right: 18px;
@@ -571,6 +575,10 @@
   .route-player {
     gap: 12px;
     padding: 10px 14px 10px 10px;
+  }
+
+  .routes-map .leaflet-bottom.leaflet-right {
+    bottom: 76px;
   }
 
   .route-play {

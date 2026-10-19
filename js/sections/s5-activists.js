@@ -3,6 +3,7 @@
    - 데이터: 생활 속 현장 테마(100173) 중 COT_THEME_SUB_ID '5'
    - 카드·마커 클릭 → 지도 이동 + 프로필 표시 (상세 API 1회 호출 후 캐시)
    - 이름 검색 + 초성 필터 → 카드·마커 동시 필터링, 인원 수 갱신
+   - 전체 보기 버튼: 인물 선택 상태 또는 기본 줌보다 확대된 상태에서 표시
 ======================================================= */
 import { fetchDailyLifeData, MAP_ENDPOINTS } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
@@ -28,7 +29,8 @@ const CONSONANTS = [
   "ㅍ",
   "ㅎ",
 ];
-const DEFAULT_MAX_ZOOM = 11;
+const DEFAULT_MAX_ZOOM = 10;
+const FOCUS_ZOOM = 10;
 const detailCache = new Map();
 
 // 상세 API: NAME_xx 라벨 매칭 → 대응 VALUE_xx, 미매칭 시 COT_VALUE_xx 직접 조회
@@ -69,10 +71,11 @@ export async function initActivists() {
   const resetBtn = document.getElementById("s5-reset");
   if (!rail || !profile || !document.getElementById("map-s5")) return;
 
+  // 정수 줌 고정 / 더블클릭 확대 비활성: 마커 연속 클릭 시 추가 확대 방지
   const { map } = createStoryMap("map-s5", {
     center: [37.577613, 126.976897],
     zoom: DEFAULT_MAX_ZOOM,
-    mapOptions: { zoomSnap: 1 },
+    mapOptions: { zoomSnap: 1, doubleClickZoom: false },
   });
 
   const geojson = await fetchDailyLifeData();
@@ -116,6 +119,21 @@ export async function initActivists() {
 
   let activePerson = null;
 
+  // 전체 보기 버튼: 인물 선택 상태 또는 기본 줌보다 확대된 상태에서 표시
+  const updateReset = () =>
+    resetBtn?.classList.toggle(
+      "show",
+      !!activePerson || map.getZoom() > DEFAULT_MAX_ZOOM,
+    );
+
+  // 선택 해제 + 전체 보기
+  const clearSelection = () => {
+    activePerson = null;
+    people.forEach((p) => p.card.classList.remove("active"));
+    showAll();
+    updateReset();
+  };
+
   // 프로필 패널 렌더링 (detail: null 로딩 / error / 데이터)
   function renderProfile(person, detail) {
     const photo = person.imgUrl
@@ -157,13 +175,9 @@ export async function initActivists() {
   }
 
   async function select(person) {
-    if (activePerson === person) {
-      // 재클릭: 선택 해제 + 전체 보기
-      activePerson = null;
-      person.card.classList.remove("active");
-      showAll();
-      return;
-    }
+    // 재클릭: 선택 해제 + 전체 보기
+    if (activePerson === person) return clearSelection();
+
     activePerson = person;
     people.forEach((p) => p.card.classList.toggle("active", p === person));
     person.card.scrollIntoView({
@@ -171,8 +185,9 @@ export async function initActivists() {
       block: "nearest",
       inline: "center",
     });
-    map.setView(person.latlng, 13, { animate: true });
+    map.setView(person.latlng, FOCUS_ZOOM, { animate: true });
     person.marker.openPopup();
+    updateReset();
 
     renderProfile(person, null);
     if (!person.poiId) return renderProfile(person, {});
@@ -209,6 +224,12 @@ export async function initActivists() {
         iconAnchor: [18, 36],
       }),
     }).addTo(map);
+    person.marker.bindTooltip(person.name, {
+      className: "place-tooltip",
+      direction: "top",
+      offset: [0, -34],
+    });
+    person.marker.on("popupopen", () => person.marker.closeTooltip());
     person.marker.bindPopup(`<p class="popup-mini-title">${person.name}</p>`, {
       className: "story-popup story-popup-mini",
       offset: [0, -30],
@@ -222,8 +243,6 @@ export async function initActivists() {
     rail.innerHTML =
       '<p class="status-text">인물 정보를 불러올 수 없습니다.</p>';
 
-  // 2. 초성 필터 칩 (데이터에 있는 초성만 생성)
-  const used = new Set(people.map((p) => p.initial));
   // 2. 초성 필터 칩 (ㄱ~ㅎ 14종 전체 생성)
   filterBar.innerHTML = ["all", ...CONSONANTS]
     .map(
@@ -284,14 +303,8 @@ export async function initActivists() {
       rail.scrollBy({ left: rail.clientWidth * 0.8, behavior: "smooth" }),
     );
 
-  map.on("zoomend", () =>
-    resetBtn?.classList.toggle("show", map.getZoom() > DEFAULT_MAX_ZOOM),
-  );
-  resetBtn?.addEventListener("click", () => {
-    showAll();
-    activePerson = null;
-    people.forEach((p) => p.card.classList.remove("active"));
-  });
+  map.on("zoomend", updateReset);
+  resetBtn?.addEventListener("click", clearSelection);
 
   setTimeout(() => {
     map.invalidateSize();

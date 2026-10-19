@@ -4,6 +4,8 @@
    - 섹션 진입 시 마커 120ms 간격 순차 표시
    - 필터 카드: 레이어 ON/OFF / 목록·마커 클릭: 확대 + 팝업, 재클릭 시 전체 보기 복귀
    - 범례 목록: 중요 지점(좌) · 시위 장소(우) 2열 분리, 필터 OFF 시 해당 열 흐리게 표시
+   - 마커 호버: 장소명 툴팁 표시
+   - 팝업: 닫기 버튼 제거, 지도 클릭 시 유지, 설명은 '더보기' 클릭 시 펼침
 ======================================================= */
 import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
@@ -22,6 +24,29 @@ const CATEGORY = {
   },
 };
 
+const FOCUS_ZOOM = 10;
+
+// 팝업 내용 DOM 생성: 좌측 분류 배지 · 장소명 · 주소 / 우측 [스마트서울맵]·[더보기] 세로 배치 → 설명(접힘)
+function createPopupContent(place, mapLink) {
+  const el = document.createElement("div");
+  el.className = "story-popup-inner";
+  el.innerHTML = `
+    <div class="popup-head">
+      <div class="popup-head-text">
+        <span class="popup-badge popup-badge-${place.key}">${CATEGORY[place.key].label}</span>
+        <h3>${place.name}</h3>
+        <p class="popup-addr">${place.address}</p>
+      </div>
+      <div class="popup-actions">
+        <a class="line-btn line-btn-red" href="${mapLink}" target="_blank" rel="noopener noreferrer">스마트서울맵</a>
+        <button type="button" class="line-btn line-btn-gold popup-more-btn" aria-expanded="false">더보기</button>
+      </div>
+    </div>
+    <div class="popup-desc" hidden>${place.desc}</div>
+  `;
+  return el;
+}
+
 export async function initPlaces() {
   const list = document.getElementById("s4-list");
   const columns = {
@@ -37,7 +62,7 @@ export async function initPlaces() {
   const { map } = createStoryMap("map-s4", {
     center: [37.5586, 126.9369],
     zoom: 7,
-    mapOptions: { zoomSnap: 1 },
+    mapOptions: { zoomSnap: 1, doubleClickZoom: false },
   });
   const layers = {
     hub: L.layerGroup().addTo(map),
@@ -111,24 +136,40 @@ export async function initPlaces() {
         iconAnchor: [20, 20],
       }),
     });
-    place.marker.bindPopup(
-      `<div class="story-popup-inner">
-        <span class="popup-badge popup-badge-${place.key}">${CATEGORY[place.key].label}</span>
-        <h3>${place.name}</h3>
-        <p class="popup-addr">${place.address}</p>
-        <div class="popup-desc">${place.desc}</div>
-        <div class="btn-pair">
-          <a class="line-btn line-btn-red" href="${mapLink}" target="_blank" rel="noopener noreferrer">스마트서울맵</a>
-        </div>
-      </div>`,
-      {
-        className: "story-popup",
-        maxWidth: 420,
-        offset: [0, -12],
-        autoPanPaddingTopLeft: [12, 60],
-        autoPanPaddingBottomRight: [12, 12],
-      },
-    );
+    // 호버 툴팁: 장소명
+    place.marker.bindTooltip(place.name, {
+      className: "place-tooltip",
+      direction: "top",
+      offset: [0, -18],
+    });
+
+    // 팝업: 닫기 버튼 없음 · 지도 클릭 시 유지 (다른 장소 선택 또는 재클릭 시에만 닫힘)
+    const popupEl = createPopupContent(place, mapLink);
+    const moreBtn = popupEl.querySelector(".popup-more-btn");
+    const descEl = popupEl.querySelector(".popup-desc");
+    const setDesc = (open) => {
+      descEl.hidden = !open;
+      moreBtn.textContent = open ? "접기" : "더보기";
+      moreBtn.setAttribute("aria-expanded", String(open));
+    };
+    moreBtn.addEventListener("click", () => {
+      setDesc(descEl.hidden);
+      place.marker.getPopup()?.update(); // 높이 변경 후 팝업 위치 재계산
+    });
+    place.marker.bindPopup(popupEl, {
+      className: "story-popup",
+      maxWidth: 420,
+      offset: [0, -12],
+      closeButton: false,
+      closeOnClick: false,
+      autoPanPaddingTopLeft: [12, 60],
+      autoPanPaddingBottomRight: [12, 12],
+    });
+    // 팝업 열릴 때 설명 접힘 상태로 초기화, 툴팁 숨김
+    place.marker.on("popupopen", () => {
+      setDesc(false);
+      place.marker.closeTooltip();
+    });
 
     // 분류별 열(좌 중요 지점 / 우 시위 장소)에 항목 추가
     const li = document.createElement("li");
@@ -154,9 +195,8 @@ export async function initPlaces() {
       li.classList.add("active");
       li.scrollIntoView({ block: "nearest", behavior: "smooth" });
 
-      // 팝업 공간 확보용 Y -120px 오프셋 (범례 패널이 지도 밖 → X 오프셋 불필요)
       // 팝업 공간 확보용 Y 오프셋: 지도 높이의 30% (최대 120px, 모바일 지도 높이 대응)
-      const zoom = 13;
+      const zoom = FOCUS_ZOOM;
       const point = map.project(place.latlng, zoom);
       point.y -= Math.min(120, mapEl.clientHeight * 0.3);
 

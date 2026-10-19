@@ -1,5 +1,5 @@
 /* =======================================================
-   01 시대의 부름: 배경 카드 4종 (JS 렌더링)
+   01 시대의 부름: 배경 카드 4종 (JS 렌더링) + 세계지도(OSM)
 ======================================================= */
 .era-grid {
   display: grid;
@@ -21,6 +21,7 @@
   display: block;
   width: 100%;
   height: 200px;
+  margin-top: 14px;
   border-radius: 18px;
   overflow: hidden;
   cursor: zoom-in;
@@ -80,7 +81,7 @@
 }
 
 .era-title {
-  margin: 18px 6px 0;
+  margin: 6px 6px 0;
   font-family: var(--font-serif);
   font-size: 16.5px;
   font-weight: 600;
@@ -96,7 +97,7 @@
 }
 
 .era-body {
-  margin: 10px 6px 8px;
+  margin: 14px 6px 8px;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.7;
@@ -109,6 +110,83 @@
   background: rgba(var(--red-rgb), 0.15);
   font-family: var(--font-serif);
   font-size: 13px;
+}
+
+/* 카드 클릭 → 지도 이동 / 선택 카드 강조 */
+/* transition: .reveal 등장 애니메이션(opacity·transform) 유지 + 테두리 강조 */
+.era-card {
+  cursor: pointer;
+  transition: opacity 0.8s var(--ease-out) var(--delay, 0ms), transform 0.8s var(--ease-out) var(--delay, 0ms), border-color var(--dur-base) ease, box-shadow var(--dur-base) ease;
+}
+
+.era-card:hover {
+  border-color: rgba(var(--cream-rgb), 0.18);
+}
+
+.era-card.is-active {
+  border-color: rgba(var(--red-rgb), 0.7);
+  box-shadow: 0 0 0 1px rgba(var(--red-rgb), 0.35), 0 10px 30px rgba(var(--red-rgb), 0.12);
+}
+
+/* ---------- 세계지도 ---------- */
+.era-map {
+  height: 460px;
+  margin-top: 24px;
+}
+
+.era-marker {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  box-shadow: 0 0 0 5px rgba(var(--red-rgb), 0.25);
+  transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease;
+}
+
+/* 낮은 줌: 서울 마커 2개 좌우 분리 (--split: -1 왼쪽 / 1 오른쪽 / 0 고정) */
+.is-split .era-marker {
+  transform: translateX(calc(var(--split) * 17px));
+}
+
+.era-marker:hover,
+.era-marker.is-active {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.era-marker.is-active {
+  box-shadow: 0 0 0 6px rgba(var(--gold-rgb), 0.3), 0 0 18px rgba(var(--gold-rgb), 0.45);
+}
+
+/* 툴팁 둘째 줄: 날짜 */
+.era-tooltip small {
+  display: block;
+  color: var(--gold-light);
+  font-size: var(--fs-2xs);
+  font-weight: 400;
+  text-align: center;
+}
+
+/* OSM 저작권 표기 (base.css 전체 숨김 재정의) */
+.era-map .leaflet-control-attribution {
+  display: block !important;
+  margin: 0 var(--space-3) var(--space-2) 0 !important;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(var(--ink-rgb), 0.7);
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.era-map .leaflet-control-attribution a {
+  color: var(--text-soft);
 }
 
 @media (max-width: 1180px) {
@@ -124,5 +202,10 @@
 
   .era-photo {
     height: 180px;
+  }
+
+  .era-map {
+    height: 340px;
+    margin-top: 18px;
   }
 }

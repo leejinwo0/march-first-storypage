@@ -491,6 +491,19 @@
   line-height: 2.1;
 }
 
+/* 항목 보조 설명 (출처 API · 지도 용도) */
+.footer-col li small {
+  display: block;
+  margin-top: 0;
+  color: var(--text-faint);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+.footer-col li+li {
+  margin-top: 6px;
+}
+
 .footer-col a {
   text-decoration: none;
 }

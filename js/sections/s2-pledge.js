@@ -1,7 +1,7 @@
 /* =======================================================
    02 거사의 맹세: 스테퍼 · 진행 막대 · 상세 카드 + 지도
    - 데이터: 스마트서울맵 테마 11100550 (start_xx 거점 9곳)
-   - 단계 버튼·마커 클릭 → 카드 갱신, 해당 마커로 이동, 경로선 해당 단계까지 표시
+   - 단계 버튼·마커 클릭 → 카드 갱신, 해당 마커 중심 이동(기본 줌 유지), 경로선 해당 단계까지 표시
    - 경성대지도 전환 시 줌 1.5단계 보정
    - 활성 마커 팝업 고정 표시 (마커 재클릭 시에도 유지)
    - 이전/다음 스테퍼(단계 번호·장소명) + 단계 버튼 9칸 진행 막대 표시 (PC·모바일 공통)
@@ -27,8 +27,8 @@ const TARGET_IDS = [
   "start_13",
 ];
 
+// 기본 줌 및 장소 이동 줌 (동일 값, 장소 이동 시 줌 변경 없이 중심만 이동)
 const DEFAULT_ZOOM = 10;
-const TARGET_ZOOM = 12;
 
 // COT_VALUE 텍스트 정리: 앞뒤 따옴표 제거, " - " 항목 구분 → 줄 단위 배열
 const toLines = (value) =>
@@ -58,7 +58,11 @@ export async function initPledge() {
     center: [37.5759, 126.985],
     zoom: DEFAULT_ZOOM,
     zoomOffset: 1.5,
-    mapOptions: { closePopupOnClick: false },
+    mapOptions: {
+      closePopupOnClick: false,
+      // 더블클릭 확대 비활성: 기본 줌 외 레벨 진입 시 기본지도 타일 미표시(검은 화면) 방지
+      doubleClickZoom: false,
+    },
   });
 
   const pathLine = L.polyline([], {
@@ -124,8 +128,10 @@ export async function initPledge() {
       closeButton: false,
       autoClose: false,
       closeOnClick: false,
+      // 활성 마커가 지도 중앙 → 자동 이동 불필요, 줌 애니메이션 중 이동 충돌 방지
+      autoPan: false,
     });
-    marker.on("click", () => activate(i, true));
+    marker.on("click", () => activate(i));
     return marker;
   });
 
@@ -188,11 +194,10 @@ export async function initPledge() {
   }
 
   // 4. 단계 활성화: 카드·버튼·마커·경로선·지도 위치 갱신
-  function activate(index, fromMarker = false) {
+  function activate(index) {
     const step = steps[index];
-    const isSame = index === currentIndex;
 
-    if (!isSame) {
+    if (index !== currentIndex) {
       currentIndex = index;
       renderCard(step, index);
       navBtns.forEach((btn, i) => btn.classList.toggle("active", i === index));
@@ -215,12 +220,11 @@ export async function initPledge() {
     });
 
     if (!step.pos) return;
-    // 같은 마커 재클릭 시 기본 줌 복귀, 그 외 확대 줌
-    const zoomValue =
-      fromMarker && isSame && map.getZoom() > zoomFor(DEFAULT_ZOOM)
-        ? zoomFor(DEFAULT_ZOOM)
-        : zoomFor(TARGET_ZOOM);
-    map.setView(step.pos, zoomValue, { animate: true, duration: 0.8 });
+    // 선택 장소 중심 이동 (기본 줌 유지, 경성대지도 표시 중이면 보정 줌)
+    map.setView(step.pos, zoomFor(DEFAULT_ZOOM), {
+      animate: true,
+      duration: 0.8,
+    });
   }
 
   navBtns.forEach((btn) =>

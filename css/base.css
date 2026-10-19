@@ -267,18 +267,67 @@ ol {
   font-size: var(--fs-lg);
 }
 
+/* 좌측 배지·장소명·주소 / 우측 버튼 세로 배치 */
+.popup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.popup-head-text {
+  min-width: 0;
+}
+
+.popup-actions {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.popup-actions .line-btn {
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  font-size: 12px;
+}
+
 .popup-addr {
   color: var(--muted);
   font-size: var(--fs-xs);
 }
 
+/* Leaflet 기본 p 여백(1.3em) 제거 → 버튼 영역과 높이 정렬 */
+.story-popup-inner .popup-addr {
+  margin: var(--space-2) 0 0;
+}
+
+/* 설명: '더보기' 클릭 시 펼침 */
 .popup-desc {
   max-height: 180px;
-  margin: var(--space-3) 0 var(--space-4);
+  margin-top: var(--space-3);
   padding-top: var(--space-3);
   border-top: 1px solid var(--sheet-line);
   color: var(--text-soft);
   overflow-y: auto;
+}
+
+/* 마커 호버 툴팁 (섹션4 장소명 · 섹션5 인물명 공용) */
+.leaflet-tooltip.place-tooltip {
+  padding: 5px 10px;
+  border: 1px solid rgba(var(--cream-rgb), 0.14);
+  border-radius: var(--radius-md);
+  background: rgba(var(--umber-rgb), 0.94);
+  color: var(--cream);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+}
+
+.leaflet-tooltip-top.place-tooltip::before {
+  border-top-color: rgba(var(--umber-rgb), 0.94);
 }
 
 .popup-badge {
@@ -448,7 +497,7 @@ ol {
 
   .popup-desc {
     max-height: 90px;
-    margin: var(--space-2) 0 var(--space-3);
+    margin-top: var(--space-2);
     padding-top: var(--space-2);
     font-size: 12.5px;
   }
