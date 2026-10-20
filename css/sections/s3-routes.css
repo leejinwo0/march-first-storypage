@@ -472,6 +472,19 @@
   box-shadow: 0 0 0 4px rgba(217, 89, 76, 0.35);
 }
 
+/* ---------- 지도 CSS 배율 보정 (s3-routes.js setMapScale) ----------
+   지도 영역 scale(--map-scale) 적용 시 컨트롤·마커 크기 유지 → 역배율 적용 */
+#map-s3 .custom-map-toggle {
+  transform: scale(calc(1 / var(--map-scale, 1)));
+  transform-origin: top right;
+}
+
+#map-s3 .route-point-dot,
+#map-s3 .route-point-label,
+#map-s3 .route-runner-dot {
+  scale: calc(1 / var(--map-scale, 1));
+}
+
 /* ---------- 경로선 · 출발/도착 · 재생 표시점 ---------- */
 #map-s3 path.route-flow {
   stroke-linecap: round;

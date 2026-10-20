@@ -245,7 +245,8 @@
 
   /* 세계지도: PC와 같은 가로형 화면 구성 (파리~도쿄 가로폭 맞춤) */
   .era-map {
-    height: 230px;
+    height: auto;
+    aspect-ratio: 2.4 / 1;
     margin-top: 18px;
   }
 

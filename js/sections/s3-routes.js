@@ -3,11 +3,13 @@
    - 데이터: 스마트서울맵 테마 11100550 경로(LineString) 7종
    - 구분 탭(3월 1일 동부 / 3월 1일 서부 / 3월 5일): 탭별 경로 수 표시, 전환 시 첫 경로 활성화
    - 경로 카드 클릭 → 활성 경로 강조(빨간 점선 흐름) + 출발/도착 마커 + 경로 범위로 이동
-   - 경로 7종 공통 줌: PC 경로별 맞춤 줌 최빈값 / 모바일 최솟값 (전체 경로 표시)
+   - 경로 7종 공통 배율: 경로별 맞춤 배율 최솟값 + 보정(PC ZOOM_UP / 모바일 ZOOM_UP_MOBILE)
+     → 기본지도는 정수 줌(스마트서울맵 제공 레벨)으로 표시, 남는 배율은 지도 영역 CSS 확대·축소로 보정
    - 모바일(1024px 이하): 좌상단 경로 정보 패널 숨김
    - 활성 카드: 경유지 세로 타임라인 + 경로 설명 펼침/접힘
    - 경로 재생: 경로선 좌표를 따라 표시점 이동, 진행률 막대·퍼센트 연동 (경유지별 좌표 미제공 → 진행률만 표시)
    - 크게 보기: 지도 프레임(정보·재생 패널 포함)을 화면 전체 팝업으로 확대, 닫기 버튼·Esc·배경 클릭으로 복귀
+   - 지도 프레임 크기 변경 시 현재 경로 다시 맞춤 (모니터·창 크기와 관계없이 같은 화면 구성)
 ======================================================= */
 import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
@@ -22,9 +24,9 @@ const ROUTE_GROUPS = [
 
 // 경로 맞춤 최대 줌: 12 초과 시 타일 미제공 가능성 → 12 고정 (섹션2 확대 줌과 동일)
 const FIT_MAX_ZOOM = 12;
-// 공통 줌 보정: 기본지도 11레벨 타일 미표시 → 소수 줌(10.5 → 11레벨 타일) 사용 불가, 보정 없음
+// 공통 줌 보정: PC / 모바일 별도 (맞춤 줌 기준 추가 확대 단계)
 const ZOOM_UP = 0;
-const ZOOM_UP_MOBILE = 1;
+const ZOOM_UP_MOBILE = 0;
 // 재생 속도: 경로 1km당 소요 시간(ms), 최소·최대 재생 시간
 const PLAY_MS_PER_KM = 2200;
 const PLAY_MIN_MS = 5000;
@@ -67,7 +69,7 @@ export async function initRoutes() {
   const { map } = createStoryMap("map-s3", {
     zoom: 11,
     mapOptions: {
-      // 정수 줌 고정: 소수 줌 단계에서 기본지도 타일 미표시 방지 (10.5 → 11레벨 타일 요청)
+      // 정수 줌 고정: 스마트서울맵 좌표계 소수 줌 미지원 (소수 줌 적용 시 기본지도 미표시)
       zoomSnap: 1,
       doubleClickZoom: false,
       touchZoom: false,
@@ -210,42 +212,56 @@ export async function initRoutes() {
     };
   };
 
-  // 경로 표시 줌 통일: 7개 경로 공통 줌 적용
-  // - PC: 경로별 맞춤 줌 최빈값 (fitBounds 개별 적용 시 동부·서부 1대 경로만 한 단계 낮은 줌 → 통일)
-  // - 모바일: 경로별 맞춤 줌 최솟값 (작은 지도에서 모든 경로 전체 표시)
-  const commonZoom = () => {
+  // 경로 표시 배율 통일: 7개 경로 공통 배율 적용
+  // - 정수 기준 줌(BASE)에서 경로 픽셀 크기 측정 → 여백 안에 꽉 차는 배율 계산 (로그 2 = 줌 단계 차이)
+  // - 경로별 맞춤 값 중 최솟값 → 가장 넓은 경로가 여백 안에 꽉 차는 값, 나머지 경로 동일 값
+  // - 결과 = 소수 줌 값 (예: 10.8) → 정수 줌 + CSS 배율로 분리 적용
+  const BASE_ZOOM = 10;
+  const fitValue = (W, H) => {
     const { paddingTopLeft: tl, paddingBottomRight: br } = fitPadding();
-    const pad = L.point(tl).add(br);
-    const counts = new Map();
-    routes.forEach((r) => {
-      // 정수 단위 맞춤 줌
-      const z = Math.floor(
-        Math.min(
-          FIT_MAX_ZOOM,
-          map.getBoundsZoom(L.latLngBounds(r.coords), false, pad),
-        ),
-      );
-      counts.set(z, (counts.get(z) || 0) + 1);
+    const availW = Math.max(1, W - tl[0] - br[0]);
+    const availH = Math.max(1, H - tl[1] - br[1]);
+    const fits = routes.map((r) => {
+      const b = L.latLngBounds(r.coords);
+      const p1 = map.project(b.getNorthWest(), BASE_ZOOM);
+      const p2 = map.project(b.getSouthEast(), BASE_ZOOM);
+      const w = Math.max(1, Math.abs(p2.x - p1.x));
+      const h = Math.max(1, Math.abs(p2.y - p1.y));
+      return BASE_ZOOM + Math.log2(Math.min(availW / w, availH / h));
     });
-    if (isMobile())
-      return Math.min(
-        FIT_MAX_ZOOM,
-        Math.min(...counts.keys()) + ZOOM_UP_MOBILE,
-      );
-    // PC: 최빈 줌 (동률 시 높은 줌) + 보정, 최대 FIT_MAX_ZOOM
-    const mode = [...counts.entries()].sort(
-      (a, b) => b[1] - a[1] || b[0] - a[0],
-    )[0][0];
-    return Math.min(FIT_MAX_ZOOM, mode + ZOOM_UP);
+    const up = isMobile() ? ZOOM_UP_MOBILE : ZOOM_UP;
+    return Math.min(FIT_MAX_ZOOM, Math.min(...fits) + up);
+  };
+
+  // 지도 영역 CSS 배율 적용: 확대 배율 s → 지도 요소 크기 1/s, transform scale(s)
+  // (Leaflet은 배율 적용 전 크기 기준으로 타일·좌표 계산, 화면에는 s배로 표시)
+  const setMapScale = (scale) => {
+    mapEl.style.setProperty("--map-scale", scale);
+    mapEl.style.transformOrigin = "0 0";
+    mapEl.style.transform = scale === 1 ? "" : `scale(${scale})`;
+    mapEl.style.right = "auto";
+    mapEl.style.bottom = "auto";
+    mapEl.style.width = `${100 / scale}%`;
+    mapEl.style.height = `${100 / scale}%`;
+    map.invalidateSize({ animate: false });
   };
 
   // 경로 범위 중심 기준 배치, 상단 정보 패널·하단 재생 바 여백 차이만큼 중심 보정
   const fitRoute = (route) => {
+    const frameEl = mapEl.parentElement;
+    const W = frameEl.clientWidth;
+    const H = frameEl.clientHeight;
+    if (!W || !H) return;
+    const target = fitValue(W, H);
+    const zoom = Math.round(target);
+    const scale = 2 ** (target - zoom);
+    setMapScale(scale);
+
+    // 여백: 화면 px → Leaflet px (배율 역산)
     const { paddingTopLeft: tl, paddingBottomRight: br } = fitPadding();
-    const zoom = commonZoom();
     const center = map.project(L.latLngBounds(route.coords).getCenter(), zoom);
-    center.x -= (tl[0] - br[0]) / 2;
-    center.y -= (tl[1] - br[1]) / 2;
+    center.x -= (tl[0] - br[0]) / 2 / scale;
+    center.y -= (tl[1] - br[1]) / 2 / scale;
     map.setView(map.unproject(center, zoom), zoom, { animate: false });
   };
 
@@ -488,4 +504,15 @@ export async function initRoutes() {
     },
     { threshold: 0.1 },
   ).observe(mapEl);
+
+  // 7. 지도 프레임 크기 변경(브라우저 창 크기 조절 등) 시 현재 경로 다시 맞춤 → 같은 화면 구성 유지
+  //    (지도 요소는 배율 적용으로 크기 변경 → 프레임 기준 감지)
+  let lastSize = "";
+  const frameEl = mapEl.parentElement;
+  new ResizeObserver(() => {
+    const size = `${frameEl.clientWidth}x${frameEl.clientHeight}`;
+    if (!frameEl.clientWidth || size === lastSize) return;
+    lastSize = size;
+    if (currentIndex >= 0) fitRoute(routes[currentIndex]);
+  }).observe(frameEl);
 }

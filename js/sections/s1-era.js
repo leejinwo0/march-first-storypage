@@ -94,7 +94,7 @@ function initEraMap(grid) {
   const bounds = L.latLngBounds(items.map((item) => item.latlng));
   // 전체 보기 여백: PC 좌우 70px·상하 40px / 모바일 좌우 28px·상하 20px (마커 여유)
   const FIT_OPTIONS = { maxZoom: 5 };
-  const fitPadding = () => (MOBILE_QUERY.matches ? [28, 20] : [70, 40]);
+  const fitPadding = () => (MOBILE_QUERY.matches ? [24, 22] : [70, 40]);
 
   const showAll = (animate = true) =>
     map.fitBounds(bounds, { ...FIT_OPTIONS, padding: fitPadding(), animate });
