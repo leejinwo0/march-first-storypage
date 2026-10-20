@@ -3,7 +3,10 @@
    - 데이터: 생활 속 현장 테마(100173) 중 COT_THEME_SUB_ID '5'
    - 카드·마커 클릭 → 지도 이동 + 프로필 표시 (상세 API 1회 호출 후 캐시)
    - 이름 검색 + 초성 필터 → 카드·마커 동시 필터링, 인원 수 갱신
+   - 배치: 검색 바 → 인물 카드 줄 → 지도 | 프로필
+   - 마커 호버: 인물명 툴팁 표시
    - 전체 보기 버튼: 인물 선택 상태 또는 기본 줌보다 확대된 상태에서 표시
+   - 지도 크기 변경(모바일 배치 전환 등) 시 선택 인물 없으면 전체 보기 재적용
 ======================================================= */
 import { fetchDailyLifeData, MAP_ENDPOINTS } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
@@ -29,6 +32,7 @@ const CONSONANTS = [
   "ㅍ",
   "ㅎ",
 ];
+// 전체 보기 최대 줌 / 인물 선택 시 줌
 const DEFAULT_MAX_ZOOM = 10;
 const FOCUS_ZOOM = 10;
 const detailCache = new Map();
@@ -71,10 +75,10 @@ export async function initActivists() {
   const resetBtn = document.getElementById("s5-reset");
   if (!rail || !profile || !document.getElementById("map-s5")) return;
 
-  // 정수 줌 고정 / 더블클릭 확대 비활성: 마커 연속 클릭 시 추가 확대 방지
   const { map } = createStoryMap("map-s5", {
     center: [37.577613, 126.976897],
     zoom: DEFAULT_MAX_ZOOM,
+    // 정수 줌 고정 / 더블클릭 확대 비활성: 마커 연속 클릭 시 추가 확대 방지
     mapOptions: { zoomSnap: 1, doubleClickZoom: false },
   });
 
@@ -119,21 +123,6 @@ export async function initActivists() {
 
   let activePerson = null;
 
-  // 전체 보기 버튼: 인물 선택 상태 또는 기본 줌보다 확대된 상태에서 표시
-  const updateReset = () =>
-    resetBtn?.classList.toggle(
-      "show",
-      !!activePerson || map.getZoom() > DEFAULT_MAX_ZOOM,
-    );
-
-  // 선택 해제 + 전체 보기
-  const clearSelection = () => {
-    activePerson = null;
-    people.forEach((p) => p.card.classList.remove("active"));
-    showAll();
-    updateReset();
-  };
-
   // 프로필 패널 렌더링 (detail: null 로딩 / error / 데이터)
   function renderProfile(person, detail) {
     const photo = person.imgUrl
@@ -173,6 +162,21 @@ export async function initActivists() {
       </div>
     `;
   }
+
+  // 전체 보기 버튼: 인물 선택 상태 또는 기본 줌보다 확대된 상태에서 표시
+  const updateReset = () =>
+    resetBtn?.classList.toggle(
+      "show",
+      !!activePerson || map.getZoom() > DEFAULT_MAX_ZOOM,
+    );
+
+  // 선택 해제 + 전체 보기
+  const clearSelection = () => {
+    activePerson = null;
+    people.forEach((p) => p.card.classList.remove("active"));
+    showAll();
+    updateReset();
+  };
 
   async function select(person) {
     // 재클릭: 선택 해제 + 전체 보기
@@ -224,6 +228,7 @@ export async function initActivists() {
         iconAnchor: [18, 36],
       }),
     }).addTo(map);
+    // 호버 툴팁: 인물명 (선택 시 이름 팝업 표시 중에는 툴팁 숨김)
     person.marker.bindTooltip(person.name, {
       className: "place-tooltip",
       direction: "top",
@@ -305,6 +310,29 @@ export async function initActivists() {
 
   map.on("zoomend", updateReset);
   resetBtn?.addEventListener("click", clearSelection);
+
+  // 4. 지도 크기 변경 시 전체 보기 재적용 (선택 인물 없을 때)
+  //    (초기 fitBounds가 모바일 배치 확정 전 크기로 계산 → 마커 범위 잘림 방지)
+  let lastSize = "";
+  new ResizeObserver(() => {
+    const el = map.getContainer();
+    const size = `${el.clientWidth}x${el.clientHeight}`;
+    if (!el.clientWidth || size === lastSize) return;
+    lastSize = size;
+    map.invalidateSize();
+    if (!activePerson) showAll(false);
+  }).observe(map.getContainer());
+
+  // 섹션 진입 시 1회 크기 재계산 + 전체 보기
+  new IntersectionObserver(
+    (entries, observer) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      observer.disconnect();
+      map.invalidateSize();
+      if (!activePerson) showAll(false);
+    },
+    { threshold: 0.1 },
+  ).observe(map.getContainer());
 
   setTimeout(() => {
     map.invalidateSize();

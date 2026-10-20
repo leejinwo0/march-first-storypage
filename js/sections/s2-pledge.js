@@ -5,6 +5,7 @@
    - 경성대지도 전환 시 줌 1.5단계 보정
    - 활성 마커 팝업 고정 표시 (마커 재클릭 시에도 유지)
    - 이전/다음 스테퍼(단계 번호·장소명) + 단계 버튼 9칸 진행 막대 표시 (PC·모바일 공통)
+   - 모바일(1024px 이하): 상세 카드 숨김, 마커 클릭 또는 팝업 '더보기' 클릭 시 하단 시트로 상세 카드 표시
 ======================================================= */
 import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap, generateCurvedPath } from "/js/utils/mapUtils.js";
@@ -12,6 +13,8 @@ import {
   getImageCandidates,
   attachImageFallback,
   setStat,
+  openSheet,
+  closeSheet,
 } from "/js/utils/uiUtils.js";
 
 // 타임라인 표시 순서 (테마 콘텐츠 ID)
@@ -29,6 +32,8 @@ const TARGET_IDS = [
 
 // 기본 줌 및 장소 이동 줌 (동일 값, 장소 이동 시 줌 변경 없이 중심만 이동)
 const DEFAULT_ZOOM = 10;
+// 모바일 기준: 상세 카드 → 하단 시트 표시
+const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
 
 // COT_VALUE 텍스트 정리: 앞뒤 따옴표 제거, " - " 항목 구분 → 줄 단위 배열
 const toLines = (value) =>
@@ -122,16 +127,33 @@ export async function initPledge() {
       iconAnchor: [15, 15],
     });
     const marker = L.marker(step.pos, { icon }).addTo(map);
-    marker.bindPopup(`<p class="popup-mini-title">${step.title}</p>`, {
+    const popupEl = document.createElement("div");
+    popupEl.className = "popup-mini-row";
+    popupEl.innerHTML = `
+      <div class="popup-mini-text">
+        <span class="popup-badge popup-badge-hub popup-mini-badge">준비과정</span>
+        <p class="popup-mini-title">${step.title}</p>
+      </div>
+      <button type="button" class="line-btn line-btn-gold popup-mini-more">더보기</button>`;
+    L.DomEvent.disableClickPropagation(popupEl);
+    popupEl.querySelector(".popup-mini-more").addEventListener("click", () => {
+      activate(i);
+      openSheet(card);
+    });
+    marker.bindPopup(popupEl, {
       className: "story-popup story-popup-mini",
       offset: [0, -14],
       closeButton: false,
       autoClose: false,
       closeOnClick: false,
-      // 활성 마커가 지도 중앙 → 자동 이동 불필요, 줌 애니메이션 중 이동 충돌 방지
+      // 활성 마커가 지도 중앙 → 자동 이동 불필요, 이동 애니메이션 중 autoPan 충돌 방지
       autoPan: false,
     });
-    marker.on("click", () => activate(i));
+    marker.on("click", () => {
+      activate(i);
+      // 모바일: 마커 클릭 시 상세 카드 하단 시트 표시
+      if (MOBILE_QUERY.matches) openSheet(card);
+    });
     return marker;
   });
 
@@ -248,6 +270,11 @@ export async function initPledge() {
     const next = Math.min(steps.length - 1, Math.max(0, currentIndex + dir));
     activate(next);
     navBtns[next].focus();
+  });
+
+  // PC 화면 전환 시 시트 닫기 (상세 카드 원위치 복원)
+  MOBILE_QUERY.addEventListener("change", (e) => {
+    if (!e.matches) closeSheet();
   });
 
   activate(0);

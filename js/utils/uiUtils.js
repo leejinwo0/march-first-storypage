@@ -220,3 +220,72 @@ export function attachImageFallback(img, candidates, onFail) {
     else img.hidden = true;
   });
 }
+
+/* =======================================================
+   6. 모바일 상세 시트 (하단 팝업)
+   - openSheet(content): content = HTML 문자열 또는 DOM 요소
+   - 페이지 내 기존 요소 전달 시 시트로 이동 후 닫힐 때 원래 위치 복원
+   - 닫기: 닫기 버튼 · 배경 클릭 · Esc
+   - 이미지 확대 모달(z-modal)보다 아래 배치 → 시트 안 사진 확대 가능
+======================================================= */
+let sheet = null;
+let sheetRestore = null;
+
+function ensureSheet() {
+  if (sheet) return sheet;
+  sheet = document.createElement("div");
+  sheet.className = "info-sheet";
+  sheet.hidden = true;
+  sheet.setAttribute("role", "dialog");
+  sheet.setAttribute("aria-modal", "true");
+  sheet.innerHTML = `
+    <div class="info-sheet-backdrop"></div>
+    <div class="info-sheet-panel">
+      <button type="button" class="info-sheet-close" aria-label="닫기">&times;</button>
+      <div class="info-sheet-body"></div>
+    </div>`;
+  document.body.appendChild(sheet);
+  sheet
+    .querySelector(".info-sheet-backdrop")
+    .addEventListener("click", closeSheet);
+  sheet
+    .querySelector(".info-sheet-close")
+    .addEventListener("click", closeSheet);
+  document.addEventListener("keydown", (e) => {
+    const imageModalOpen = document.querySelector(".global-modal.is-open");
+    if (e.key === "Escape" && !sheet.hidden && !imageModalOpen) closeSheet();
+  });
+  return sheet;
+}
+
+export function openSheet(content) {
+  const el = ensureSheet();
+  const body = el.querySelector(".info-sheet-body");
+  closeSheet();
+  if (typeof content === "string") {
+    body.innerHTML = content;
+  } else if (content) {
+    // 기존 요소: 자리 표시 주석으로 원래 위치 기록
+    if (content.isConnected) {
+      const marker = document.createComment("sheet-placeholder");
+      content.before(marker);
+      sheetRestore = () => marker.replaceWith(content);
+    }
+    body.replaceChildren(content);
+  }
+  el.hidden = false;
+  body.scrollTop = 0;
+  document.documentElement.classList.add("is-sheet-open");
+  el.querySelector(".info-sheet-close").focus({ preventScroll: true });
+}
+
+export function closeSheet() {
+  if (!sheet || sheet.hidden) return;
+  sheet.hidden = true;
+  document.documentElement.classList.remove("is-sheet-open");
+  if (sheetRestore) {
+    sheetRestore();
+    sheetRestore = null;
+  }
+  sheet.querySelector(".info-sheet-body").replaceChildren();
+}

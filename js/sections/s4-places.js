@@ -6,10 +6,11 @@
    - 범례 목록: 중요 지점(좌) · 시위 장소(우) 2열 분리, 필터 OFF 시 해당 열 흐리게 표시
    - 마커 호버: 장소명 툴팁 표시
    - 팝업: 닫기 버튼 제거, 지도 클릭 시 유지, 설명은 '더보기' 클릭 시 펼침
+   - 모바일(1024px 이하): 팝업에 분류·장소명·더보기만 표시, 더보기 클릭 시 하단 시트로 상세(주소·설명·스마트서울맵) 표시
 ======================================================= */
 import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
-import { setStat } from "/js/utils/uiUtils.js";
+import { setStat, openSheet } from "/js/utils/uiUtils.js";
 
 const CATEGORY = {
   hub: {
@@ -24,7 +25,10 @@ const CATEGORY = {
   },
 };
 
+// 장소 클릭 시 확대 줌: PC 10 / 모바일 7 (작은 지도 → 한 단계 확대)
+const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
 const FOCUS_ZOOM = 10;
+const FOCUS_ZOOM_MOBILE = 7;
 
 // 팝업 내용 DOM 생성: 좌측 분류 배지 · 장소명 · 주소 / 우측 [스마트서울맵]·[더보기] 세로 배치 → 설명(접힘)
 function createPopupContent(place, mapLink) {
@@ -47,6 +51,18 @@ function createPopupContent(place, mapLink) {
   return el;
 }
 
+// 모바일 상세 시트 내용: 분류 배지 · 장소명 · 주소 · 설명 · 스마트서울맵
+function createSheetContent(place, mapLink) {
+  return `
+    <article class="place-sheet">
+      <span class="popup-badge popup-badge-${place.key}">${CATEGORY[place.key].label}</span>
+      <h3 class="place-sheet-title">${place.name}</h3>
+      <p class="place-sheet-addr">${place.address}</p>
+      <div class="place-sheet-desc">${place.desc}</div>
+      <a class="line-btn line-btn-red place-sheet-link" href="${mapLink}" target="_blank" rel="noopener noreferrer">스마트서울맵</a>
+    </article>`;
+}
+
 export async function initPlaces() {
   const list = document.getElementById("s4-list");
   const columns = {
@@ -59,6 +75,7 @@ export async function initPlaces() {
   if (!mapEl || !list || !columns.hub || !columns.site) return;
 
   // 정수 줌 고정: 소수 줌 단계에서 기본지도 타일 미표시 방지
+  // 더블클릭 확대 비활성: 마커 연속 클릭 시 추가 확대 방지 (장소 확대는 FOCUS_ZOOM 고정)
   const { map } = createStoryMap("map-s4", {
     center: [37.5586, 126.9369],
     zoom: 7,
@@ -86,11 +103,16 @@ export async function initPlaces() {
       .forEach((li) => li.classList.remove("active"));
   };
 
-  map.on("zoomend", () => {
+  const updateReset = () => {
     const base = defaultBounds ? map.getBoundsZoom(defaultBounds) : 7;
-    resetBtn?.classList.toggle("show", map.getZoom() > base + 0.5);
+    const hasActive = !!list.querySelector(".places-item.active");
+    resetBtn?.classList.toggle("show", hasActive || map.getZoom() > base + 0.5);
+  };
+  map.on("zoomend", updateReset);
+  resetBtn?.addEventListener("click", () => {
+    showAll();
+    updateReset();
   });
-  resetBtn?.addEventListener("click", showAll);
 
   const geojson = await fetchTimeTravelData();
 
@@ -153,6 +175,11 @@ export async function initPlaces() {
       moreBtn.setAttribute("aria-expanded", String(open));
     };
     moreBtn.addEventListener("click", () => {
+      // 모바일: 하단 시트로 상세 표시
+      if (MOBILE_QUERY.matches) {
+        openSheet(createSheetContent(place, mapLink));
+        return;
+      }
       setDesc(descEl.hidden);
       place.marker.getPopup()?.update(); // 높이 변경 후 팝업 위치 재계산
     });
@@ -194,11 +221,12 @@ export async function initPlaces() {
         .forEach((item) => item.classList.remove("active"));
       li.classList.add("active");
       li.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      updateReset();
 
-      // 팝업 공간 확보용 Y 오프셋: 지도 높이의 30% (최대 120px, 모바일 지도 높이 대응)
-      const zoom = FOCUS_ZOOM;
+      // 팝업 공간 확보용 Y 오프셋: 지도 높이의 10% (최대 120px, 모바일 지도 높이 대응)
+      const zoom = MOBILE_QUERY.matches ? FOCUS_ZOOM_MOBILE : FOCUS_ZOOM;
       const point = map.project(place.latlng, zoom);
-      point.y -= Math.min(120, mapEl.clientHeight * 0.3);
+      point.y -= Math.min(120, mapEl.clientHeight * 0.1);
 
       // 팝업은 지도 이동 완료 후 열기
       // (이동 애니메이션 중 팝업 autoPan 실행 시 줌 애니메이션 중단 → 타일 미표시 회색 화면 발생)

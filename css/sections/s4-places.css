@@ -1,5 +1,6 @@
 /* =======================================================
    04 역사의 현장: 좌측 범례 패널 | 우측 지도 + 하단 수치
+   - 모바일: 팝업 분류·장소명·더보기만 표시, 상세는 하단 시트
 ======================================================= */
 /* 섹션3과 동일한 2단 구조: 화면 높이 기준, 좌측 목록만 내부 스크롤 */
 .places {
@@ -199,6 +200,35 @@
   font-size: 13px;
 }
 
+/* ---------- 모바일 상세 시트 (더보기 클릭 시, uiUtils.js openSheet) ---------- */
+.place-sheet-title {
+  margin-top: 10px;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.place-sheet-addr {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.place-sheet-desc {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--sheet-line);
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.place-sheet-link {
+  display: flex;
+  margin-top: 20px;
+}
+
 /* ---------- 반응형: 지도 상단, 범례 패널 하단 ---------- */
 @media (max-width: 1024px) {
   .places {
@@ -216,6 +246,18 @@
 
   .places-lists {
     max-height: 420px;
+  }
+
+  /* 모바일 팝업: 분류·장소명·더보기만 표시 (주소·스마트서울맵·설명 → 하단 시트) */
+  #map-s4 .popup-addr,
+  #map-s4 .popup-actions .line-btn-red,
+  #map-s4 .popup-desc {
+    display: none;
+  }
+
+  #map-s4 .story-popup-inner {
+    width: auto;
+    max-width: 72vw;
   }
 
   .mini-stats>div {

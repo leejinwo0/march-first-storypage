@@ -6,6 +6,7 @@
    - 세계지도: OpenStreetMap 타일, 카드 4곳 번호 마커
    - 마커 호버 시 장소명 툴팁, 마커·카드 클릭 시 해당 위치 확대 + 카드 강조
    - 전체 보기 축척에서 서울 마커 2개(남산·대한문) 좌우 분리 표시
+   - 모바일(560px 이하): 카드 설명 숨김, 사진 클릭 시 확대 모달에 설명 함께 표시
 ======================================================= */
 import { S1_ERA } from "/js/data/history-data.js";
 
@@ -15,6 +16,8 @@ const FOCUS_ZOOM = 15;
 const SPLIT_ZOOM = 12;
 // 겹침 분리 방향: 카드 index → -1 왼쪽 / 1 오른쪽
 const SPLIT_DIR = { 0: 1, 1: -1 };
+// 모바일 기준: 카드 설명 → 사진 확대 모달 표시, 세계지도 여백 축소
+const MOBILE_QUERY = window.matchMedia("(max-width: 560px)");
 
 export function initEra() {
   const grid = document.getElementById("s1-era");
@@ -29,6 +32,7 @@ export function initEra() {
           <img src="${item.imgUrl}" alt="${item.caption}" loading="lazy" onerror="this.closest('.era-photo').classList.add('is-empty'); this.remove();">
           <span class="era-chip">${item.label}</span>
           <span class="era-date">${item.date}</span>
+          <span class="era-more" aria-hidden="true">눌러서 설명 보기</span>
         </button>
         <p class="era-body">${item.body}</p>
         ${item.quote ? `<p class="era-quote">${item.quote}</p>` : ""}
@@ -40,9 +44,13 @@ export function initEra() {
     btn.addEventListener("click", () => {
       const item = S1_ERA[Number(btn.dataset.index)];
       if (window.openGlobalModal && !btn.classList.contains("is-empty")) {
+        // 모바일: 카드에서 숨긴 설명·인용문을 캡션 아래 표시
+        const detail = MOBILE_QUERY.matches
+          ? `<span class="modal-desc">${item.body}${item.quote ? `<em>${item.quote}</em>` : ""}</span>`
+          : "";
         window.openGlobalModal(
           item.imgUrl,
-          `${item.caption}<br><small>${item.place}</small>`,
+          `${item.caption}<br><small>${item.place}</small>${detail}`,
         );
       }
     });
@@ -67,7 +75,7 @@ function initEraMap(grid) {
     worldCopyJump: true,
     // 소수 줌 허용: 화면 크기와 관계없이 파리~도쿄 범위를 지도 가로폭에 맞춤
     zoomSnap: 0,
-    minZoom: 1,
+    minZoom: 0,
   });
 
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -84,10 +92,12 @@ function initEraMap(grid) {
 
   const cards = [...grid.querySelectorAll(".era-card")];
   const bounds = L.latLngBounds(items.map((item) => item.latlng));
-  const FIT_OPTIONS = { padding: [70, 40], maxZoom: 5 };
+  // 전체 보기 여백: PC 좌우 70px·상하 40px / 모바일 좌우 28px·상하 20px (마커 여유)
+  const FIT_OPTIONS = { maxZoom: 5 };
+  const fitPadding = () => (MOBILE_QUERY.matches ? [28, 20] : [70, 40]);
 
   const showAll = (animate = true) =>
-    map.fitBounds(bounds, { ...FIT_OPTIONS, animate });
+    map.fitBounds(bounds, { ...FIT_OPTIONS, padding: fitPadding(), animate });
 
   let activeIndex = -1;
 

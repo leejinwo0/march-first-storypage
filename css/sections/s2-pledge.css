@@ -1,5 +1,6 @@
 /* =======================================================
    02 거사의 맹세: 좌측(스테퍼 · 진행 막대 · 상세 카드) | 우측 지도
+   - 모바일: 스테퍼 → 진행 막대 → 지도, 상세 카드는 마커 클릭 시 하단 시트 표시
 ======================================================= */
 .pledge {
   display: grid;
@@ -128,6 +129,18 @@
   transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease;
 }
 
+.popup-mini-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.popup-mini-badge,
+.popup-mini-more {
+  display: none;
+}
+
 .step-marker.is-active {
   border: 2px solid var(--white);
   background: var(--red);
@@ -252,29 +265,81 @@
     min-height: 0;
   }
 
-  /* 모바일 배치: 스테퍼 → 진행 막대 → 지도 → 카드 */
+  /* 모바일 배치: 스테퍼 → 진행 막대 → 지도 (상세 카드: 마커 클릭 시 하단 시트 표시) */
   .pledge-side {
     display: contents;
   }
 
   .pledge-map {
     order: 2;
-    height: 380px;
+    height: clamp(440px, 68vh, 620px);
     margin-top: 6px;
   }
 
-  .pledge-card {
-    order: 3;
-    max-height: none;
+  /* 상세 카드: 본문 영역 숨김 (시트로 이동 시 .pledge-side 밖 → 표시) */
+  .pledge-side .pledge-card {
+    display: none;
+  }
+
+  /* 모바일 팝업: 섹션4 팝업과 동일 구성 (좌측 배지·장소명 / 우측 더보기) */
+  #map-s2 .story-popup-mini .leaflet-popup-content {
+    margin: var(--space-4);
+    text-align: left;
+  }
+
+  #map-s2 .popup-mini-row {
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  #map-s2 .popup-mini-text {
+    min-width: 0;
+  }
+
+  .popup-mini-badge {
+    display: inline-block;
+  }
+
+  /* 장소명: 한 줄 유지, 48vw 초과 시에만 줄바꿈 */
+  #map-s2 .popup-mini-title {
+    width: max-content;
+    max-width: 48vw;
+    margin: var(--space-2) 0 0;
+    white-space: normal;
+  }
+
+  .popup-mini-more {
+    display: inline-flex;
+    flex: none;
+    min-height: 32px;
+    padding: 0 var(--space-3);
+    font-size: 12px;
+  }
+
+  /* 팝업 더보기 버튼 표시, 긴 장소명 줄바꿈 */
+  .popup-mini-more {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    padding: 4px 10px;
+    border: 1px solid rgba(var(--gold-rgb), 0.5);
+    border-radius: var(--radius-pill);
+    color: var(--gold-light);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* 장소명: 한 줄 유지, 48vw 초과 시에만 줄바꿈 */
+  #map-s2 .popup-mini-title {
+    width: max-content;
+    max-width: 48vw;
+    white-space: normal;
+    text-align: left;
   }
 }
 
 @media (max-width: 480px) {
-  .pledge-card {
-    padding: 22px 18px;
-  }
-
   .pledge-map {
-    height: 320px;
+    height: clamp(420px, 64vh, 560px);
   }
 }

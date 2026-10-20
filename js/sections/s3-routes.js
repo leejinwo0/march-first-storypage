@@ -3,7 +3,8 @@
    - 데이터: 스마트서울맵 테마 11100550 경로(LineString) 7종
    - 구분 탭(3월 1일 동부 / 3월 1일 서부 / 3월 5일): 탭별 경로 수 표시, 전환 시 첫 경로 활성화
    - 경로 카드 클릭 → 활성 경로 강조(빨간 점선 흐름) + 출발/도착 마커 + 경로 범위로 이동
-   - 경로 7종 공통 줌: 경로별 맞춤 줌(정수) 최빈값 + 0.5단계
+   - 경로 7종 공통 줌: PC 경로별 맞춤 줌 최빈값 / 모바일 최솟값 (전체 경로 표시)
+   - 모바일(1024px 이하): 좌상단 경로 정보 패널 숨김
    - 활성 카드: 경유지 세로 타임라인 + 경로 설명 펼침/접힘
    - 경로 재생: 경로선 좌표를 따라 표시점 이동, 진행률 막대·퍼센트 연동 (경유지별 좌표 미제공 → 진행률만 표시)
    - 크게 보기: 지도 프레임(정보·재생 패널 포함)을 화면 전체 팝업으로 확대, 닫기 버튼·Esc·배경 클릭으로 복귀
@@ -21,7 +22,7 @@ const ROUTE_GROUPS = [
 
 // 경로 맞춤 최대 줌: 12 초과 시 타일 미제공 가능성 → 12 고정 (섹션2 확대 줌과 동일)
 const FIT_MAX_ZOOM = 12;
-// 공통 줌 보정: 최빈 맞춤 줌(정수)에서 1단계 확대
+// 공통 줌 보정: 기본지도 11레벨 타일 미표시 → 소수 줌(10.5 → 11레벨 타일) 사용 불가, 보정 없음
 const ZOOM_UP = 1;
 // 재생 속도: 경로 1km당 소요 시간(ms), 최소·최대 재생 시간
 const PLAY_MS_PER_KM = 2200;
@@ -65,8 +66,8 @@ export async function initRoutes() {
   const { map } = createStoryMap("map-s3", {
     zoom: 11,
     mapOptions: {
-      // 1 단위 줌: 공통 줌 1단계 확대(ZOOM_UP) 적용
-      // zoomSnap: 1,
+      // 정수 줌 고정: 소수 줌 단계에서 기본지도 타일 미표시 방지 (10.5 → 11레벨 타일 요청)
+      zoomSnap: 1,
       doubleClickZoom: false,
       touchZoom: false,
       boxZoom: false,
@@ -194,18 +195,29 @@ export async function initRoutes() {
     zIndexOffset: 1000,
   });
 
-  const fitPadding = () =>
-    window.matchMedia("(min-width: 1025px)").matches
-      ? { paddingTopLeft: [60, 150], paddingBottomRight: [60, 100] }
-      : { paddingTopLeft: [30, 110], paddingBottomRight: [30, 86] };
-  // 경로 표시 줌 통일: 경로별 맞춤 줌 중 최빈값을 7개 경로 공통 적용
-  // (fitBounds 개별 적용 시 범위가 넓은 동부·서부 1대 경로만 한 단계 낮은 줌 → 나머지 경로 줌으로 통일)
+  // 경로 맞춤 여백: PC 상단 150px(정보 패널)
+  // 모바일 상단 64px(정보 패널 숨김, 지도 전환 토글 영역) / 모바일 크게 보기 상단 140px(정보 패널 표시)
+  const isMobile = () => !window.matchMedia("(min-width: 1025px)").matches;
+  const isExpanded = () =>
+    mapEl.closest(".routes-map")?.classList.contains("is-expanded");
+  const fitPadding = () => {
+    if (!isMobile())
+      return { paddingTopLeft: [60, 150], paddingBottomRight: [60, 100] };
+    return {
+      paddingTopLeft: [24, isExpanded() ? 140 : 64],
+      paddingBottomRight: [24, 80],
+    };
+  };
+
+  // 경로 표시 줌 통일: 7개 경로 공통 줌 적용
+  // - PC: 경로별 맞춤 줌 최빈값 (fitBounds 개별 적용 시 동부·서부 1대 경로만 한 단계 낮은 줌 → 통일)
+  // - 모바일: 경로별 맞춤 줌 최솟값 (작은 지도에서 모든 경로 전체 표시)
   const commonZoom = () => {
     const { paddingTopLeft: tl, paddingBottomRight: br } = fitPadding();
     const pad = L.point(tl).add(br);
     const counts = new Map();
     routes.forEach((r) => {
-      // 정수 단위 맞춤 줌 (zoomSnap 0.5 결과 내림)
+      // 정수 단위 맞춤 줌
       const z = Math.floor(
         Math.min(
           FIT_MAX_ZOOM,
@@ -214,7 +226,9 @@ export async function initRoutes() {
       );
       counts.set(z, (counts.get(z) || 0) + 1);
     });
-    // 최빈 줌 (동률 시 높은 줌) + 0.5단계 확대, 최대 FIT_MAX_ZOOM
+    if (isMobile())
+      return Math.min(FIT_MAX_ZOOM, Math.min(...counts.keys()) + ZOOM_UP);
+    // PC: 최빈 줌 (동률 시 높은 줌) + 보정, 최대 FIT_MAX_ZOOM
     const mode = [...counts.entries()].sort(
       (a, b) => b[1] - a[1] || b[0] - a[0],
     )[0][0];

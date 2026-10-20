@@ -16,6 +16,7 @@
   background: var(--sheet-bg-raised);
 }
 
+/* 제목·장소 아래 사진 배치 */
 .era-photo {
   position: relative;
   display: block;
@@ -80,6 +81,11 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* 모바일 전용 안내 문구 (사진 우상단, 좌상단 분류 칩과 대칭) */
+.era-more {
+  display: none;
+}
+
 .era-title {
   margin: 6px 6px 0;
   font-family: var(--font-serif);
@@ -129,9 +135,16 @@
 }
 
 /* ---------- 세계지도 ---------- */
+/* 높이: 화면 너비 비례 (가로세로 비율 유지 → 전체 보기 화면 구성 고정) */
 .era-map {
   height: clamp(340px, 26vw, 480px);
   margin-top: 24px;
+}
+
+/* 마커 아이콘 상자(30px) 안 가운데 정렬 (모바일 축소 마커 대응) */
+.era-marker-wrap {
+  display: grid;
+  place-items: center;
 }
 
 .era-marker {
@@ -195,6 +208,7 @@
   }
 }
 
+/* ---------- 모바일 ---------- */
 @media (max-width: 560px) {
   .era-grid {
     grid-template-columns: 1fr;
@@ -202,10 +216,52 @@
 
   .era-photo {
     height: 180px;
+    margin-bottom: 4px;
   }
 
+  /* 카드 설명·인용문 숨김 (사진 클릭 시 확대 모달에 표시), 사진 없는 카드는 설명 유지 */
+  .era-body,
+  .era-quote {
+    display: none;
+  }
+
+  .era-card:has(.era-photo.is-empty) .era-body,
+  .era-card:has(.era-photo.is-empty) .era-quote {
+    display: block;
+  }
+
+  .era-more {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 1;
+    display: block;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: rgba(var(--ink-rgb), 0.65);
+    color: var(--cream);
+    font-size: 11px;
+  }
+
+  /* 세계지도: PC와 같은 가로형 화면 구성 (파리~도쿄 가로폭 맞춤) */
   .era-map {
-    height: 340px;
+    height: 230px;
     margin-top: 18px;
+  }
+
+  .era-marker {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    box-shadow: 0 0 0 3px rgba(var(--red-rgb), 0.25);
+  }
+
+  /* 서울 마커 분리: 남산(1) 제자리, 대한문(2) 왼쪽 → 동쪽 도쿄(3) 마커와 겹침 방지 */
+  .is-split .era-marker[data-index="0"] {
+    transform: none;
+  }
+
+  .is-split .era-marker[data-index="1"] {
+    transform: translateX(-24px);
   }
 }

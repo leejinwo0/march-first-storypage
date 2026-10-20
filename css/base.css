@@ -1,7 +1,7 @@
 @charset "utf-8";
 
 /* =======================================================
-   Base: 리셋 · 공통 요소 · 아이콘 · Leaflet 재정의 · 지도 팝업 · 모달
+   Base: 리셋 · 공통 요소 · 아이콘 · Leaflet 재정의 · 지도 팝업 · 모달 · 하단 시트
    - 스토리페이지 공용 토큰 (tokens.css 확장)
 ======================================================= */
 :root {
@@ -411,6 +411,28 @@ ol {
   font-size: var(--fs-sm);
 }
 
+/* 캡션 아래 상세 설명 (섹션1 모바일: 카드에서 숨긴 설명 표시) */
+#caption-modal .modal-desc {
+  display: block;
+  margin-top: var(--space-4);
+  color: var(--text-soft);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.75;
+  text-align: left;
+}
+
+#caption-modal .modal-desc em {
+  display: block;
+  margin-top: var(--space-3);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(var(--red-rgb), 0.15);
+  color: var(--cream);
+  font-family: var(--font-serif);
+  font-style: normal;
+}
+
 .close-modal {
   position: fixed;
   top: var(--space-5);
@@ -435,6 +457,92 @@ ol {
   from {
     opacity: 0;
     transform: scale(0.95);
+  }
+}
+
+/* ---------- 6-1. 모바일 상세 시트 (uiUtils.js openSheet) ---------- */
+html.is-sheet-open,
+html.is-sheet-open body {
+  overflow: hidden;
+}
+
+.info-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-modal) - 10);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.info-sheet[hidden] {
+  display: none;
+}
+
+.info-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(var(--black-rgb), 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: sheet-fade 0.25s ease;
+}
+
+.info-sheet-panel {
+  position: relative;
+  max-height: 86vh;
+  max-height: 86dvh;
+  border: 1px solid rgba(var(--cream-rgb), 0.12);
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  background: var(--sheet-bg-raised);
+  box-shadow: 0 -20px 50px rgba(var(--black-rgb), 0.5);
+  animation: sheet-up 0.3s var(--ease-out);
+}
+
+.info-sheet-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--sheet-line);
+  border-radius: 50%;
+  background: rgba(var(--ink-rgb), 0.7);
+  color: var(--cream);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.info-sheet-body {
+  max-height: inherit;
+  padding: 26px 20px calc(24px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* 시트 안 상세 카드: 카드 테두리·배경 제거 (시트 패널 사용) */
+.info-sheet-body>article {
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  overflow: visible;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-fade {
+  from {
+    opacity: 0;
   }
 }
 
