@@ -23,7 +23,8 @@ const ROUTE_GROUPS = [
 // 경로 맞춤 최대 줌: 12 초과 시 타일 미제공 가능성 → 12 고정 (섹션2 확대 줌과 동일)
 const FIT_MAX_ZOOM = 12;
 // 공통 줌 보정: 기본지도 11레벨 타일 미표시 → 소수 줌(10.5 → 11레벨 타일) 사용 불가, 보정 없음
-const ZOOM_UP = 1;
+const ZOOM_UP = 0;
+const ZOOM_UP_MOBILE = 1;
 // 재생 속도: 경로 1km당 소요 시간(ms), 최소·최대 재생 시간
 const PLAY_MS_PER_KM = 2200;
 const PLAY_MIN_MS = 5000;
@@ -227,7 +228,10 @@ export async function initRoutes() {
       counts.set(z, (counts.get(z) || 0) + 1);
     });
     if (isMobile())
-      return Math.min(FIT_MAX_ZOOM, Math.min(...counts.keys()) + ZOOM_UP);
+      return Math.min(
+        FIT_MAX_ZOOM,
+        Math.min(...counts.keys()) + ZOOM_UP_MOBILE,
+      );
     // PC: 최빈 줌 (동률 시 높은 줌) + 보정, 최대 FIT_MAX_ZOOM
     const mode = [...counts.entries()].sort(
       (a, b) => b[1] - a[1] || b[0] - a[0],
