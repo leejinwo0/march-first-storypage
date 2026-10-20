@@ -3,8 +3,9 @@
    - 데이터: 스마트서울맵 테마 11100550 경로(LineString) 7종
    - 구분 탭(3월 1일 동부 / 3월 1일 서부 / 3월 5일): 탭별 경로 수 표시, 전환 시 첫 경로 활성화
    - 경로 카드 클릭 → 활성 경로 강조(빨간 점선 흐름) + 출발/도착 마커 + 경로 범위로 이동
+   - 경로 7종 공통 줌: 경로별 맞춤 줌(정수) 최빈값 + 0.5단계
    - 활성 카드: 경유지 세로 타임라인 + 경로 설명 펼침/접힘
-   - 경로 재생: 경로선 좌표를 따라 표시점 이동, 진행률 막대 연동 (경유지별 좌표 미제공 → 진행률만 표시)
+   - 경로 재생: 경로선 좌표를 따라 표시점 이동, 진행률 막대·퍼센트 연동 (경유지별 좌표 미제공 → 진행률만 표시)
    - 크게 보기: 지도 프레임(정보·재생 패널 포함)을 화면 전체 팝업으로 확대, 닫기 버튼·Esc·배경 클릭으로 복귀
 ======================================================= */
 import { fetchTimeTravelData } from "/services/mapService.js";
@@ -20,6 +21,8 @@ const ROUTE_GROUPS = [
 
 // 경로 맞춤 최대 줌: 12 초과 시 타일 미제공 가능성 → 12 고정 (섹션2 확대 줌과 동일)
 const FIT_MAX_ZOOM = 12;
+// 공통 줌 보정: 최빈 맞춤 줌(정수)에서 1단계 확대
+const ZOOM_UP = 1;
 // 재생 속도: 경로 1km당 소요 시간(ms), 최소·최대 재생 시간
 const PLAY_MS_PER_KM = 2200;
 const PLAY_MIN_MS = 5000;
@@ -53,7 +56,6 @@ export async function initRoutes() {
   const info = document.getElementById("s3-info");
   const mapEl = document.getElementById("map-s3");
   const playBtn = document.getElementById("s3-play");
-  const playLabel = document.getElementById("s3-play-label");
   const playPct = document.getElementById("s3-play-pct");
   const bar = document.getElementById("s3-bar");
   if (!list || !mapEl) return;
@@ -63,8 +65,8 @@ export async function initRoutes() {
   const { map } = createStoryMap("map-s3", {
     zoom: 11,
     mapOptions: {
-      // 정수 줌 고정: 소수 줌 단계에서 기본지도 타일 미표시 방지
-      zoomSnap: 1,
+      // 1 단위 줌: 공통 줌 1단계 확대(ZOOM_UP) 적용
+      // zoomSnap: 1,
       doubleClickZoom: false,
       touchZoom: false,
       boxZoom: false,
@@ -171,12 +173,13 @@ export async function initRoutes() {
   let endpointMarkers = [];
   let currentIndex = -1;
 
+  // 출발/도착 아이콘: 점 중심(7, 7)을 경로 좌표에 고정, 라벨은 CSS로 점 위 배치
   const pointIcon = (type, label) =>
     L.divIcon({
       className: `route-point route-point-${type}`,
-      html: `<span class="route-point-label">${label}</span><span class="route-point-dot"></span>`,
-      iconSize: [40, 40],
-      iconAnchor: [20, 34],
+      html: `<span class="route-point-dot"></span><span class="route-point-label">${label}</span>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
     });
 
   // 재생 표시점
@@ -193,23 +196,29 @@ export async function initRoutes() {
 
   const fitPadding = () =>
     window.matchMedia("(min-width: 1025px)").matches
-      ? { paddingTopLeft: [60, 150], paddingBottomRight: [60, 120] }
-      : { paddingTopLeft: [30, 110], paddingBottomRight: [30, 100] };
+      ? { paddingTopLeft: [60, 150], paddingBottomRight: [60, 100] }
+      : { paddingTopLeft: [30, 110], paddingBottomRight: [30, 86] };
+  // 경로 표시 줌 통일: 경로별 맞춤 줌 중 최빈값을 7개 경로 공통 적용
+  // (fitBounds 개별 적용 시 범위가 넓은 동부·서부 1대 경로만 한 단계 낮은 줌 → 나머지 경로 줌으로 통일)
   const commonZoom = () => {
     const { paddingTopLeft: tl, paddingBottomRight: br } = fitPadding();
     const pad = L.point(tl).add(br);
     const counts = new Map();
     routes.forEach((r) => {
-      const z = Math.min(
-        FIT_MAX_ZOOM,
-        map.getBoundsZoom(L.latLngBounds(r.coords), false, pad),
+      // 정수 단위 맞춤 줌 (zoomSnap 0.5 결과 내림)
+      const z = Math.floor(
+        Math.min(
+          FIT_MAX_ZOOM,
+          map.getBoundsZoom(L.latLngBounds(r.coords), false, pad),
+        ),
       );
       counts.set(z, (counts.get(z) || 0) + 1);
     });
-    // 최빈 줌 (동률 시 높은 줌)
-    return [...counts.entries()].sort(
+    // 최빈 줌 (동률 시 높은 줌) + 0.5단계 확대, 최대 FIT_MAX_ZOOM
+    const mode = [...counts.entries()].sort(
       (a, b) => b[1] - a[1] || b[0] - a[0],
     )[0][0];
+    return Math.min(FIT_MAX_ZOOM, mode + ZOOM_UP);
   };
 
   // 경로 범위 중심 기준 배치, 상단 정보 패널·하단 재생 바 여백 차이만큼 중심 보정
@@ -392,13 +401,6 @@ export async function initRoutes() {
   const setPlayUi = (on) => {
     playBtn?.classList.toggle("is-playing", on);
     playBtn?.setAttribute("aria-label", on ? "일시정지" : "경로 재생");
-    if (playLabel && currentIndex >= 0) {
-      const stops = stopsOf(routes[currentIndex]);
-      playLabel.textContent =
-        on || progress > 0
-          ? `${stops[0]} → ${stops[stops.length - 1]}`
-          : "▶ 눌러 경로 따라가기";
-    }
   };
 
   const step = (time) => {

@@ -65,7 +65,9 @@ function initEraMap(grid) {
     scrollWheelZoom: false,
     attributionControl: false,
     worldCopyJump: true,
-    minZoom: 2,
+    // 소수 줌 허용: 화면 크기와 관계없이 파리~도쿄 범위를 지도 가로폭에 맞춤
+    zoomSnap: 0,
+    minZoom: 1,
   });
 
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -82,7 +84,7 @@ function initEraMap(grid) {
 
   const cards = [...grid.querySelectorAll(".era-card")];
   const bounds = L.latLngBounds(items.map((item) => item.latlng));
-  const FIT_OPTIONS = { padding: [60, 60], maxZoom: 5 };
+  const FIT_OPTIONS = { padding: [70, 40], maxZoom: 5 };
 
   const showAll = (animate = true) =>
     map.fitBounds(bounds, { ...FIT_OPTIONS, animate });

@@ -25,7 +25,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadSeoulMapAPI();
   } catch (error) {
     console.error("스마트서울맵 스크립트 로드 실패:", error);
-    document.querySelectorAll(".map-canvas").forEach((el) => {
+    // 스마트서울맵 사용 지도만 오류 표시 (섹션1 세계지도는 OSM → 유지)
+    document.querySelectorAll(".map-canvas:not(#map-s1)").forEach((el) => {
       el.innerHTML =
         '<p class="status-text map-error">지도를 불러올 수 없습니다.</p>';
     });

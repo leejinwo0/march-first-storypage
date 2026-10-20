@@ -366,11 +366,7 @@
   }
 }
 
-.routes-map .leaflet-bottom.leaflet-right {
-  bottom: 88px;
-}
-
-/* 경로 재생 (하단) */
+/* 경로 재생 (하단): 상단 경로 정보 패널과 동일 유리 패널 (glass-card 배경·블러 상속) */
 .route-player {
   right: 18px;
   bottom: 18px;
@@ -378,18 +374,18 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 18px 12px 12px;
+  padding: 8px 20px 8px 8px;
 }
 
 .route-play {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 46px;
-  height: 46px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--red);
-  box-shadow: 0 0 0 6px rgba(var(--red-rgb), 0.25);
+  box-shadow: 0 0 0 5px rgba(var(--red-rgb), 0.25);
   transition: transform var(--dur-base) var(--ease-out);
 }
 
@@ -417,37 +413,32 @@
   border-left: 4px solid var(--white);
 }
 
+/* 진행 막대 + 진행률 한 줄 배치 (안내 문구 제거 → 재생 바 높이 축소) */
 .route-progress {
+  display: flex;
   flex: 1;
+  align-items: center;
+  gap: 16px;
   min-width: 0;
 }
 
-.route-progress-label {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  color: #b8afa3;
-  font-size: 12px;
-}
-
-.route-progress-label span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.route-progress-label b {
+.route-progress-pct {
+  flex: none;
+  min-width: 36px;
   color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 .route-bar {
   --progress: 0%;
   position: relative;
+  flex: 1;
   height: 6px;
-  margin-top: 10px;
   border-radius: 9px;
-  background: rgba(var(--cream-rgb), 0.12);
+  background: rgba(var(--cream-rgb), 0.14);
   cursor: pointer;
 }
 
@@ -498,29 +489,31 @@
   }
 }
 
-.route-point {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* 출발/도착 표시: 아이콘 = 원형 점(14px, 중심 = 경로 시작·끝 좌표), 라벨은 점 위 절대 배치
+   (flex 세로 배치 시 라벨 높이·글꼴 차이로 점 축소·위치 어긋남 → 점 기준 고정) */
+.route-point-dot {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 3px rgba(var(--ink-rgb), 0.35);
 }
 
 .route-point-label {
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
   padding: 3px 8px;
   border-radius: var(--radius-sm);
   background: var(--ink);
   color: var(--white);
   font-size: 12px;
   font-weight: 700;
+  line-height: 1.4;
   white-space: nowrap;
-}
-
-.route-point-dot {
-  width: 14px;
-  height: 14px;
-  margin-top: 3px;
-  border: 2px solid var(--white);
-  border-radius: 50%;
-  background: var(--ink);
+  transform: translateX(-50%);
 }
 
 .route-runner-dot {
@@ -574,16 +567,7 @@
 
   .route-player {
     gap: 12px;
-    padding: 10px 14px 10px 10px;
-  }
-
-  .routes-map .leaflet-bottom.leaflet-right {
-    bottom: 76px;
-  }
-
-  .route-play {
-    width: 40px;
-    height: 40px;
+    padding: 7px 14px 7px 7px;
   }
 
   .route-seg-btn {

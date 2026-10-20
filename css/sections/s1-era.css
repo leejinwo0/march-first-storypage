@@ -130,7 +130,7 @@
 
 /* ---------- 세계지도 ---------- */
 .era-map {
-  height: 460px;
+  height: clamp(340px, 26vw, 480px);
   margin-top: 24px;
 }
 
