@@ -3,343 +3,329 @@
    - 모바일: 스테퍼 → 진행 막대 → 지도, 상세 카드는 마커 클릭 시 하단 시트 표시
 ======================================================= */
 .pledge {
-  display: grid;
-  grid-template-columns: minmax(340px, 470px) 1fr;
-  gap: 20px;
-  height: min(720px, calc(var(--viewport-h) - 140px));
-  min-height: 560px;
+    display: grid;
+    grid-template-columns: minmax(340px, 470px) 1fr;
+    gap: 20px;
+    height: min(720px, calc(var(--viewport-h) - 140px));
+    min-height: 560px;
 }
 
 /* 좌측 열: 스테퍼·막대 고정, 카드만 내부 스크롤 */
 .pledge-side {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
 }
 
 .pledge-side .pledge-card {
-  flex: 1;
-  min-height: 0;
-  margin-top: 6px;
+    flex: 1;
+    min-height: 0;
+    margin-top: 6px;
 }
 
 /* ---------- 상세 카드 ---------- */
 .pledge-card {
-  padding: 30px;
-  border: 1px solid var(--sheet-line);
-  border-radius: 24px;
-  background: var(--sheet-bg-raised);
-  overflow-y: auto;
-  overscroll-behavior: contain;
+    padding: 30px;
+    border: 1px solid var(--sheet-line);
+    border-radius: 24px;
+    background: var(--sheet-bg-raised);
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .pledge-step {
-  color: var(--gold-light);
-  font-size: var(--fs-2xs);
-  letter-spacing: 0.08em;
+    color: var(--gold-light);
+    font-size: var(--fs-2xs);
+    letter-spacing: 0.08em;
 }
 
 .pledge-title {
-  margin-top: 10px;
-  color: var(--gold-light);
-  font-family: var(--font-serif);
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.4;
+    margin-top: 10px;
+    color: var(--gold-light);
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.4;
 }
 
 .pledge-photo {
-  display: block;
-  width: 100%;
-  margin-top: 16px;
-  border-radius: 14px;
-  overflow: hidden;
-  background: var(--ink);
-  cursor: zoom-in;
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--ink);
+    cursor: zoom-in;
 }
 
 .pledge-photo img {
-  display: block;
-  width: 100%;
-  max-height: 200px;
-  object-fit: contain;
+    display: block;
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
 }
 
 .addr-box {
-  margin-top: 16px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: rgba(var(--ink-rgb), 0.5);
-  font-size: 13px;
-  line-height: 1.9;
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(var(--ink-rgb), 0.5);
+    font-size: 13px;
+    line-height: 1.9;
 }
 
 .addr-box>div {
-  display: flex;
-  gap: var(--space-2);
+    display: flex;
+    gap: var(--space-2);
 }
 
 .addr-box dt {
-  flex-shrink: 0;
-  color: var(--gold-light);
-  font-weight: 600;
+    flex-shrink: 0;
+    color: var(--gold-light);
+    font-weight: 600;
 }
 
 .pledge-info {
-  margin-top: 16px;
-  color: #cfc7bb;
-  font-size: 13px;
-  line-height: 1.85;
+    margin-top: 16px;
+    color: #cfc7bb;
+    font-size: 13px;
+    line-height: 1.85;
 }
 
 .pledge-info li::before {
-  content: "– ";
-  color: var(--text-faint);
+    content: "– ";
+    color: var(--text-faint);
 }
 
 .pledge-body {
-  margin-top: 14px;
-  color: var(--text-soft);
-  font-size: 13px;
-  line-height: 1.85;
+    margin-top: 14px;
+    color: var(--text-soft);
+    font-size: 13px;
+    line-height: 1.85;
 }
 
 .pledge-card .btn-pair {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 
 /* ---------- 지도 ---------- */
 .pledge-map {
-  min-height: 0;
+    min-height: 0;
 }
 
 .step-marker {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border: 1px solid rgba(var(--white-rgb), 0.3);
-  border-radius: 50%;
-  background: rgba(var(--black-rgb), 0.55);
-  color: rgba(var(--white-rgb), 0.7);
-  font-family: var(--font-display);
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(var(--white-rgb), 0.3);
+    border-radius: 50%;
+    background: rgba(var(--black-rgb), 0.55);
+    color: rgba(var(--white-rgb), 0.7);
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease;
 }
 
 .popup-mini-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .popup-mini-badge,
 .popup-mini-more {
-  display: none;
+    display: none;
 }
 
 .step-marker.is-active {
-  border: 2px solid var(--white);
-  background: var(--red);
-  color: var(--white);
-  box-shadow: 0 0 0 6px rgba(var(--red-rgb), 0.25), 0 0 18px var(--accent-glow);
-  transform: scale(1.35);
+    border: 2px solid var(--white);
+    background: var(--red);
+    color: var(--white);
+    box-shadow: 0 0 0 6px rgba(var(--red-rgb), 0.25), 0 0 18px var(--accent-glow);
+    transform: scale(1.35);
 }
 
 /* ---------- 이전/다음 스테퍼 ---------- */
 .pledge-stepper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px;
-  border: 1px solid var(--sheet-line);
-  border-radius: 16px;
-  background: var(--sheet-bg-raised);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px;
+    border: 1px solid var(--sheet-line);
+    border-radius: 16px;
+    background: var(--sheet-bg-raised);
 }
 
 .pledge-stepper-arrow {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border: 1px solid rgba(var(--cream-rgb), 0.14);
-  border-radius: 50%;
-  color: #cfc7bb;
-  font-size: 20px;
-  line-height: 1;
-  transition: background-color var(--dur-base) ease, opacity var(--dur-base) ease;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(var(--cream-rgb), 0.14);
+    border-radius: 50%;
+    color: #cfc7bb;
+    font-size: 20px;
+    line-height: 1;
+    transition: background-color var(--dur-base) ease, opacity var(--dur-base) ease;
 }
 
 .pledge-stepper-arrow:not(:disabled):hover {
-  background: rgba(var(--cream-rgb), 0.08);
+    background: rgba(var(--cream-rgb), 0.08);
 }
 
 .pledge-stepper-arrow:disabled {
-  opacity: 0.3;
-  cursor: default;
+    opacity: 0.3;
+    cursor: default;
 }
 
 .pledge-stepper-text {
-  flex: 1;
-  min-width: 0;
-  text-align: center;
+    flex: 1;
+    min-width: 0;
+    text-align: center;
 }
 
 .pledge-stepper-count {
-  display: block;
-  color: var(--muted);
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
 }
 
 .pledge-stepper-count b {
-  color: var(--white);
-  font-size: 13px;
+    color: var(--white);
+    font-size: 13px;
 }
 
 .pledge-stepper-name {
-  display: block;
-  margin-top: 1px;
-  overflow: hidden;
-  font-size: 13px;
-  font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    display: block;
+    margin-top: 1px;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ---------- 단계 진행 막대: 칸 클릭 시 해당 단계 이동 (클릭 영역 18px, 막대 4px) ---------- */
 .pledge-nav {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-  gap: 4px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 4px;
 }
 
 .pledge-nav .step-btn {
-  position: relative;
-  width: auto;
-  height: 18px;
-  border: none;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-  font-size: 0;
-  cursor: pointer;
+    position: relative;
+    width: auto;
+    height: 18px;
+    border: none;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    font-size: 0;
+    cursor: pointer;
 }
 
 .pledge-nav .step-btn::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: 0;
-  left: 0;
-  height: 4px;
-  border-radius: 4px;
-  background: rgba(var(--cream-rgb), 0.14);
-  transform: translateY(-50%);
-  transition: background-color var(--dur-base) ease;
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(var(--cream-rgb), 0.14);
+    transform: translateY(-50%);
+    transition: background-color var(--dur-base) ease;
 }
 
 .pledge-nav .step-btn:hover::before {
-  background: rgba(var(--cream-rgb), 0.3);
+    background: rgba(var(--cream-rgb), 0.3);
 }
 
 .pledge-nav .step-btn.active {
-  background: none;
-  box-shadow: none;
+    background: none;
+    box-shadow: none;
 }
 
 .pledge-nav .step-btn.active::before {
-  background: var(--red-light);
+    background: var(--red-light);
 }
 
 /* ---------- 반응형 ---------- */
 @media (max-width: 1024px) {
-  .pledge {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    height: auto;
-    min-height: 0;
-  }
+    .pledge {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        height: auto;
+        min-height: 0;
+    }
 
-  /* 모바일 배치: 스테퍼 → 진행 막대 → 지도 (상세 카드: 마커 클릭 시 하단 시트 표시) */
-  .pledge-side {
-    display: contents;
-  }
+    /* 모바일 배치: 스테퍼 → 진행 막대 → 지도 (상세 카드: 마커 클릭 시 하단 시트 표시) */
+    .pledge-side {
+        display: contents;
+    }
 
-  .pledge-map {
-    order: 2;
-    height: clamp(440px, 68vh, 620px);
-    margin-top: 6px;
-  }
+    .pledge-map {
+        order: 2;
+        height: clamp(440px, 68vh, 620px);
+        margin-top: 6px;
+    }
 
-  /* 상세 카드: 본문 영역 숨김 (시트로 이동 시 .pledge-side 밖 → 표시) */
-  .pledge-side .pledge-card {
-    display: none;
-  }
+    /* 상세 카드: 본문 영역 숨김 (시트로 이동 시 .pledge-side 밖 → 표시) */
+    .pledge-side .pledge-card {
+        display: none;
+    }
 
-  /* 모바일 팝업: 섹션4 팝업과 동일 구성 (좌측 배지·장소명 / 우측 더보기) */
-  #map-s2 .story-popup-mini .leaflet-popup-content {
-    margin: var(--space-4);
-    text-align: left;
-  }
+    /* 모바일 팝업: 섹션4 팝업과 동일 구성 (좌측 배지·장소명 / 우측 더보기) */
+    #map-s2 .story-popup-mini .leaflet-popup-content {
+        margin: var(--space-4);
+        text-align: left;
+    }
 
-  #map-s2 .popup-mini-row {
-    justify-content: space-between;
-    gap: var(--space-4);
-  }
+    #map-s2 .popup-mini-row {
+        justify-content: space-between;
+        gap: var(--space-4);
+    }
 
-  #map-s2 .popup-mini-text {
-    min-width: 0;
-  }
+    #map-s2 .popup-mini-text {
+        min-width: 0;
+    }
 
-  .popup-mini-badge {
-    display: inline-block;
-  }
+    .popup-mini-badge {
+        display: inline-block;
+    }
 
-  /* 장소명: 한 줄 유지, 48vw 초과 시에만 줄바꿈 */
-  #map-s2 .popup-mini-title {
-    width: max-content;
-    max-width: 48vw;
-    margin: var(--space-2) 0 0;
-    white-space: normal;
-  }
+    /* 장소명: 한 줄 유지, 48vw 초과 시에만 줄바꿈 */
+    #map-s2 .popup-mini-title {
+        width: max-content;
+        max-width: 48vw;
+        margin: var(--space-2) 0 0;
+        white-space: normal;
+        text-align: left;
+    }
 
-  .popup-mini-more {
-    display: inline-flex;
-    flex: none;
-    min-height: 32px;
-    padding: 0 var(--space-3);
-    font-size: 12px;
-  }
-
-  /* 팝업 더보기 버튼 표시, 긴 장소명 줄바꿈 */
-  .popup-mini-more {
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-    padding: 4px 10px;
-    border: 1px solid rgba(var(--gold-rgb), 0.5);
-    border-radius: var(--radius-pill);
-    color: var(--gold-light);
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  /* 장소명: 한 줄 유지, 48vw 초과 시에만 줄바꿈 */
-  #map-s2 .popup-mini-title {
-    width: max-content;
-    max-width: 48vw;
-    white-space: normal;
-    text-align: left;
-  }
+    /* 더보기 버튼 표시 (금색 테두리 알약형) */
+    .popup-mini-more {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        min-height: 32px;
+        padding: 4px 10px;
+        border: 1px solid rgba(var(--gold-rgb), 0.5);
+        border-radius: var(--radius-pill);
+        color: var(--gold-light);
+        font-size: 12px;
+        font-weight: 600;
+    }
 }
 
 @media (max-width: 480px) {
-  .pledge-map {
-    height: clamp(420px, 64vh, 560px);
-  }
+    .pledge-map {
+        height: clamp(420px, 64vh, 560px);
+    }
 }

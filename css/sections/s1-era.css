@@ -1,268 +1,267 @@
 /* =======================================================
-   01 시대의 부름: 배경 카드 4종 (JS 렌더링) + 세계지도(OSM)
+   01 시대의 부름: 배경 카드 4종 (s1-era.js 렌더링) + 세계지도(OSM)
+   - 모바일(560px 이하): 카드 설명 숨김(사진 클릭 시 모달 표시), 세계지도 가로형 비율 고정
 ======================================================= */
 .era-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
 }
 
+/* 카드: 클릭 시 세계지도 해당 위치 이동 (s1-era.js) */
 .era-card {
-  display: flex;
-  flex-direction: column;
-  padding: 14px;
-  border: 1px solid var(--sheet-line);
-  border-radius: 26px;
-  background: var(--sheet-bg-raised);
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+    border: 1px solid var(--sheet-line);
+    border-radius: 26px;
+    background: var(--sheet-bg-raised);
+    cursor: pointer;
+    /* .reveal 등장 애니메이션(opacity·transform) 유지 + 테두리 강조 전환 */
+    transition: opacity 0.8s var(--ease-out) var(--delay, 0ms), transform 0.8s var(--ease-out) var(--delay, 0ms), border-color var(--dur-base) ease, box-shadow var(--dur-base) ease;
 }
 
 /* 제목·장소 아래 사진 배치 */
 .era-photo {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 200px;
-  margin-top: 14px;
-  border-radius: 18px;
-  overflow: hidden;
-  cursor: zoom-in;
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 200px;
+    margin-top: 14px;
+    border-radius: 18px;
+    overflow: hidden;
+    cursor: zoom-in;
 }
 
 .era-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: grayscale(0.6) sepia(0.2);
-  transition: transform var(--dur-slow) var(--ease-out), filter var(--dur-slow) ease;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(0.6) sepia(0.2);
+    transition: transform var(--dur-slow) var(--ease-out), filter var(--dur-slow) ease;
 }
 
 .era-photo:hover img {
-  transform: scale(1.04);
-  filter: grayscale(0.2) sepia(0.1);
+    transform: scale(1.04);
+    filter: grayscale(0.2) sepia(0.1);
 }
 
 .era-photo::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 50%, rgba(var(--ink-rgb), 0.75));
-  pointer-events: none;
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(var(--ink-rgb), 0.75));
+    pointer-events: none;
 }
 
 .era-photo.is-empty {
-  height: 120px;
-  background: radial-gradient(circle at 50% 40%, rgba(var(--red-rgb), 0.2), transparent 70%), var(--ink);
-  cursor: default;
+    height: 120px;
+    background: radial-gradient(circle at 50% 40%, rgba(var(--red-rgb), 0.2), transparent 70%), var(--ink);
+    cursor: default;
 }
 
 .era-chip {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 1;
-  padding: 6px 12px;
-  border-radius: var(--radius-pill);
-  background: rgba(var(--ink-rgb), 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: var(--gold-light);
-  font-size: var(--fs-2xs);
-  font-weight: 600;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1;
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    background: rgba(var(--ink-rgb), 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--gold-light);
+    font-size: var(--fs-2xs);
+    font-weight: 600;
 }
 
 .era-date {
-  position: absolute;
-  right: 16px;
-  bottom: 10px;
-  z-index: 1;
-  font-size: 30px;
-  font-weight: 200;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
+    position: absolute;
+    right: 16px;
+    bottom: 10px;
+    z-index: 1;
+    font-size: 30px;
+    font-weight: 200;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
 }
 
 /* 모바일 전용 안내 문구 (사진 우상단, 좌상단 분류 칩과 대칭) */
 .era-more {
-  display: none;
+    display: none;
 }
 
 .era-title {
-  margin: 6px 6px 0;
-  font-family: var(--font-serif);
-  font-size: 16.5px;
-  font-weight: 600;
-  line-height: 1.45;
+    margin: 6px 6px 0;
+    font-family: var(--font-serif);
+    font-size: 16.5px;
+    font-weight: 600;
+    line-height: 1.45;
 }
 
 .era-en {
-  margin: 4px 6px 0;
-  color: var(--text-faint);
-  font-family: var(--font-display);
-  font-size: var(--fs-xs);
-  font-style: italic;
+    margin: 4px 6px 0;
+    color: var(--text-faint);
+    font-family: var(--font-display);
+    font-size: var(--fs-xs);
+    font-style: italic;
 }
 
 .era-body {
-  margin: 14px 6px 8px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.7;
+    margin: 14px 6px 8px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
 }
 
 .era-quote {
-  margin: auto 6px 6px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(var(--red-rgb), 0.15);
-  font-family: var(--font-serif);
-  font-size: 13px;
+    margin: auto 6px 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(var(--red-rgb), 0.15);
+    font-family: var(--font-serif);
+    font-size: 13px;
 }
 
-/* 카드 클릭 → 지도 이동 / 선택 카드 강조 */
-/* transition: .reveal 등장 애니메이션(opacity·transform) 유지 + 테두리 강조 */
-.era-card {
-  cursor: pointer;
-  transition: opacity 0.8s var(--ease-out) var(--delay, 0ms), transform 0.8s var(--ease-out) var(--delay, 0ms), border-color var(--dur-base) ease, box-shadow var(--dur-base) ease;
-}
-
+/* 카드 호버 · 선택 강조 */
 .era-card:hover {
-  border-color: rgba(var(--cream-rgb), 0.18);
+    border-color: rgba(var(--cream-rgb), 0.18);
 }
 
 .era-card.is-active {
-  border-color: rgba(var(--red-rgb), 0.7);
-  box-shadow: 0 0 0 1px rgba(var(--red-rgb), 0.35), 0 10px 30px rgba(var(--red-rgb), 0.12);
+    border-color: rgba(var(--red-rgb), 0.7);
+    box-shadow: 0 0 0 1px rgba(var(--red-rgb), 0.35), 0 10px 30px rgba(var(--red-rgb), 0.12);
 }
 
 /* ---------- 세계지도 ---------- */
 /* 높이: 화면 너비 비례 (가로세로 비율 유지 → 전체 보기 화면 구성 고정) */
 .era-map {
-  height: clamp(340px, 26vw, 480px);
-  margin-top: 24px;
+    height: clamp(340px, 26vw, 480px);
+    margin-top: 24px;
 }
 
 /* 마커 아이콘 상자(30px) 안 가운데 정렬 (모바일 축소 마커 대응) */
 .era-marker-wrap {
-  display: grid;
-  place-items: center;
+    display: grid;
+    place-items: center;
 }
 
 .era-marker {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border: 2px solid var(--white);
-  border-radius: 50%;
-  background: var(--red);
-  color: var(--white);
-  font-family: var(--font-display);
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  box-shadow: 0 0 0 5px rgba(var(--red-rgb), 0.25);
-  transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 2px solid var(--white);
+    border-radius: 50%;
+    background: var(--red);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    box-shadow: 0 0 0 5px rgba(var(--red-rgb), 0.25);
+    transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease;
 }
 
 /* 낮은 줌: 서울 마커 2개 좌우 분리 (--split: -1 왼쪽 / 1 오른쪽 / 0 고정) */
 .is-split .era-marker {
-  transform: translateX(calc(var(--split) * 17px));
+    transform: translateX(calc(var(--split) * 17px));
 }
 
 .era-marker:hover,
 .era-marker.is-active {
-  background: var(--gold);
-  color: var(--ink);
+    background: var(--gold);
+    color: var(--ink);
 }
 
 .era-marker.is-active {
-  box-shadow: 0 0 0 6px rgba(var(--gold-rgb), 0.3), 0 0 18px rgba(var(--gold-rgb), 0.45);
+    box-shadow: 0 0 0 6px rgba(var(--gold-rgb), 0.3), 0 0 18px rgba(var(--gold-rgb), 0.45);
 }
 
 /* 툴팁 둘째 줄: 날짜 */
 .era-tooltip small {
-  display: block;
-  color: var(--gold-light);
-  font-size: var(--fs-2xs);
-  font-weight: 400;
-  text-align: center;
+    display: block;
+    color: var(--gold-light);
+    font-size: var(--fs-2xs);
+    font-weight: 400;
+    text-align: center;
 }
 
 /* OSM 저작권 표기 (base.css 전체 숨김 재정의) */
 .era-map .leaflet-control-attribution {
-  display: block !important;
-  margin: 0 var(--space-3) var(--space-2) 0 !important;
-  padding: 1px 8px;
-  border-radius: var(--radius-pill);
-  background: rgba(var(--ink-rgb), 0.7);
-  color: var(--muted);
-  font-size: 10.5px;
+    display: block !important;
+    margin: 0 var(--space-3) var(--space-2) 0 !important;
+    padding: 1px 8px;
+    border-radius: var(--radius-pill);
+    background: rgba(var(--ink-rgb), 0.7);
+    color: var(--muted);
+    font-size: 10.5px;
 }
 
 .era-map .leaflet-control-attribution a {
-  color: var(--text-soft);
+    color: var(--text-soft);
 }
 
 @media (max-width: 1180px) {
-  .era-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+    .era-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 /* ---------- 모바일 ---------- */
 @media (max-width: 560px) {
-  .era-grid {
-    grid-template-columns: 1fr;
-  }
+    .era-grid {
+        grid-template-columns: 1fr;
+    }
 
-  .era-photo {
-    height: 180px;
-    margin-bottom: 4px;
-  }
+    .era-photo {
+        height: 180px;
+        margin-bottom: 4px;
+    }
 
-  /* 카드 설명·인용문 숨김 (사진 클릭 시 확대 모달에 표시), 사진 없는 카드는 설명 유지 */
-  .era-body,
-  .era-quote {
-    display: none;
-  }
+    /* 카드 설명·인용문 숨김 (사진 클릭 시 확대 모달에 표시), 사진 없는 카드는 설명 유지 */
+    .era-body,
+    .era-quote {
+        display: none;
+    }
 
-  .era-card:has(.era-photo.is-empty) .era-body,
-  .era-card:has(.era-photo.is-empty) .era-quote {
-    display: block;
-  }
+    .era-card:has(.era-photo.is-empty) .era-body,
+    .era-card:has(.era-photo.is-empty) .era-quote {
+        display: block;
+    }
 
-  .era-more {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 1;
-    display: block;
-    padding: 4px 10px;
-    border-radius: var(--radius-pill);
-    background: rgba(var(--ink-rgb), 0.65);
-    color: var(--cream);
-    font-size: 11px;
-  }
+    .era-more {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 1;
+        display: block;
+        padding: 4px 10px;
+        border-radius: var(--radius-pill);
+        background: rgba(var(--ink-rgb), 0.65);
+        color: var(--cream);
+        font-size: 11px;
+    }
 
-  /* 세계지도: PC와 같은 가로형 화면 구성 (파리~도쿄 가로폭 맞춤) */
-  .era-map {
-    height: auto;
-    aspect-ratio: 2.4 / 1;
-    margin-top: 18px;
-  }
+    /* 세계지도: PC와 같은 가로형 화면 구성 (파리~도쿄 가로폭 맞춤) */
+    .era-map {
+        height: auto;
+        aspect-ratio: 2.4 / 1;
+        margin-top: 18px;
+    }
 
-  .era-marker {
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-    box-shadow: 0 0 0 3px rgba(var(--red-rgb), 0.25);
-  }
+    .era-marker {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+        box-shadow: 0 0 0 3px rgba(var(--red-rgb), 0.25);
+    }
 
-  /* 서울 마커 분리: 남산(1) 제자리, 대한문(2) 왼쪽 → 동쪽 도쿄(3) 마커와 겹침 방지 */
-  .is-split .era-marker[data-index="0"] {
-    transform: none;
-  }
+    /* 서울 마커 분리: 남산(1) 제자리, 대한문(2) 왼쪽 → 동쪽 도쿄(3) 마커와 겹침 방지 */
+    .is-split .era-marker[data-index="0"] {
+        transform: none;
+    }
 
-  .is-split .era-marker[data-index="1"] {
-    transform: translateX(-24px);
-  }
+    .is-split .era-marker[data-index="1"] {
+        transform: translateX(-24px);
+    }
 }

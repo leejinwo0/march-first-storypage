@@ -1,1 +1,8 @@
+# API 키 (Vercel 배포 시 scripts/write-config.mjs가 환경 변수로 생성)
 services/config.js
+
+# macOS 폴더 정보 파일
+.DS_Store
+
+# VS Code 개인 편집기 설정
+.vscode/

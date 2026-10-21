@@ -1,181 +1,182 @@
 /* =======================================================
-   00 인트로: 좌측 타이틀 + 우측 기울어진 경로 지도 카드 + 플로팅 카드
+   00 인트로: 배경 연도 '1919' + 좌측 타이틀 + 우측 기울어진 기미독립선언서 카드
+   - 선언서 카드 · 라벨 클릭 시 전체 화면 보기 (s0-hero.js)
 ======================================================= */
 .hero {
-  min-height: min(860px, calc(var(--viewport-h) - var(--sheet-gap) * 2));
-  padding: 0;
-  background:
-    radial-gradient(ellipse 60% 70% at 78% 45%, rgba(var(--red-rgb), 0.38), transparent 70%),
-    linear-gradient(180deg, #171310, #0f0d0c);
-  isolation: isolate;
+    min-height: min(860px, calc(var(--viewport-h) - var(--sheet-gap) * 2));
+    padding: 0;
+    background:
+        radial-gradient(ellipse 60% 70% at 78% 45%, rgba(var(--red-rgb), 0.38), transparent 70%),
+        linear-gradient(180deg, #171310, #0f0d0c);
+    isolation: isolate;
 }
 
 .hero-year {
-  position: absolute;
-  left: var(--space-10);
-  bottom: -4.5rem;
-  z-index: 0;
-  color: rgba(var(--cream-rgb), 0.03);
-  font-family: var(--font-serif);
-  font-size: clamp(12rem, 24vw, 22rem);
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: -0.05em;
-  pointer-events: none;
-  user-select: none;
+    position: absolute;
+    left: var(--space-10);
+    bottom: -4.5rem;
+    z-index: 0;
+    color: rgba(var(--cream-rgb), 0.03);
+    font-family: var(--font-serif);
+    font-size: clamp(12rem, 24vw, 22rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    pointer-events: none;
+    user-select: none;
 }
 
-/* ---------- 지도 카드 ---------- */
+/* ---------- 기미독립선언서 카드 (우측, 기울어진 이미지) ---------- */
 .hero-map {
-  position: absolute;
-  display: block;
-  padding: 0;
-  cursor: zoom-in;
-  top: 13%;
-  right: -2.5rem;
-  z-index: 1;
-  width: min(57vw, 820px);
-  aspect-ratio: 820 / 600;
-  border-radius: 40px;
-  overflow: hidden;
-  transform: perspective(1800px) rotateY(-16deg) rotateX(6deg) rotateZ(-4deg);
-  box-shadow:
-    0 0 0 1px rgba(var(--cream-rgb), 0.12),
-    0 60px 120px rgba(var(--black-rgb), 0.6),
-    0 0 120px rgba(var(--red-rgb), 0.35);
-  animation: hero-map-in 1.4s var(--ease-out) 0.3s both;
+    position: absolute;
+    display: block;
+    padding: 0;
+    cursor: zoom-in;
+    top: 13%;
+    right: -2.5rem;
+    z-index: 1;
+    width: min(57vw, 820px);
+    aspect-ratio: 820 / 600;
+    border-radius: 40px;
+    overflow: hidden;
+    transform: perspective(1800px) rotateY(-16deg) rotateX(6deg) rotateZ(-4deg);
+    box-shadow:
+        0 0 0 1px rgba(var(--cream-rgb), 0.12),
+        0 60px 120px rgba(var(--black-rgb), 0.6),
+        0 0 120px rgba(var(--red-rgb), 0.35);
+    animation: hero-map-in 1.4s var(--ease-out) 0.3s both;
 }
 
 .hero-map img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .hero-map::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, rgba(var(--ink-rgb), 0.55), transparent 45%, rgba(var(--red-rgb), 0.15));
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(var(--ink-rgb), 0.55), transparent 45%, rgba(var(--red-rgb), 0.15));
 }
 
 /* ---------- 플로팅 카드 ---------- */
 .hero-float {
-  position: absolute;
-  z-index: 3;
-  padding: var(--space-4) var(--space-5);
-  animation: hero-fade-up 1s var(--ease-out) both;
+    position: absolute;
+    z-index: 3;
+    padding: var(--space-4) var(--space-5);
+    animation: hero-fade-up 1s var(--ease-out) both;
 }
 
 /* 기미독립선언서 라벨 카드: 텍스트 전용 */
 .hero-doc {
-  right: 6%;
-  bottom: 12%;
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--fs-lg);
-  font-weight: 600;
-  color: var(--cream);
-  cursor: zoom-in;
-  animation-delay: 1.2s;
+    right: 6%;
+    bottom: 12%;
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: var(--fs-lg);
+    font-weight: 600;
+    color: var(--cream);
+    cursor: zoom-in;
+    animation-delay: 1.2s;
 }
 
 /* ---------- 타이틀 ---------- */
 .hero-copy {
-  position: absolute;
-  left: clamp(1.5rem, 4.5vw, 4rem);
-  bottom: clamp(3.5rem, 11vh, 6.5rem);
-  z-index: 4;
-  max-width: 640px;
+    position: absolute;
+    left: clamp(1.5rem, 4.5vw, 4rem);
+    bottom: clamp(3.5rem, 11vh, 6.5rem);
+    z-index: 4;
+    max-width: 640px;
 }
 
 .hero-copy>* {
-  animation: hero-fade-up 1s var(--ease-out) both;
+    animation: hero-fade-up 1s var(--ease-out) both;
 }
 
 .hero-copy> :nth-child(2) {
-  animation-delay: 0.15s;
+    animation-delay: 0.15s;
 }
 
 .hero-copy> :nth-child(3) {
-  animation-delay: 0.3s;
+    animation-delay: 0.3s;
 }
 
 .hero-copy> :nth-child(4) {
-  animation-delay: 0.45s;
+    animation-delay: 0.45s;
 }
 
 .hero-title {
-  margin-top: var(--space-5);
-  font-family: var(--font-serif);
-  font-size: clamp(2.75rem, 6.2vw, 5.5rem);
-  font-weight: 400;
-  line-height: 1.08;
-  letter-spacing: -0.05em;
+    margin-top: var(--space-5);
+    font-family: var(--font-serif);
+    font-size: clamp(2.75rem, 6.2vw, 5.5rem);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
 }
 
 .hero-title em {
-  color: var(--red-light);
-  font-style: normal;
-  font-weight: 700;
+    color: var(--red-light);
+    font-style: normal;
+    font-weight: 700;
 }
 
 .hero-desc {
-  max-width: 470px;
-  margin: var(--space-6) 0 var(--space-8);
-  color: rgba(var(--cream-rgb), 0.72);
-  line-height: 1.75;
+    max-width: 470px;
+    margin: var(--space-6) 0 var(--space-8);
+    color: rgba(var(--cream-rgb), 0.72);
+    line-height: 1.75;
 }
 
 @keyframes hero-map-in {
-  from {
-    opacity: 0;
-    translate: 40px 20px;
-  }
+    from {
+        opacity: 0;
+        translate: 40px 20px;
+    }
 }
 
 @keyframes hero-fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
 }
 
-/* ---------- 반응형: 지도 카드 상단, 타이틀 하단 세로 배치 ---------- */
+/* ---------- 반응형: 선언서 카드 상단, 타이틀 하단 세로 배치 ---------- */
 @media (max-width: 1024px) {
-  .hero {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    padding: 96px var(--sheet-pad-x) var(--sheet-pad-x);
-  }
+    .hero {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        padding: 96px var(--sheet-pad-x) var(--sheet-pad-x);
+    }
 
-  .hero-map {
-    position: relative;
-    top: auto;
-    right: auto;
-    width: 108%;
-    margin: 0 -14% 0 auto;
-    border-radius: 28px;
-    transform: perspective(1400px) rotateY(-14deg) rotateX(6deg) rotateZ(-4deg);
-  }
+    .hero-map {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 108%;
+        margin: 0 -14% 0 auto;
+        border-radius: 28px;
+        transform: perspective(1400px) rotateY(-14deg) rotateX(6deg) rotateZ(-4deg);
+    }
 
-  .hero-doc {
-    display: none;
-  }
+    .hero-doc {
+        display: none;
+    }
 
-  .hero-copy {
-    position: relative;
-    left: auto;
-    bottom: auto;
-    margin-top: var(--space-10);
-  }
+    .hero-copy {
+        position: relative;
+        left: auto;
+        bottom: auto;
+        margin-top: var(--space-10);
+    }
 }
 
 @media (max-width: 480px) {
-  .btn-row .pill-btn {
-    flex: 1;
-    padding: 0 var(--space-4);
-  }
+    .btn-row .pill-btn {
+        flex: 1;
+        padding: 0 var(--space-4);
+    }
 }

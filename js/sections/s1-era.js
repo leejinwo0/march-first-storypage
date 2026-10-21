@@ -10,7 +10,7 @@
 ======================================================= */
 import { S1_ERA } from "/js/data/history-data.js";
 
-// 장소 확대 줌
+// 마커·카드 클릭 시 장소 확대 줌
 const FOCUS_ZOOM = 15;
 // 이 줌 미만이면 서울 마커 2개 좌우 분리 (실제 거리 약 1km → 낮은 줌에서 겹침)
 const SPLIT_ZOOM = 12;
@@ -19,12 +19,13 @@ const SPLIT_DIR = { 0: 1, 1: -1 };
 // 모바일 기준: 카드 설명 → 사진 확대 모달 표시, 세계지도 여백 축소
 const MOBILE_QUERY = window.matchMedia("(max-width: 560px)");
 
+/* ---------- 1. 카드 4종 렌더링 + 사진 확대 ---------- */
 export function initEra() {
-  const grid = document.getElementById("s1-era");
-  if (!grid) return;
+    const grid = document.getElementById("s1-era");
+    if (!grid) return;
 
-  grid.innerHTML = S1_ERA.map(
-    (item, index) => `
+    grid.innerHTML = S1_ERA.map(
+        (item, index) => `
       <article class="era-card reveal" style="--delay:${index * 80}ms" data-index="${index}">
         <h3 class="era-title">${item.title}</h3>
         <p class="era-en">${item.en} · ${item.place}</p>
@@ -38,134 +39,148 @@ export function initEra() {
         ${item.quote ? `<p class="era-quote">${item.quote}</p>` : ""}
       </article>
     `,
-  ).join("");
+    ).join("");
 
-  grid.querySelectorAll(".era-photo").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const item = S1_ERA[Number(btn.dataset.index)];
-      if (window.openGlobalModal && !btn.classList.contains("is-empty")) {
-        // 모바일: 카드에서 숨긴 설명·인용문을 캡션 아래 표시
-        const detail = MOBILE_QUERY.matches
-          ? `<span class="modal-desc">${item.body}${item.quote ? `<em>${item.quote}</em>` : ""}</span>`
-          : "";
-        window.openGlobalModal(
-          item.imgUrl,
-          `${item.caption}<br><small>${item.place}</small>${detail}`,
-        );
-      }
+    // 사진 클릭: 확대 모달 (사진 로드 실패 카드 제외)
+    grid.querySelectorAll(".era-photo").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const item = S1_ERA[Number(btn.dataset.index)];
+            if (window.openGlobalModal && !btn.classList.contains("is-empty")) {
+                // 모바일: 카드에서 숨긴 설명·인용문을 캡션 아래 표시
+                const detail = MOBILE_QUERY.matches
+                    ? `<span class="modal-desc">${item.body}${item.quote ? `<em>${item.quote}</em>` : ""}</span>`
+                    : "";
+                window.openGlobalModal(
+                    item.imgUrl,
+                    `${item.caption}<br><small>${item.place}</small>${detail}`,
+                );
+            }
+        });
     });
-  });
 
-  initEraMap(grid);
+    initEraMap(grid);
 }
 
-/* ---------- 세계지도 (OSM) ---------- */
+/* ---------- 2. 세계지도 (OSM) ---------- */
 function initEraMap(grid) {
-  const mapEl = document.getElementById("map-s1");
-  const resetBtn = document.getElementById("s1-reset");
-  if (!mapEl || typeof L === "undefined") return;
+    const mapEl = document.getElementById("map-s1");
+    const resetBtn = document.getElementById("s1-reset");
+    if (!mapEl || typeof L === "undefined") return;
 
-  const items = S1_ERA.filter((item) => item.latlng);
-  if (!items.length) return;
+    const items = S1_ERA.filter((item) => item.latlng);
+    if (!items.length) return;
 
-  const map = L.map(mapEl, {
-    zoomControl: false,
-    scrollWheelZoom: false,
-    attributionControl: false,
-    worldCopyJump: true,
-    // 소수 줌 허용: 화면 크기와 관계없이 파리~도쿄 범위를 지도 가로폭에 맞춤
-    zoomSnap: 0,
-    minZoom: 0,
-  });
-
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 18,
-  }).addTo(map);
-
-  // OSM 이용 조건: 저작권 표기 필수
-  L.control
-    .attribution({ prefix: false, position: "bottomright" })
-    .addAttribution(
-      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>',
-    )
-    .addTo(map);
-
-  const cards = [...grid.querySelectorAll(".era-card")];
-  const bounds = L.latLngBounds(items.map((item) => item.latlng));
-  // 전체 보기 여백: PC 좌우 70px·상하 40px / 모바일 좌우 28px·상하 20px (마커 여유)
-  const FIT_OPTIONS = { maxZoom: 5 };
-  const fitPadding = () => (MOBILE_QUERY.matches ? [24, 22] : [70, 40]);
-
-  const showAll = (animate = true) =>
-    map.fitBounds(bounds, { ...FIT_OPTIONS, padding: fitPadding(), animate });
-
-  let activeIndex = -1;
-
-  const setActive = (index) => {
-    activeIndex = index;
-    cards.forEach((card) =>
-      card.classList.toggle("is-active", Number(card.dataset.index) === index),
-    );
-    mapEl
-      .querySelectorAll(".era-marker")
-      .forEach((el) =>
-        el.classList.toggle("is-active", Number(el.dataset.index) === index),
-      );
-  };
-
-  const focus = (index) => {
-    const item = S1_ERA[index];
-    if (!item?.latlng) return;
-    setActive(index);
-    map.flyTo(item.latlng, FOCUS_ZOOM, { duration: 1.4 });
-  };
-
-  // 번호 마커
-  S1_ERA.forEach((item, index) => {
-    if (!item.latlng) return;
-    const icon = L.divIcon({
-      className: "era-marker-wrap",
-      html: `<span class="era-marker" data-index="${index}" style="--split:${SPLIT_DIR[index] || 0}">${index + 1}</span>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
+    const map = L.map(mapEl, {
+        zoomControl: false,
+        scrollWheelZoom: false,
+        attributionControl: false,
+        worldCopyJump: true,
+        // 소수 줌 허용: 화면 크기와 관계없이 파리~도쿄 범위를 지도 가로폭에 맞춤
+        zoomSnap: 0,
+        minZoom: 0,
     });
-    L.marker(item.latlng, { icon, riseOnHover: true })
-      .addTo(map)
-      .bindTooltip(`${item.place}<small>${item.date}</small>`, {
-        className: "place-tooltip era-tooltip",
-        direction: "top",
-        offset: [0, -16],
-      })
-      .on("click", () => focus(index));
-  });
 
-  // 카드 클릭 → 지도 위치 이동 (사진 클릭은 확대 모달 유지)
-  cards.forEach((card) => {
-    card.addEventListener("click", (e) => {
-      if (e.target.closest(".era-photo, a")) return;
-      focus(Number(card.dataset.index));
+    // 오픈스트리트맵 타일 (흑백 필터: base.css .map-canvas .leaflet-tile-pane)
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+    }).addTo(map);
+
+    // OSM 이용 조건: 저작권 표기 필수
+    L.control
+        .attribution({ prefix: false, position: "bottomright" })
+        .addAttribution(
+            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>',
+        )
+        .addTo(map);
+
+    const cards = [...grid.querySelectorAll(".era-card")];
+    const bounds = L.latLngBounds(items.map((item) => item.latlng));
+    // 전체 보기: 4곳 범위 맞춤 (최대 줌 5)
+    // 여백: PC 좌우 70px·상하 40px / 모바일 좌우 24px·상하 22px (마커 여유)
+    const FIT_OPTIONS = { maxZoom: 5 };
+    const fitPadding = () => (MOBILE_QUERY.matches ? [24, 22] : [70, 40]);
+
+    const showAll = (animate = true) =>
+        map.fitBounds(bounds, {
+            ...FIT_OPTIONS,
+            padding: fitPadding(),
+            animate,
+        });
+
+    let activeIndex = -1; // 선택 카드 번호 (-1: 선택 없음)
+
+    // 카드·마커 선택 강조 동기화
+    const setActive = (index) => {
+        activeIndex = index;
+        cards.forEach((card) =>
+            card.classList.toggle(
+                "is-active",
+                Number(card.dataset.index) === index,
+            ),
+        );
+        mapEl
+            .querySelectorAll(".era-marker")
+            .forEach((el) =>
+                el.classList.toggle(
+                    "is-active",
+                    Number(el.dataset.index) === index,
+                ),
+            );
+    };
+
+    const focus = (index) => {
+        const item = S1_ERA[index];
+        if (!item?.latlng) return;
+        setActive(index);
+        map.flyTo(item.latlng, FOCUS_ZOOM, { duration: 1.4 });
+    };
+
+    // 번호 마커 (호버: 장소명·날짜 툴팁 / 클릭: 해당 위치 확대)
+    S1_ERA.forEach((item, index) => {
+        if (!item.latlng) return;
+        const icon = L.divIcon({
+            className: "era-marker-wrap",
+            html: `<span class="era-marker" data-index="${index}" style="--split:${SPLIT_DIR[index] || 0}">${index + 1}</span>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+        });
+        L.marker(item.latlng, { icon, riseOnHover: true })
+            .addTo(map)
+            .bindTooltip(`${item.place}<small>${item.date}</small>`, {
+                className: "place-tooltip era-tooltip",
+                direction: "top",
+                offset: [0, -16],
+            })
+            .on("click", () => focus(index));
     });
-  });
 
-  // 낮은 줌: 서울 마커 좌우 분리 / 전체 보기 버튼 표시
-  const update = () => {
-    const zoom = map.getZoom();
-    mapEl.classList.toggle("is-split", zoom < SPLIT_ZOOM);
-    resetBtn?.classList.toggle("show", zoom > FIT_OPTIONS.maxZoom);
-  };
-  map.on("zoomend", update);
+    // 카드 클릭 → 지도 위치 이동 (사진 클릭은 확대 모달 유지)
+    cards.forEach((card) => {
+        card.addEventListener("click", (e) => {
+            if (e.target.closest(".era-photo, a")) return;
+            focus(Number(card.dataset.index));
+        });
+    });
 
-  resetBtn?.addEventListener("click", () => {
-    setActive(-1);
-    showAll();
-  });
+    // 낮은 줌: 서울 마커 좌우 분리 / 전체 보기 버튼 표시
+    const update = () => {
+        const zoom = map.getZoom();
+        mapEl.classList.toggle("is-split", zoom < SPLIT_ZOOM);
+        resetBtn?.classList.toggle("show", zoom > FIT_OPTIONS.maxZoom);
+    };
+    map.on("zoomend", update);
 
-  // 섹션 진입 전 크기 0 대비: 크기 확정 후 전체 보기
-  new ResizeObserver(() => {
-    map.invalidateSize();
-    if (activeIndex === -1) showAll(false);
-  }).observe(mapEl);
+    resetBtn?.addEventListener("click", () => {
+        setActive(-1);
+        showAll();
+    });
 
-  showAll(false);
-  update();
+    // 섹션 진입 전 크기 0 대비: 크기 확정 후 전체 보기
+    new ResizeObserver(() => {
+        map.invalidateSize();
+        if (activeIndex === -1) showAll(false);
+    }).observe(mapEl);
+
+    showAll(false);
+    update();
 }

@@ -4,598 +4,598 @@
 ======================================================= */
 /* 지도 영역 높이: 화면 높이 기준 (상단 메뉴·여백 제외), 좌측 카드 목록만 내부 스크롤 */
 .routes {
-  display: grid;
-  grid-template-columns: minmax(340px, 460px) 1fr;
-  gap: 24px;
-  height: min(760px, calc(var(--viewport-h) - 140px));
-  min-height: 520px;
+    display: grid;
+    grid-template-columns: minmax(340px, 460px) 1fr;
+    gap: 24px;
+    height: min(760px, calc(var(--viewport-h) - 140px));
+    min-height: 520px;
 }
 
 .routes-panel {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 /* ---------- 구분 탭: 3칸 세그먼트 ---------- */
 .route-seg {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  padding: 4px;
-  border: 1px solid var(--sheet-line);
-  border-radius: 14px;
-  background: rgba(var(--cream-rgb), 0.05);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 4px;
+    border: 1px solid var(--sheet-line);
+    border-radius: 14px;
+    background: rgba(var(--cream-rgb), 0.05);
 }
 
 /* 한 줄 배치: 구분명 + 경로 수 배지 */
 .route-seg-btn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 4px;
-  border-radius: 10px;
-  color: var(--muted);
-  font-size: 12.5px;
-  text-align: center;
-  white-space: nowrap;
-  transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 4px;
+    border-radius: 10px;
+    color: var(--muted);
+    font-size: 12.5px;
+    text-align: center;
+    white-space: nowrap;
+    transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
 }
 
 .route-seg-btn b {
-  display: inline-grid;
-  place-items: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: var(--radius-pill);
-  background: rgba(var(--cream-rgb), 0.08);
-  color: var(--text-faint);
-  font-size: 10.5px;
-  font-weight: 600;
+    display: inline-grid;
+    place-items: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: var(--radius-pill);
+    background: rgba(var(--cream-rgb), 0.08);
+    color: var(--text-faint);
+    font-size: 10.5px;
+    font-weight: 600;
 }
 
 .route-seg-btn:hover {
-  color: var(--cream);
+    color: var(--cream);
 }
 
 .route-seg-btn[aria-selected="true"] {
-  background: var(--cream);
-  color: var(--ink);
-  font-weight: 700;
-  box-shadow: 0 6px 18px rgba(var(--black-rgb), 0.4);
+    background: var(--cream);
+    color: var(--ink);
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(var(--black-rgb), 0.4);
 }
 
 .route-seg-btn[aria-selected="true"] b {
-  background: rgba(var(--ink-rgb), 0.12);
-  color: #6b5f52;
+    background: rgba(var(--ink-rgb), 0.12);
+    color: #6b5f52;
 }
 
 /* ---------- 경로 카드 ---------- */
 .route-cards {
-  flex: 1;
-  min-height: 0;
-  margin-top: 14px;
-  padding-right: 4px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
+    flex: 1;
+    min-height: 0;
+    margin-top: 14px;
+    padding-right: 4px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
 }
 
 .route-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .route-group[hidden] {
-  display: none;
+    display: none;
 }
 
 .route-card {
-  border: 1px solid var(--sheet-line);
-  border-radius: 16px;
-  background: var(--sheet-bg-raised);
-  transition: border-color var(--dur-base) ease, box-shadow var(--dur-base) ease, background var(--dur-base) ease;
+    border: 1px solid var(--sheet-line);
+    border-radius: 16px;
+    background: var(--sheet-bg-raised);
+    transition: border-color var(--dur-base) ease, box-shadow var(--dur-base) ease, background var(--dur-base) ease;
 }
 
 .route-card:hover {
-  border-color: rgba(var(--cream-rgb), 0.22);
+    border-color: rgba(var(--cream-rgb), 0.22);
 }
 
 .route-card.is-active {
-  border-color: rgba(217, 89, 76, 0.55);
-  background: linear-gradient(160deg, rgba(var(--red-rgb), 0.22), var(--sheet-bg-raised) 55%);
-  box-shadow: 0 20px 50px rgba(var(--red-rgb), 0.18);
+    border-color: rgba(217, 89, 76, 0.55);
+    background: linear-gradient(160deg, rgba(var(--red-rgb), 0.22), var(--sheet-bg-raised) 55%);
+    box-shadow: 0 20px 50px rgba(var(--red-rgb), 0.18);
 }
 
 .route-card-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 11px 14px;
-  text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 11px 14px;
+    text-align: left;
 }
 
 .route-num {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: 9px;
-  background: rgba(var(--cream-rgb), 0.06);
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    background: rgba(var(--cream-rgb), 0.06);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .route-card.is-active .route-num {
-  background: var(--red);
-  color: var(--white);
+    background: var(--red);
+    color: var(--white);
 }
 
 .route-card-text {
-  flex: 1;
-  min-width: 0;
+    flex: 1;
+    min-width: 0;
 }
 
 .route-card-title {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .route-card-meta {
-  display: block;
-  margin-top: 2px;
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 11.5px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    display: block;
+    margin-top: 2px;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 11.5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .route-card-arrow {
-  color: var(--text-faint);
-  font-size: 20px;
-  transition: transform var(--dur-base) var(--ease-out);
+    color: var(--text-faint);
+    font-size: 20px;
+    transition: transform var(--dur-base) var(--ease-out);
 }
 
 .route-card.is-active .route-card-arrow {
-  transform: rotate(90deg);
+    transform: rotate(90deg);
 }
 
 /* 활성 카드 펼침: grid-template-rows 0fr → 1fr 전환 */
 .route-card-body {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows var(--dur-slow) var(--ease-out);
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--dur-slow) var(--ease-out);
 }
 
 .route-card.is-active .route-card-body {
-  grid-template-rows: 1fr;
+    grid-template-rows: 1fr;
 }
 
 .route-card-inner {
-  min-height: 0;
-  overflow: hidden;
-  padding: 0 14px;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0 14px;
 }
 
 .route-card.is-active .route-card-inner {
-  padding-bottom: 14px;
+    padding-bottom: 14px;
 }
 
 /* 경유지 세로 타임라인 */
 .route-timeline {
-  margin: 0 0 0 13px;
-  padding-left: 22px;
-  border-left: 2px dashed rgba(217, 89, 76, 0.5);
-  list-style: none;
+    margin: 0 0 0 13px;
+    padding-left: 22px;
+    border-left: 2px dashed rgba(217, 89, 76, 0.5);
+    list-style: none;
 }
 
 .route-timeline li {
-  position: relative;
-  padding: 3px 0;
-  color: #cfc7bb;
-  font-size: 13px;
+    position: relative;
+    padding: 3px 0;
+    color: #cfc7bb;
+    font-size: 13px;
 }
 
 .route-timeline li::before {
-  content: "";
-  position: absolute;
-  top: 8px;
-  left: -29px;
-  width: 10px;
-  height: 10px;
-  border: 2px solid var(--text-faint);
-  border-radius: 50%;
-  background: var(--sheet-bg);
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: -29px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--text-faint);
+    border-radius: 50%;
+    background: var(--sheet-bg);
 }
 
 .route-timeline li.is-start,
 .route-timeline li.is-end {
-  color: var(--white);
-  font-weight: 600;
+    color: var(--white);
+    font-weight: 600;
 }
 
 .route-timeline li.is-start::before,
 .route-timeline li.is-end::before {
-  border-color: var(--cream);
-  background: var(--ink);
+    border-color: var(--cream);
+    background: var(--ink);
 }
 
 .route-timeline small {
-  margin-left: 6px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 400;
+    margin-left: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 400;
 }
 
 .route-card-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 14px;
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
 }
 
 .route-desc-btn {
-  padding: 6px 12px;
-  border: 1px solid var(--sheet-line);
-  border-radius: var(--radius-pill);
-  color: var(--text-soft);
-  font-size: 12px;
+    padding: 6px 12px;
+    border: 1px solid var(--sheet-line);
+    border-radius: var(--radius-pill);
+    color: var(--text-soft);
+    font-size: 12px;
 }
 
 .route-desc-btn:hover,
 .route-desc-btn[aria-expanded="true"] {
-  border-color: rgba(var(--cream-rgb), 0.4);
-  color: var(--cream);
+    border-color: rgba(var(--cream-rgb), 0.4);
+    color: var(--cream);
 }
 
 .route-desc {
-  margin-top: 12px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.75;
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.75;
 }
 
 /* ---------- 지도 프레임 ---------- */
 .routes-map {
-  min-height: 0;
-  border-radius: 28px;
-  box-shadow: 0 40px 90px rgba(var(--black-rgb), 0.6);
+    min-height: 0;
+    border-radius: 28px;
+    box-shadow: 0 40px 90px rgba(var(--black-rgb), 0.6);
 }
 
 /* 유리 패널 공통 위치 기준: Leaflet 컨트롤(800)보다 위 */
 .routes-map .glass-card {
-  position: absolute;
-  z-index: 850;
-  border-radius: 18px;
+    position: absolute;
+    z-index: 850;
+    border-radius: 18px;
 }
 
 /* 현재 경로 정보 (좌상단) */
 .route-info {
-  top: 18px;
-  left: 18px;
-  max-width: min(360px, calc(100% - 36px));
-  padding: 16px 20px;
+    top: 18px;
+    left: 18px;
+    max-width: min(360px, calc(100% - 36px));
+    padding: 16px 20px;
 }
 
 .route-info:empty {
-  display: none;
+    display: none;
 }
 
 .route-info-kicker {
-  color: var(--gold-light);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+    color: var(--gold-light);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
 }
 
 .route-info-title {
-  margin-top: 6px;
-  font-family: var(--font-serif);
-  font-size: 21px;
-  font-weight: 500;
+    margin-top: 6px;
+    font-family: var(--font-serif);
+    font-size: 21px;
+    font-weight: 500;
 }
 
 /* 크게 보기 버튼 (우측, 지도 전환 토글 아래) */
 .route-zoom {
-  top: 76px;
-  right: 16px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 14px;
+    top: 76px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 14px;
 }
 
 .route-zoom button {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  color: #cfc7bb;
-  font-size: 18px;
-  transition: background-color var(--dur-base) ease;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    color: #cfc7bb;
+    font-size: 18px;
+    transition: background-color var(--dur-base) ease;
 }
 
 .route-zoom button+button {
-  border-top: 1px solid var(--sheet-line);
+    border-top: 1px solid var(--sheet-line);
 }
 
 .route-zoom button:hover {
-  background: rgba(var(--cream-rgb), 0.08);
-  color: var(--white);
+    background: rgba(var(--cream-rgb), 0.08);
+    color: var(--white);
 }
 
 /* ---------- 크게 보기 팝업 ---------- */
 .routes-map.is-expanded {
-  position: fixed;
-  inset: clamp(12px, 3vw, 40px);
-  z-index: var(--z-modal);
-  min-height: 0;
-  border-radius: 24px;
-  animation: routes-map-in 0.3s var(--ease-out);
+    position: fixed;
+    inset: clamp(12px, 3vw, 40px);
+    z-index: var(--z-modal);
+    min-height: 0;
+    border-radius: 24px;
+    animation: routes-map-in 0.3s var(--ease-out);
 }
 
 .routes-map-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: calc(var(--z-modal) - 1);
-  background: rgba(var(--black-rgb), 0.78);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  animation: routes-backdrop-in 0.3s ease;
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--z-modal) - 1);
+    background: rgba(var(--black-rgb), 0.78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    animation: routes-backdrop-in 0.3s ease;
 }
 
 .routes-map.is-expanded .route-info-title {
-  font-size: 24px;
+    font-size: 24px;
 }
 
 @keyframes routes-map-in {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
 }
 
 @keyframes routes-backdrop-in {
-  from {
-    opacity: 0;
-  }
+    from {
+        opacity: 0;
+    }
 }
 
 /* 경로 재생 (하단): 상단 경로 정보 패널과 동일 유리 패널 (glass-card 배경·블러 상속) */
 .route-player {
-  right: 18px;
-  bottom: 18px;
-  left: 18px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 8px 20px 8px 8px;
+    right: 18px;
+    bottom: 18px;
+    left: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 20px 8px 8px;
 }
 
 .route-play {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--red);
-  box-shadow: 0 0 0 5px rgba(var(--red-rgb), 0.25);
-  transition: transform var(--dur-base) var(--ease-out);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 0 5px rgba(var(--red-rgb), 0.25);
+    transition: transform var(--dur-base) var(--ease-out);
 }
 
 .route-play:hover {
-  transform: scale(1.06);
+    transform: scale(1.06);
 }
 
 /* ▶ 아이콘 */
 .route-play i {
-  width: 0;
-  height: 0;
-  margin-left: 4px;
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-  border-left: 14px solid var(--white);
+    width: 0;
+    height: 0;
+    margin-left: 4px;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 14px solid var(--white);
 }
 
 /* ❚❚ 아이콘 (재생 중) */
 .route-play.is-playing i {
-  width: 14px;
-  height: 16px;
-  margin-left: 0;
-  border: none;
-  border-right: 4px solid var(--white);
-  border-left: 4px solid var(--white);
+    width: 14px;
+    height: 16px;
+    margin-left: 0;
+    border: none;
+    border-right: 4px solid var(--white);
+    border-left: 4px solid var(--white);
 }
 
 /* 진행 막대 + 진행률 한 줄 배치 (안내 문구 제거 → 재생 바 높이 축소) */
 .route-progress {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  gap: 16px;
-  min-width: 0;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
 }
 
 .route-progress-pct {
-  flex: none;
-  min-width: 36px;
-  color: var(--white);
-  font-size: 12px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
+    flex: none;
+    min-width: 36px;
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
 }
 
 .route-bar {
-  --progress: 0%;
-  position: relative;
-  flex: 1;
-  height: 6px;
-  border-radius: 9px;
-  background: rgba(var(--cream-rgb), 0.14);
-  cursor: pointer;
+    --progress: 0%;
+    position: relative;
+    flex: 1;
+    height: 6px;
+    border-radius: 9px;
+    background: rgba(var(--cream-rgb), 0.14);
+    cursor: pointer;
 }
 
 /* 클릭 영역 확대 */
 .route-bar::before {
-  content: "";
-  position: absolute;
-  inset: -8px 0;
+    content: "";
+    position: absolute;
+    inset: -8px 0;
 }
 
 .route-bar-fill {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: var(--progress);
-  border-radius: 9px;
-  background: linear-gradient(90deg, var(--red), var(--red-light));
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--progress);
+    border-radius: 9px;
+    background: linear-gradient(90deg, var(--red), var(--red-light));
 }
 
 .route-bar-knob {
-  position: absolute;
-  top: 50%;
-  left: var(--progress);
-  width: 16px;
-  height: 16px;
-  margin: -8px 0 0 -8px;
-  border-radius: 50%;
-  background: var(--white);
-  box-shadow: 0 0 0 4px rgba(217, 89, 76, 0.35);
+    position: absolute;
+    top: 50%;
+    left: var(--progress);
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border-radius: 50%;
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(217, 89, 76, 0.35);
 }
 
 /* ---------- 지도 CSS 배율 보정 (s3-routes.js setMapScale) ----------
    지도 영역 scale(--map-scale) 적용 시 컨트롤·마커 크기 유지 → 역배율 적용 */
 #map-s3 .custom-map-toggle {
-  transform: scale(calc(1 / var(--map-scale, 1)));
-  transform-origin: top right;
+    transform: scale(calc(1 / var(--map-scale, 1)));
+    transform-origin: top right;
 }
 
 #map-s3 .route-point-dot,
 #map-s3 .route-point-label,
 #map-s3 .route-runner-dot {
-  scale: calc(1 / var(--map-scale, 1));
+    scale: calc(1 / var(--map-scale, 1));
 }
 
 /* ---------- 경로선 · 출발/도착 · 재생 표시점 ---------- */
 #map-s3 path.route-flow {
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  animation: route-flow 0.8s linear infinite;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: route-flow 0.8s linear infinite;
 }
 
 /* 이동 거리 30 = dashArray "15, 15" 한 주기 → 출발 → 도착 방향 흐름 */
 @keyframes route-flow {
-  from {
-    stroke-dashoffset: 30;
-  }
+    from {
+        stroke-dashoffset: 30;
+    }
 
-  to {
-    stroke-dashoffset: 0;
-  }
+    to {
+        stroke-dashoffset: 0;
+    }
 }
 
 /* 출발/도착 표시: 아이콘 = 원형 점(14px, 중심 = 경로 시작·끝 좌표), 라벨은 점 위 절대 배치
    (flex 세로 배치 시 라벨 높이·글꼴 차이로 점 축소·위치 어긋남 → 점 기준 고정) */
 .route-point-dot {
-  display: block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--white);
-  border-radius: 50%;
-  background: var(--ink);
-  box-shadow: 0 0 0 3px rgba(var(--ink-rgb), 0.35);
+    display: block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--white);
+    border-radius: 50%;
+    background: var(--ink);
+    box-shadow: 0 0 0 3px rgba(var(--ink-rgb), 0.35);
 }
 
 .route-point-label {
-  position: absolute;
-  bottom: calc(100% + 5px);
-  left: 50%;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  background: var(--ink);
-  color: var(--white);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.4;
-  white-space: nowrap;
-  transform: translateX(-50%);
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--ink);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+    transform: translateX(-50%);
 }
 
 .route-runner-dot {
-  display: block;
-  width: 22px;
-  height: 22px;
-  border: 5px solid var(--red-light);
-  border-radius: 50%;
-  background: var(--white);
-  box-shadow: 0 0 0 8px rgba(217, 89, 76, 0.25), 0 0 24px rgba(217, 89, 76, 0.8);
+    display: block;
+    width: 22px;
+    height: 22px;
+    border: 5px solid var(--red-light);
+    border-radius: 50%;
+    background: var(--white);
+    box-shadow: 0 0 0 8px rgba(217, 89, 76, 0.25), 0 0 24px rgba(217, 89, 76, 0.8);
 }
 
 /* ---------- 반응형: 지도 상단, 제목·탭·카드 하단 ---------- */
 @media (max-width: 1024px) {
-  .routes {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    height: auto;
-    min-height: 0;
-  }
+    .routes {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        height: auto;
+        min-height: 0;
+    }
 
-  .route-cards {
-    overflow: visible;
-  }
+    .route-cards {
+        overflow: visible;
+    }
 
-  /* 모바일: 지도를 탭·카드 위에 배치 */
-  .routes-map {
-    order: -1;
-    min-height: 0;
-    height: 460px;
-    border-radius: var(--frame-radius);
-  }
+    /* 모바일: 지도를 탭·카드 위에 배치 */
+    .routes-map {
+        order: -1;
+        min-height: 0;
+        height: 460px;
+        border-radius: var(--frame-radius);
+    }
 
-  /* 모바일: 경로 정보 패널 숨김 (선택 경로는 하단 카드 목록에서 확인) */
-  .route-info {
-    display: none;
-  }
+    /* 모바일: 경로 정보 패널 숨김 (선택 경로는 하단 카드 목록에서 확인) */
+    .route-info {
+        display: none;
+    }
 
-  /* 크게 보기 팝업에서는 경로 정보 패널 표시 */
-  .routes-map.is-expanded .route-info {
-    display: block;
-  }
+    /* 크게 보기 팝업에서는 경로 정보 패널 표시 */
+    .routes-map.is-expanded .route-info {
+        display: block;
+    }
 }
 
 @media (max-width: 480px) {
-  .routes-map {
-    height: 400px;
-  }
+    .routes-map {
+        height: 400px;
+    }
 
-  /* 크게 보기 팝업: 지도 전환 토글 아래 배치, 우측 크게 보기 버튼 영역 회피 */
-  .route-info {
-    top: 64px;
-    right: 70px;
-    max-width: none;
-    padding: 12px 14px;
-  }
+    /* 크게 보기 팝업: 지도 전환 토글 아래 배치, 우측 크게 보기 버튼 영역 회피 */
+    .route-info {
+        top: 64px;
+        right: 70px;
+        max-width: none;
+        padding: 12px 14px;
+    }
 
-  .route-info-title {
-    font-size: 17px;
-  }
+    .route-info-title {
+        font-size: 17px;
+    }
 
-  .route-player {
-    gap: 12px;
-    padding: 7px 14px 7px 7px;
-  }
+    .route-player {
+        gap: 12px;
+        padding: 7px 14px 7px 7px;
+    }
 
-  .route-seg-btn {
-    gap: 4px;
-    font-size: 11.5px;
-  }
+    .route-seg-btn {
+        gap: 4px;
+        font-size: 11.5px;
+    }
 }

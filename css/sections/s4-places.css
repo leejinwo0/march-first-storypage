@@ -4,280 +4,280 @@
 ======================================================= */
 /* 섹션3과 동일한 2단 구조: 화면 높이 기준, 좌측 목록만 내부 스크롤 */
 .places {
-  display: grid;
-  grid-template-columns: minmax(340px, 460px) 1fr;
-  gap: 24px;
-  height: min(760px, calc(var(--viewport-h) - 140px));
-  min-height: 520px;
+    display: grid;
+    grid-template-columns: minmax(340px, 460px) 1fr;
+    gap: 24px;
+    height: min(760px, calc(var(--viewport-h) - 140px));
+    min-height: 520px;
 }
 
 /* ---------- 범례 패널: 섹션3 좌측 열과 동일 (상단 필터 카드 + 하단 목록 박스) ---------- */
 .places-panel {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .places-map {
-  min-height: 0;
-  border-radius: 28px;
-  box-shadow: 0 40px 90px rgba(var(--black-rgb), 0.6);
+    min-height: 0;
+    border-radius: 28px;
+    box-shadow: 0 40px 90px rgba(var(--black-rgb), 0.6);
 }
 
 /* 필터 카드: 섹션3 구분 탭 위치 (목록 열과 같은 2열 정렬) */
 .places-filters {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
 }
 
 .places-filter {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 12px 14px;
-  border: 1px solid var(--sheet-line);
-  border-radius: 16px;
-  background: var(--sheet-bg-raised);
-  text-align: left;
-  opacity: 0.5;
-  transition: opacity var(--dur-base) ease, border-color var(--dur-base) ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border: 1px solid var(--sheet-line);
+    border-radius: 16px;
+    background: var(--sheet-bg-raised);
+    text-align: left;
+    opacity: 0.5;
+    transition: opacity var(--dur-base) ease, border-color var(--dur-base) ease;
 }
 
 .places-filter.is-on {
-  opacity: 1;
+    opacity: 1;
 }
 
 .places-filter[data-filter="hub"].is-on {
-  border-color: rgba(217, 89, 76, 0.6);
+    border-color: rgba(217, 89, 76, 0.6);
 }
 
 .places-filter[data-filter="site"].is-on {
-  border-color: rgba(var(--gold-rgb), 0.55);
+    border-color: rgba(var(--gold-rgb), 0.55);
 }
 
 .places-filter b {
-  font-size: 30px;
-  font-weight: 200;
-  line-height: 1.1;
-  letter-spacing: -0.04em;
+    font-size: 30px;
+    font-weight: 200;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
 }
 
 .places-filter-name {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
 }
 
 .places-filter small {
-  color: var(--text-faint);
-  font-size: var(--fs-2xs);
+    color: var(--text-faint);
+    font-size: var(--fs-2xs);
 }
 
 /* 목록 2열 박스: 좌 중요 지점 · 우 시위 장소 (섹션3 경로 카드와 같은 배경·테두리) */
 .places-lists {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  flex: 1;
-  min-height: 0;
-  margin-top: 14px;
-  padding: 8px 14px;
-  border: 1px solid var(--sheet-line);
-  border-radius: 16px;
-  background: var(--sheet-bg-raised);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+    margin-top: 14px;
+    padding: 8px 14px;
+    border: 1px solid var(--sheet-line);
+    border-radius: 16px;
+    background: var(--sheet-bg-raised);
 }
 
 .places-list {
-  min-height: 0;
-  overflow-y: auto;
-  transition: opacity var(--dur-base) ease;
-  overscroll-behavior: contain;
-  -webkit-mask-image: linear-gradient(180deg, #000 88%, transparent);
-  mask-image: linear-gradient(180deg, #000 88%, transparent);
+    min-height: 0;
+    overflow-y: auto;
+    transition: opacity var(--dur-base) ease;
+    overscroll-behavior: contain;
+    -webkit-mask-image: linear-gradient(180deg, #000 88%, transparent);
+    mask-image: linear-gradient(180deg, #000 88%, transparent);
 }
 
 .places-list.is-off {
-  opacity: 0.3;
+    opacity: 0.3;
 }
 
 .places-item button {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  width: 100%;
-  padding: 9px 4px;
-  border-bottom: 1px solid var(--sheet-line);
-  color: #cfc7bb;
-  font-size: 13px;
-  line-height: 1.45;
-  text-align: left;
-  word-break: keep-all;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--sheet-line);
+    color: #cfc7bb;
+    font-size: 13px;
+    line-height: 1.45;
+    text-align: left;
+    word-break: keep-all;
 }
 
 /* 2열 폭 축소에 따른 줄바꿈 시 점 위치 첫 줄 고정 */
 .places-item .legend-dot {
-  margin-top: 6px;
+    margin-top: 6px;
 }
 
 .places-item button:hover,
 .places-item.active button {
-  color: var(--white);
+    color: var(--white);
 }
 
 .places-item.active button {
-  background: rgba(var(--cream-rgb), 0.06);
+    background: rgba(var(--cream-rgb), 0.06);
 }
 
 /* ---------- 마커 ---------- */
 .place-pin {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: center / contain no-repeat;
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: center / contain no-repeat;
 }
 
 .place-pin-hub {
-  background-image: url("/assets/images/markers/marker-theme-11100550-3.png");
+    background-image: url("/assets/images/markers/marker-theme-11100550-3.png");
 }
 
 .place-pin-site {
-  background-image: url("/assets/images/markers/marker-theme-11100550-4.png");
+    background-image: url("/assets/images/markers/marker-theme-11100550-4.png");
 }
 
 .place-pin::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: -1;
-  width: 15px;
-  height: 15px;
-  border: 3px solid var(--red);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  animation: pin-pulse 2s ease-out infinite;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: -1;
+    width: 15px;
+    height: 15px;
+    border: 3px solid var(--red);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pin-pulse 2s ease-out infinite;
 }
 
 .place-pin-site::after {
-  border-color: var(--gold);
+    border-color: var(--gold);
 }
 
 @keyframes pin-pulse {
-  to {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(4);
-  }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(4);
+    }
 }
 
 /* ---------- 하단 수치 ---------- */
 .mini-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  margin-top: 40px;
-  border-top: 1px solid var(--sheet-line);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 40px;
+    border-top: 1px solid var(--sheet-line);
 }
 
 .mini-stats>div {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: center;
-  align-items: baseline;
-  gap: 10px;
-  padding-top: 28px;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: baseline;
+    gap: 10px;
+    padding-top: 28px;
 }
 
 .mini-stats dd {
-  font-size: 38px;
-  font-weight: 200;
-  letter-spacing: -0.04em;
+    font-size: 38px;
+    font-weight: 200;
+    letter-spacing: -0.04em;
 }
 
 .mini-stats dt {
-  color: var(--muted);
-  font-size: 13px;
+    color: var(--muted);
+    font-size: 13px;
 }
 
 /* ---------- 모바일 상세 시트 (더보기 클릭 시, uiUtils.js openSheet) ---------- */
 .place-sheet-title {
-  margin-top: 10px;
-  font-family: var(--font-serif);
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.4;
+    margin-top: 10px;
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.4;
 }
 
 .place-sheet-addr {
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 13px;
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 13px;
 }
 
 .place-sheet-desc {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--sheet-line);
-  color: var(--text-soft);
-  font-size: 14px;
-  line-height: 1.8;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--sheet-line);
+    color: var(--text-soft);
+    font-size: 14px;
+    line-height: 1.8;
 }
 
 .place-sheet-link {
-  display: flex;
-  margin-top: 20px;
+    display: flex;
+    margin-top: 20px;
 }
 
 /* ---------- 반응형: 지도 상단, 범례 패널 하단 ---------- */
 @media (max-width: 1024px) {
-  .places {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    height: auto;
-    min-height: 0;
-  }
+    .places {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        height: auto;
+        min-height: 0;
+    }
 
-  .places-map {
-    order: -1;
-    height: 420px;
-    border-radius: var(--frame-radius);
-  }
+    .places-map {
+        order: -1;
+        height: 420px;
+        border-radius: var(--frame-radius);
+    }
 
-  .places-lists {
-    max-height: 420px;
-  }
+    .places-lists {
+        max-height: 420px;
+    }
 
-  /* 모바일 팝업: 분류·장소명·더보기만 표시 (주소·스마트서울맵·설명 → 하단 시트) */
-  #map-s4 .popup-addr,
-  #map-s4 .popup-actions .line-btn-red,
-  #map-s4 .popup-desc {
-    display: none;
-  }
+    /* 모바일 팝업: 분류·장소명·더보기만 표시 (주소·스마트서울맵·설명 → 하단 시트) */
+    #map-s4 .popup-addr,
+    #map-s4 .popup-actions .line-btn-red,
+    #map-s4 .popup-desc {
+        display: none;
+    }
 
-  #map-s4 .story-popup-inner {
-    width: auto;
-    max-width: 72vw;
-  }
+    #map-s4 .story-popup-inner {
+        width: auto;
+        max-width: 72vw;
+    }
 
-  .mini-stats>div {
-    flex-direction: column-reverse;
-    align-items: center;
-    gap: 0;
-  }
+    .mini-stats>div {
+        flex-direction: column-reverse;
+        align-items: center;
+        gap: 0;
+    }
 
-  .mini-stats dd {
-    font-size: 30px;
-  }
+    .mini-stats dd {
+        font-size: 30px;
+    }
 }
 
 @media (max-width: 480px) {
-  .places-map {
-    height: 340px;
-  }
+    .places-map {
+        height: 340px;
+    }
 
-  .places-lists {
-    gap: 10px;
-    padding: 6px 10px;
-  }
+    .places-lists {
+        gap: 10px;
+        padding: 6px 10px;
+    }
 }
