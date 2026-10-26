@@ -512,15 +512,14 @@
     }
 }
 
-/* 1024px 이하 (태블릿·모바일): 페이지 맨 위 상단 바(로고 + 사이트명), 메뉴 하단 고정, 헤더·푸터 1~2열 */
+/* 1024px 이하 (태블릿·모바일): 상단 바(로고 + 사이트명) 상단 고정, 메뉴 하단 고정, 헤더·푸터 1~2열 */
 @media (max-width: 1024px) {
 
-    /* 상단 바: 화면 상단 전체 폭 고정 (로고 + 사이트명, 스크롤 시 모양 변화 없음) */
+    /* 상단 바: 하단 메뉴와 동일하게 화면 고정 (상단 12px 띄움, 스크롤 시에도 유지) */
     .top-nav {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
+        top: calc(12px + env(safe-area-inset-top));
+        left: 12px;
+        right: 12px;
     }
 
     /* 메뉴: 하단 고정 가로 스크롤 바로 이동 */
@@ -540,15 +539,17 @@
         display: none;
     }
 
+    /* 상단 바 모양: 하단 메뉴와 동일 (알약형 · 얇은 테두리 · 반투명 블러 배경) */
     .top-nav-logo,
     .top-nav.is-scrolled .top-nav-logo {
         flex: 1;
+        justify-content: center;
+        /* 마크 + 사이트명 가운데 정렬 */
         min-width: 0;
-        padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
-        border: 0;
-        border-bottom: 1px solid var(--sheet-line);
-        border-radius: 0;
-        background: rgba(var(--umber-rgb), 0.92);
+        padding: 5px 16px;
+        border: 1px solid var(--sheet-line);
+        border-radius: var(--radius-pill);
+        background: rgba(var(--umber-rgb), 0.9);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
     }
