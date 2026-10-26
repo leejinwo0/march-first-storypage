@@ -4,7 +4,10 @@
    - 카드: 제목 · 영문/장소 → 사진 → 설명 순
    - 이미지 클릭 시 전역 확대 모달, 이미지 로드 실패 시 사진 영역 숨김
    - 세계지도: OpenStreetMap 타일, 카드 4곳 번호 마커
-   - 마커 호버 시 장소명 툴팁, 마커·카드 클릭 시 해당 위치 확대 + 카드 강조
+   - 마커 호버 시 장소명·날짜 툴팁, 마커·카드 클릭 시 해당 위치 확대 + 카드·마커 강조(빨간색)
+   - 선택된 카드 재클릭 시 선택 해제 + 전체 보기 복귀
+   - 선택 팝업(장소명·날짜): 지도 클릭 시 유지, 우측 상단 X 클릭 시 닫힘 + 선택 해제 + 전체 보기 복귀
+   - 확대 상태(전체 보기 줌 초과)에서는 호버 툴팁 미표시
    - 전체 보기 축척에서 서울 마커 2개(남산·대한문) 좌우 분리 표시
    - 모바일(560px 이하): 카드 설명 숨김, 사진 클릭 시 확대 모달에 설명 함께 표시
 ======================================================= */
@@ -31,7 +34,6 @@ export function initEra() {
         <p class="era-en">${item.en} · ${item.place}</p>
         <button type="button" class="era-photo" data-index="${index}" aria-label="${item.caption} 확대 보기">
           <img src="${item.imgUrl}" alt="${item.caption}" loading="lazy" onerror="this.closest('.era-photo').classList.add('is-empty'); this.remove();">
-          <span class="era-chip">${item.label}</span>
           <span class="era-date">${item.date}</span>
           <span class="era-more" aria-hidden="true">눌러서 설명 보기</span>
         </button>
@@ -128,14 +130,18 @@ function initEraMap(grid) {
             );
     };
 
+    const markers = []; // 카드 index → 마커
+
+    // 선택: 카드·마커 강조 + 팝업 열기 + 해당 위치 확대
     const focus = (index) => {
         const item = S1_ERA[index];
         if (!item?.latlng) return;
         setActive(index);
+        markers[index]?.openPopup();
         map.flyTo(item.latlng, FOCUS_ZOOM, { duration: 1.4 });
     };
 
-    // 번호 마커 (호버: 장소명·날짜 툴팁 / 클릭: 해당 위치 확대)
+    // 번호 마커 (호버: 장소명·날짜 툴팁 / 클릭: 해당 위치 확대 + 팝업)
     S1_ERA.forEach((item, index) => {
         if (!item.latlng) return;
         const icon = L.divIcon({
@@ -144,36 +150,67 @@ function initEraMap(grid) {
             iconSize: [30, 30],
             iconAnchor: [15, 15],
         });
-        L.marker(item.latlng, { icon, riseOnHover: true })
+        const marker = L.marker(item.latlng, { icon, riseOnHover: true })
             .addTo(map)
             .bindTooltip(`${item.place}<small>${item.date}</small>`, {
                 className: "place-tooltip era-tooltip",
                 direction: "top",
                 offset: [0, -16],
             })
-            .on("click", () => focus(index));
+            // 팝업: 지도 클릭 시 유지, 우측 상단 X 클릭 시에만 닫힘 (다른 장소 선택 시 교체)
+            .bindPopup(
+                `<p class="era-popup-title">${item.place}</p><p class="era-popup-date">${item.date}</p>`,
+                {
+                    className: "story-popup era-popup",
+                    offset: [0, -14],
+                    closeButton: true,
+                    closeOnClick: false,
+                    // 확대 이동(flyTo) 중 autoPan 충돌 방지 (마커가 지도 중앙으로 이동)
+                    autoPan: false,
+                },
+            );
+        // 마커 클릭: Leaflet 기본 팝업 토글(재클릭 시 닫힘) 해제 → focus에서 열기
+        marker.off("click", marker._openPopup, marker);
+        marker.on("click", () => focus(index));
+        // 팝업 표시 중 툴팁 숨김
+        marker.on("popupopen", () => marker.closeTooltip());
+        // X 클릭으로 닫힘 → 선택 해제 + 전체 보기 복귀 (다른 마커 선택으로 교체된 경우 제외)
+        marker.on("popupclose", () => {
+            if (activeIndex !== index) return;
+            setActive(-1);
+            showAll();
+        });
+        markers[index] = marker;
     });
 
-    // 카드 클릭 → 지도 위치 이동 (사진 클릭은 확대 모달 유지)
+    // 선택 해제: 강조 해제 + 팝업 닫기 + 전체 보기 복귀
+    const clearSelection = () => {
+        setActive(-1);
+        map.closePopup();
+        showAll();
+    };
+
+    // 카드 클릭 → 지도 위치 이동, 선택된 카드 재클릭 → 선택 해제 + 전체 보기 (사진 클릭은 확대 모달 유지)
     cards.forEach((card) => {
         card.addEventListener("click", (e) => {
             if (e.target.closest(".era-photo, a")) return;
-            focus(Number(card.dataset.index));
+            const index = Number(card.dataset.index);
+            if (index === activeIndex) clearSelection();
+            else focus(index);
         });
     });
 
-    // 낮은 줌: 서울 마커 좌우 분리 / 전체 보기 버튼 표시
+    // 낮은 줌: 서울 마커 좌우 분리 / 확대 상태: 호버 툴팁 숨김 + 전체 보기 버튼 표시
     const update = () => {
         const zoom = map.getZoom();
+        const zoomed = zoom > FIT_OPTIONS.maxZoom;
         mapEl.classList.toggle("is-split", zoom < SPLIT_ZOOM);
-        resetBtn?.classList.toggle("show", zoom > FIT_OPTIONS.maxZoom);
+        mapEl.classList.toggle("is-zoomed", zoomed);
+        resetBtn?.classList.toggle("show", zoomed);
     };
     map.on("zoomend", update);
 
-    resetBtn?.addEventListener("click", () => {
-        setActive(-1);
-        showAll();
-    });
+    resetBtn?.addEventListener("click", clearSelection);
 
     // 섹션 진입 전 크기 0 대비: 크기 확정 후 전체 보기
     new ResizeObserver(() => {

@@ -19,6 +19,38 @@
     filter: drop-shadow(0 4px 6px rgba(var(--black-rgb), 0.5));
 }
 
+/* ---------- 지도 팝업 닫기 버튼 · 확대 상태 툴팁 ---------- */
+/* 팝업 내용: 좌우 동일 여백(우측 X 버튼 영역) → 인물명 가운데 정렬
+   width auto: Leaflet이 팝업 열 때 고정한 너비(px) 해제 → 웹폰트 로드 후에도 가운데 유지 */
+#map-s5 .story-popup-mini .leaflet-popup-content {
+    width: auto !important;
+    margin: 10px 32px;
+}
+
+/* 인물명: Leaflet 기본 p 여백(1.3em) 제거 → 팝업 높이 축소 */
+#map-s5 .popup-mini-title {
+    margin: 0;
+}
+
+/* 팝업 닫기 버튼 (우측 상단 X): 팝업만 닫기 */
+#map-s5 .story-popup a.leaflet-popup-close-button {
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    color: var(--muted);
+    font: 20px/24px var(--font-sans);
+}
+
+#map-s5 .story-popup a.leaflet-popup-close-button:hover {
+    color: var(--cream);
+}
+
+/* 확대 상태(s5-activists.js .is-zoomed): 호버 툴팁 숨김 → 팝업만 표시 */
+#map-s5.is-zoomed .place-tooltip {
+    display: none;
+}
+
 /* ---------- 프로필 ---------- */
 .activist-profile {
     padding: 28px;

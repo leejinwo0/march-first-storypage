@@ -200,6 +200,31 @@
     font-size: 13px;
 }
 
+/* ---------- 지도 팝업 닫기 버튼 · 확대 상태 툴팁 ---------- */
+/* 팝업 내용: 우측 X 버튼 영역 확보 */
+#map-s4 .story-popup .leaflet-popup-content {
+    margin-right: 38px;
+}
+
+/* 팝업 닫기 버튼 (우측 상단 X): 팝업만 닫기 */
+#map-s4 .story-popup a.leaflet-popup-close-button {
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    color: var(--muted);
+    font: 20px/24px var(--font-sans);
+}
+
+#map-s4 .story-popup a.leaflet-popup-close-button:hover {
+    color: var(--cream);
+}
+
+/* 확대 상태(s4-places.js .is-zoomed): 호버 툴팁 숨김 → 팝업만 표시 */
+#map-s4.is-zoomed .place-tooltip {
+    display: none;
+}
+
 /* ---------- 모바일 상세 시트 (더보기 클릭 시, uiUtils.js openSheet) ---------- */
 .place-sheet-title {
     margin-top: 10px;

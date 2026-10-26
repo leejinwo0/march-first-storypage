@@ -129,6 +129,32 @@
     transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease;
 }
 
+/* 팝업 내용: 우측 X 버튼 영역 확보 */
+/* 팝업 내용: 좌우 동일 여백(우측 X 버튼 영역) → 장소명 가운데 정렬 */
+#map-s2 .story-popup-mini .leaflet-popup-content {
+    width: auto !important;
+    margin: 10px 32px;
+}
+
+/* 장소명: Leaflet 기본 p 여백(1.3em) 제거 → 팝업 높이 축소 */
+#map-s2 .popup-mini-title {
+    margin: 0;
+}
+
+/* 팝업 닫기 버튼 (우측 상단 X) */
+#map-s2 .story-popup a.leaflet-popup-close-button {
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    color: var(--muted);
+    font: 20px/24px var(--font-sans);
+}
+
+#map-s2 .story-popup a.leaflet-popup-close-button:hover {
+    color: var(--cream);
+}
+
 .popup-mini-row {
     display: flex;
     align-items: center;
@@ -283,7 +309,7 @@
 
     /* 모바일 팝업: 섹션4 팝업과 동일 구성 (좌측 배지·장소명 / 우측 더보기) */
     #map-s2 .story-popup-mini .leaflet-popup-content {
-        margin: var(--space-4);
+        margin: var(--space-4) 34px var(--space-4) var(--space-4);
         text-align: left;
     }
 

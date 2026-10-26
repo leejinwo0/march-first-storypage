@@ -167,6 +167,11 @@
     transform: rotate(90deg);
 }
 
+/* 활성 카드 재클릭 접힘 (s3-routes.js .is-collapsed): 화살표 원위치 */
+.route-card.is-active.is-collapsed .route-card-arrow {
+    transform: none;
+}
+
 /* 활성 카드 펼침: grid-template-rows 0fr → 1fr 전환 */
 .route-card-body {
     display: grid;
@@ -176,6 +181,10 @@
 
 .route-card.is-active .route-card-body {
     grid-template-rows: 1fr;
+}
+
+.route-card.is-active.is-collapsed .route-card-body {
+    grid-template-rows: 0fr;
 }
 
 .route-card-inner {
@@ -188,49 +197,116 @@
     padding-bottom: 14px;
 }
 
-/* 경유지 세로 타임라인 */
+.route-card.is-active.is-collapsed .route-card-inner {
+    padding-bottom: 0;
+}
+
+/* ---------- 경유지 ㄹ자 타임라인 (s3-routes.js renderSnake) ----------
+   - 한 줄 3곳, 홀수 줄 왼쪽→오른쪽 / 짝수 줄 오른쪽→왼쪽
+   - 가로선: 줄마다 --line-l ~ --line-r 구간 / 꺾임선: 줄 끝 반원 점선으로 다음 줄 연결 */
 .route-timeline {
-    margin: 0 0 0 13px;
-    padding-left: 22px;
-    border-left: 2px dashed rgba(217, 89, 76, 0.5);
+    --dot: 12px;
+    /* 경유지 점 지름 */
+    --dot-y: 6px;
+    /* 점 중심 높이 (줄 상단 기준) */
+    --row-gap: 16px;
+    /* 줄 간격 */
+    --turn-r: 12px;
+    /* 꺾임선 반지름 */
+    --line: 2px dashed rgba(217, 89, 76, 0.55);
+    padding-top: 4px;
+}
+
+.route-snake-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     list-style: none;
 }
 
-.route-timeline li {
-    position: relative;
-    padding: 3px 0;
-    color: #cfc7bb;
-    font-size: 13px;
+.route-snake-row+.route-snake-row {
+    margin-top: var(--row-gap);
 }
 
-.route-timeline li::before {
+/* 줄 가로선 */
+.route-snake-row::before {
     content: "";
     position: absolute;
-    top: 8px;
-    left: -29px;
-    width: 10px;
-    height: 10px;
+    top: calc(var(--dot-y) - 1px);
+    left: var(--line-l);
+    right: var(--line-r);
+    border-top: var(--line);
+}
+
+/* 줄 끝 꺾임선: 현재 줄 점 높이 → 다음 줄 점 높이 */
+.route-snake-row.is-turn-right::after,
+.route-snake-row.is-turn-left::after {
+    content: "";
+    position: absolute;
+    top: calc(var(--dot-y) - 1px);
+    width: var(--turn-r);
+    height: calc(100% + var(--row-gap));
+    border: var(--line);
+}
+
+.route-snake-row.is-turn-right::after {
+    right: 0;
+    border-left: 0;
+    border-radius: 0 var(--turn-r) var(--turn-r) 0;
+}
+
+.route-snake-row.is-turn-left::after {
+    left: 0;
+    border-right: 0;
+    border-radius: var(--turn-r) 0 0 var(--turn-r);
+}
+
+/* 경유지: 점 + 이름(가운데 정렬) */
+.route-stop {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    grid-row: 1;
+    padding: calc(var(--dot) + 6px) 4px 0;
+    color: #cfc7bb;
+    font-size: 12.5px;
+    line-height: 1.35;
+    text-align: center;
+    word-break: keep-all;
+}
+
+.route-stop::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: var(--dot);
+    height: var(--dot);
     border: 2px solid var(--text-faint);
     border-radius: 50%;
     background: var(--sheet-bg);
+    transform: translateX(-50%);
 }
 
-.route-timeline li.is-start,
-.route-timeline li.is-end {
+.route-stop.is-start,
+.route-stop.is-end {
     color: var(--white);
     font-weight: 600;
 }
 
-.route-timeline li.is-start::before,
-.route-timeline li.is-end::before {
+.route-stop.is-start::before,
+.route-stop.is-end::before {
     border-color: var(--cream);
     background: var(--ink);
 }
 
-.route-timeline small {
-    margin-left: 6px;
+/* 출발 · 도착 표시 */
+.route-stop small {
+    margin-top: 1px;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 400;
 }
 

@@ -4,7 +4,8 @@
    - 카드·마커 클릭 → 지도 이동 + 프로필 표시 (상세 API 1회 호출 후 캐시)
    - 이름 검색 + 초성 필터 → 카드·마커 동시 필터링, 인원 수 갱신
    - 배치: 검색 바 → 인물 카드 줄 → 지도 | 프로필
-   - 마커 호버: 인물명 툴팁 표시
+   - 마커 호버: 인물명 툴팁 표시 (확대 상태에서는 미표시)
+   - 선택 팝업(인물명): 우측 상단 X 클릭 시 팝업만 닫힘, 같은 인물 재클릭 시 팝업 표시 중이면 전체 보기 / 닫힌 상태면 팝업 재표시
    - 전체 보기 버튼: 인물 선택 상태 또는 기본 줌보다 확대된 상태에서 표시
    - 지도 크기 변경(모바일 배치 전환 등) 시 선택 인물 없으면 전체 보기 재적용
 ======================================================= */
@@ -170,12 +171,12 @@ export async function initActivists() {
     `;
     }
 
-    // 전체 보기 버튼: 인물 선택 상태 또는 기본 줌보다 확대된 상태에서 표시
-    const updateReset = () =>
-        resetBtn?.classList.toggle(
-            "show",
-            !!activePerson || map.getZoom() > DEFAULT_MAX_ZOOM,
-        );
+    // 확대 상태(인물 선택 또는 기본 줌보다 확대): 전체 보기 버튼 표시 + 호버 툴팁 숨김(.is-zoomed)
+    const updateReset = () => {
+        const zoomed = !!activePerson || map.getZoom() > DEFAULT_MAX_ZOOM;
+        resetBtn?.classList.toggle("show", zoomed);
+        map.getContainer().classList.toggle("is-zoomed", zoomed);
+    };
 
     // 선택 해제 + 전체 보기
     const clearSelection = () => {
@@ -186,8 +187,11 @@ export async function initActivists() {
     };
 
     async function select(person) {
-        // 재클릭: 선택 해제 + 전체 보기
-        if (activePerson === person) return clearSelection();
+        // 재클릭: 팝업 표시 중이면 선택 해제 + 전체 보기, X로 닫은 상태면 팝업만 다시 표시
+        if (activePerson === person) {
+            if (person.marker.isPopupOpen()) return clearSelection();
+            return person.marker.openPopup();
+        }
 
         activePerson = person;
         people.forEach((p) => p.card.classList.toggle("active", p === person));
@@ -247,10 +251,13 @@ export async function initActivists() {
             {
                 className: "story-popup story-popup-mini",
                 offset: [0, -30],
-                closeButton: false,
+                // X 버튼: 팝업만 닫기 (인물 선택·프로필·확대 상태 유지)
+                closeButton: true,
                 autoPan: false,
             },
         );
+        // 마커 클릭: Leaflet 기본 팝업 토글(재클릭 시 닫힘) 해제 → select에서 열기
+        person.marker.off("click", person.marker._openPopup, person.marker);
         person.marker.on("click", () => select(person));
     });
 

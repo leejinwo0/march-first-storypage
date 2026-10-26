@@ -60,21 +60,6 @@
     cursor: default;
 }
 
-.era-chip {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    z-index: 1;
-    padding: 6px 12px;
-    border-radius: var(--radius-pill);
-    background: rgba(var(--ink-rgb), 0.65);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    color: var(--gold-light);
-    font-size: var(--fs-2xs);
-    font-weight: 600;
-}
-
 .era-date {
     position: absolute;
     right: 16px;
@@ -86,7 +71,7 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* 모바일 전용 안내 문구 (사진 우상단, 좌상단 분류 칩과 대칭) */
+/* 모바일 전용 안내 문구 (사진 우상단) */
 .era-more {
     display: none;
 }
@@ -159,31 +144,76 @@
     font-size: var(--fs-sm);
     font-weight: 700;
     box-shadow: 0 0 0 5px rgba(var(--red-rgb), 0.25);
-    transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease;
+    /* 좌우 분리(translate) · 확대(scale) 개별 속성 사용 → 두 효과 동시 적용 */
+    transition: translate var(--dur-base) var(--ease-out), scale var(--dur-base) var(--ease-out), box-shadow var(--dur-base) ease;
 }
 
 /* 낮은 줌: 서울 마커 2개 좌우 분리 (--split: -1 왼쪽 / 1 오른쪽 / 0 고정) */
 .is-split .era-marker {
-    transform: translateX(calc(var(--split) * 17px));
+    translate: calc(var(--split) * 17px) 0;
 }
 
-.era-marker:hover,
-.era-marker.is-active {
-    background: var(--gold);
-    color: var(--ink);
+/* 호버: 빨간색 유지, 확대만 적용 */
+.era-marker:hover {
+    scale: 1.12;
 }
 
+/* 선택: 섹션2 활성 마커와 동일 (빨간 배경 · 흰 테두리 · 빨간 광채) */
 .era-marker.is-active {
-    box-shadow: 0 0 0 6px rgba(var(--gold-rgb), 0.3), 0 0 18px rgba(var(--gold-rgb), 0.45);
+    scale: 1.3;
+    box-shadow: 0 0 0 6px rgba(var(--red-rgb), 0.25), 0 0 18px var(--accent-glow);
+}
+
+/* 호버 툴팁 (base.css .place-tooltip 공용 스타일) */
+.leaflet-tooltip.era-tooltip {
+    font-size: 13.5px;
+    text-align: center;
+}
+
+/* 확대 상태(s1-era.js .is-zoomed): 호버 툴팁 숨김 → 팝업만 표시 */
+.is-zoomed .era-tooltip {
+    display: none;
 }
 
 /* 툴팁 둘째 줄: 날짜 */
 .era-tooltip small {
     display: block;
-    color: var(--gold-light);
-    font-size: var(--fs-2xs);
+    color: var(--text-soft);
+    font-size: 12px;
     font-weight: 400;
-    text-align: center;
+}
+
+/* ---------- 선택 팝업: 장소명 · 날짜, 우측 상단 X 클릭 시에만 닫힘 ---------- */
+.era-popup .leaflet-popup-content {
+    margin: 12px 34px 12px 18px;
+    text-align: left;
+}
+
+.era-popup .era-popup-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Leaflet 기본 p 여백(1.3em) 재정의 */
+.era-popup .era-popup-date {
+    margin: 2px 0 0;
+    color: var(--text-soft);
+    font-size: 13px;
+}
+
+.era-popup a.leaflet-popup-close-button {
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    color: var(--muted);
+    font: 20px/24px var(--font-sans);
+}
+
+.era-popup a.leaflet-popup-close-button:hover {
+    color: var(--cream);
 }
 
 /* OSM 저작권 표기 (base.css 전체 숨김 재정의) */
@@ -258,10 +288,10 @@
 
     /* 서울 마커 분리: 남산(1) 제자리, 대한문(2) 왼쪽 → 동쪽 도쿄(3) 마커와 겹침 방지 */
     .is-split .era-marker[data-index="0"] {
-        transform: none;
+        translate: none;
     }
 
     .is-split .era-marker[data-index="1"] {
-        transform: translateX(-24px);
+        translate: -24px 0;
     }
 }

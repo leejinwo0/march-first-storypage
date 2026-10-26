@@ -5,7 +5,9 @@
    - 필터 카드: 레이어 ON/OFF / 목록·마커 클릭: 확대 + 팝업, 재클릭 시 전체 보기 복귀
    - 범례 목록: 중요 지점(좌) · 시위 장소(우) 2열 분리, 필터 OFF 시 해당 열 흐리게 표시
    - 마커 호버: 장소명 툴팁 표시
-   - 팝업: 닫기 버튼 제거, 지도 클릭 시 유지, 설명은 '더보기' 클릭 시 펼침
+   - 경성대지도 전환 시 줌 1단계 축소 (장소 확대 줌도 동일 보정)
+   - 팝업: 우측 상단 X 클릭 시 팝업만 닫힘(확대·선택 유지), 지도 클릭 시 유지, 설명은 '더보기' 클릭 시 펼침
+   - 확대 상태: 호버 툴팁 미표시, 선택 장소 재클릭 시 팝업 표시 중이면 전체 보기 / 닫힌 상태면 팝업 재표시
    - 모바일(1024px 이하): 팝업에 분류·장소명·더보기만 표시, 더보기 클릭 시 하단 시트로 상세(주소·설명·스마트서울맵) 표시
 ======================================================= */
 import { fetchTimeTravelData } from "/services/mapService.js";
@@ -77,9 +79,11 @@ export async function initPlaces() {
 
     // 정수 줌 고정: 소수 줌 단계에서 기본지도 타일 미표시 방지
     // 더블클릭 확대 비활성: 마커 연속 클릭 시 추가 확대 방지 (장소 확대는 FOCUS_ZOOM 고정)
-    const { map } = createStoryMap("map-s4", {
+    const { map, zoomFor } = createStoryMap("map-s4", {
         center: [37.5586, 126.9369],
         zoom: 7,
+        // 경성대지도: 일반지도 기준 1단계 축소 (복귀 시 복원)
+        zoomOffset: 1,
         mapOptions: { zoomSnap: 1, doubleClickZoom: false },
     });
     const layers = {
@@ -105,13 +109,13 @@ export async function initPlaces() {
         );
     };
 
+    // 확대 상태(장소 선택 또는 전체 보기보다 확대): 전체 보기 버튼 표시 + 호버 툴팁 숨김(.is-zoomed)
     const updateReset = () => {
         const base = defaultBounds ? map.getBoundsZoom(defaultBounds) : 7;
         const hasActive = !!list.querySelector(".places-item.active");
-        resetBtn?.classList.toggle(
-            "show",
-            hasActive || map.getZoom() > base + 0.5,
-        );
+        const zoomed = hasActive || map.getZoom() > base + 0.5;
+        resetBtn?.classList.toggle("show", zoomed);
+        mapEl.classList.toggle("is-zoomed", zoomed);
     };
     map.on("zoomend", updateReset);
     resetBtn?.addEventListener("click", () => {
@@ -175,7 +179,7 @@ export async function initPlaces() {
             offset: [0, -18],
         });
 
-        // 팝업: 닫기 버튼 없음 · 지도 클릭 시 유지 (다른 장소 선택 또는 재클릭 시에만 닫힘)
+        // 팝업: 지도 클릭 시 유지 (X 클릭 · 다른 장소 선택 · 재클릭 시 닫힘)
         const popupEl = createPopupContent(place, mapLink);
         const moreBtn = popupEl.querySelector(".popup-more-btn");
         const descEl = popupEl.querySelector(".popup-desc");
@@ -197,7 +201,8 @@ export async function initPlaces() {
             className: "story-popup",
             maxWidth: 420,
             offset: [0, -12],
-            closeButton: false,
+            // X 버튼: 팝업만 닫기 (확대·선택 상태 유지)
+            closeButton: true,
             closeOnClick: false,
             autoPanPaddingTopLeft: [12, 60],
             autoPanPaddingBottomRight: [12, 12],
@@ -217,7 +222,9 @@ export async function initPlaces() {
 
         const activate = () => {
             if (li.classList.contains("active")) {
-                showAll();
+                // 선택 장소 재클릭: 팝업 표시 중이면 전체 보기 복귀, X로 닫은 상태면 팝업만 다시 표시
+                if (place.marker.isPopupOpen()) showAll();
+                else place.marker.openPopup();
                 return;
             }
             // 필터 OFF 상태면 해당 레이어 재활성화
@@ -235,7 +242,10 @@ export async function initPlaces() {
             updateReset();
 
             // 팝업 공간 확보용 Y 오프셋: 지도 높이의 10% (최대 120px) → 마커를 중앙보다 약간 아래 배치
-            const zoom = MOBILE_QUERY.matches ? FOCUS_ZOOM_MOBILE : FOCUS_ZOOM;
+            // 경성대지도 표시 중이면 1단계 축소 줌 적용 (zoomFor)
+            const zoom = zoomFor(
+                MOBILE_QUERY.matches ? FOCUS_ZOOM_MOBILE : FOCUS_ZOOM,
+            );
             const point = map.project(place.latlng, zoom);
             point.y -= Math.min(120, mapEl.clientHeight * 0.1);
 

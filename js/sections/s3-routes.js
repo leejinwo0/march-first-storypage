@@ -6,7 +6,7 @@
    - 경로 7종 공통 배율: 경로별 맞춤 배율 최솟값 + 보정(PC ZOOM_UP / 모바일 ZOOM_UP_MOBILE)
      → 기본지도는 정수 줌(스마트서울맵 제공 레벨)으로 표시, 남는 배율은 지도 영역 CSS 확대·축소로 보정
    - 모바일(1024px 이하): 좌상단 경로 정보 패널 숨김
-   - 활성 카드: 경유지 세로 타임라인 + 경로 설명 펼침/접힘
+   - 활성 카드: 경유지 ㄹ자 타임라인(한 줄 3곳) + 경로 설명 펼침/접힘, 활성 카드 재클릭 시 접기/펼치기
    - 경로 재생: 경로선 좌표를 따라 표시점 이동, 진행률 막대·퍼센트 연동 (경유지별 좌표 미제공 → 진행률만 표시)
    - 크게 보기: 지도 프레임(정보·재생 패널 포함)을 화면 전체 팝업으로 확대, 닫기 버튼·Esc·배경 클릭으로 복귀
    - 지도 프레임 크기 변경 시 현재 경로 다시 맞춤 (모니터·창 크기와 관계없이 같은 화면 구성)
@@ -55,6 +55,52 @@ const toStops = (value) =>
 
 // 번호 두 자리 표기 (1 → "01")
 const pad2 = (n) => String(n).padStart(2, "0");
+
+// 경유지 ㄹ자 배치: 한 줄당 경유지 수 (홀수 줄 왼쪽→오른쪽, 짝수 줄 오른쪽→왼쪽)
+const SNAKE_COLS = 3;
+
+// 경유지 ㄹ자 타임라인 HTML
+// - 줄 단위로 나눠 각 경유지를 grid-column으로 배치 (DOM 순서 = 경로 순서 유지)
+// - 연결선: 줄마다 가로선(--line-l ~ --line-r) + 줄 끝 반원 꺾임선(is-turn-right / is-turn-left)
+function renderSnake(stops) {
+    const center = (col) => `${(((col - 0.5) / SNAKE_COLS) * 100).toFixed(4)}%`;
+    const rows = [];
+    for (let i = 0; i < stops.length; i += SNAKE_COLS)
+        rows.push(stops.slice(i, i + SNAKE_COLS));
+
+    return rows
+        .map((row, r) => {
+            const ltr = r % 2 === 0; // 왼쪽→오른쪽 진행 줄
+            const isLast = r === rows.length - 1;
+            const endCol = ltr ? row.length : SNAKE_COLS - row.length + 1;
+            // 가로선 시작·끝: 첫 줄 시작점·마지막 줄 끝점은 경유지 점 중심, 그 외는 꺾임선과 연결되는 줄 끝
+            const edge = "var(--turn-r)"; // 꺾임선 반지름만큼 안쪽
+            let lineL = edge;
+            let lineR = edge;
+            if (ltr && r === 0) lineL = center(1);
+            if (ltr && isLast) lineR = `calc(100% - ${center(endCol)})`;
+            if (!ltr && isLast) lineL = center(endCol);
+            const turn = isLast ? "" : ltr ? " is-turn-right" : " is-turn-left";
+
+            const items = row
+                .map((name, j) => {
+                    const n = r * SNAKE_COLS + j;
+                    const col = ltr ? j + 1 : SNAKE_COLS - j;
+                    const cls =
+                        n === 0
+                            ? "is-start"
+                            : n === stops.length - 1
+                              ? "is-end"
+                              : "";
+                    const tag =
+                        n === 0 ? "출발" : n === stops.length - 1 ? "도착" : "";
+                    return `<li class="route-stop ${cls}" style="grid-column:${col}"><span class="route-stop-name">${name}</span>${tag ? `<small>${tag}</small>` : ""}</li>`;
+                })
+                .join("");
+            return `<ol class="route-snake-row${turn}" style="--line-l:${lineL};--line-r:${lineR}">${items}</ol>`;
+        })
+        .join("");
+}
 
 export async function initRoutes() {
     const list = document.getElementById("s3-list");
@@ -141,23 +187,6 @@ export async function initRoutes() {
             .filter(({ route }) => route.group === g.key)
             .map(({ route, i }) => {
                 const stops = stopsOf(route);
-                const timeline = stops
-                    .map((s, si) => {
-                        const cls =
-                            si === 0
-                                ? "is-start"
-                                : si === stops.length - 1
-                                  ? "is-end"
-                                  : "";
-                        const tagText =
-                            si === 0
-                                ? "출발"
-                                : si === stops.length - 1
-                                  ? "도착"
-                                  : "";
-                        return `<li class="${cls}">${s}${tagText ? `<small>${tagText}</small>` : ""}</li>`;
-                    })
-                    .join("");
                 return `
           <article class="route-card" data-index="${i}">
             <button type="button" class="route-card-head" aria-expanded="false" aria-controls="route-card-body-${i}">
@@ -170,7 +199,7 @@ export async function initRoutes() {
             </button>
             <div class="route-card-body" id="route-card-body-${i}">
               <div class="route-card-inner">
-                <ol class="route-timeline">${timeline}</ol>
+                <div class="route-timeline">${renderSnake(stops)}</div>
                 <div class="route-card-actions">
                   <button type="button" class="route-desc-btn" aria-expanded="false">경로 설명 보기</button>
                 </div>
@@ -288,6 +317,7 @@ export async function initRoutes() {
         cards.forEach((card, i) => {
             const on = i === index;
             card.classList.toggle("is-active", on);
+            card.classList.remove("is-collapsed");
             card.querySelector(".route-card-head").setAttribute(
                 "aria-expanded",
                 String(on),
@@ -352,9 +382,13 @@ export async function initRoutes() {
 
     cards.forEach((card) => {
         const index = Number(card.dataset.index);
-        card.querySelector(".route-card-head").addEventListener("click", () =>
-            activate(index),
-        );
+        const head = card.querySelector(".route-card-head");
+        // 활성 카드 재클릭: 경유지·설명 영역 접기/펼치기 (지도 경로 선택 유지)
+        head.addEventListener("click", () => {
+            if (index !== currentIndex) return activate(index);
+            const collapsed = card.classList.toggle("is-collapsed");
+            head.setAttribute("aria-expanded", String(!collapsed));
+        });
         card.querySelector(".route-desc-btn").addEventListener("click", () => {
             setDesc(card, card.querySelector(".route-desc").hidden);
         });

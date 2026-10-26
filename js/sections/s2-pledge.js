@@ -3,7 +3,7 @@
    - 데이터: 스마트서울맵 테마 11100550 (start_xx 거점 9곳)
    - 단계 버튼·마커 클릭 → 카드 갱신, 해당 마커 중심 이동(기본 줌 유지), 경로선 해당 단계까지 표시
    - 경성대지도 전환 시 줌 1.5단계 보정
-   - 활성 마커 팝업 고정 표시 (마커 재클릭 시에도 유지)
+   - 활성 마커 팝업 고정 표시 (마커 재클릭·지도 클릭 시에도 유지), 우측 상단 X 클릭 시 닫힘
    - 이전/다음 스테퍼(단계 번호·장소명) + 단계 버튼 9칸 진행 막대 표시 (PC·모바일 공통)
    - 모바일(1024px 이하): 상세 카드 숨김, 마커 클릭 또는 팝업 '더보기' 클릭 시 하단 시트로 상세 카드 표시
 ======================================================= */
@@ -62,6 +62,7 @@ export async function initPledge() {
     const { map, zoomFor } = createStoryMap("map-s2", {
         center: [37.5759, 126.985],
         zoom: DEFAULT_ZOOM,
+        // 경성대지도: 일반지도 기준 +1단계 확대 (음수 = 확대)
         zoomOffset: 1.5,
         mapOptions: {
             closePopupOnClick: false,
@@ -149,7 +150,8 @@ export async function initPledge() {
         marker.bindPopup(popupEl, {
             className: "story-popup story-popup-mini",
             offset: [0, -14],
-            closeButton: false,
+            // X 버튼: 팝업만 닫기 (선택 단계·카드 유지, 마커 재클릭 시 다시 표시)
+            closeButton: true,
             autoClose: false,
             closeOnClick: false,
             // 활성 마커가 지도 중앙 → 자동 이동 불필요, 이동 애니메이션 중 autoPan 충돌 방지
@@ -163,6 +165,10 @@ export async function initPledge() {
         return marker;
     });
 
+    document.fonts?.ready.then(() =>
+        markers.forEach((m) => m?.isPopupOpen() && m.getPopup().update()),
+    );
+    
     let currentIndex = -1;
 
     // 스테퍼 요소 (단계 번호 · 장소명 · 이전/다음)
