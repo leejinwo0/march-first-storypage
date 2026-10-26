@@ -144,10 +144,14 @@
                     <!-- 이전/다음 스테퍼 + 단계 진행 막대 (PC·모바일 공통) -->
                     <div class="pledge-stepper" id="s2-stepper">
                         <button type="button" class="pledge-stepper-arrow" id="s2-prev" aria-label="이전 장소">‹</button>
-                        <p class="pledge-stepper-text" aria-live="polite">
+                        <div class="pledge-stepper-text">
                             <span class="pledge-stepper-count"><b id="s2-step-num">01</b> / <span id="s2-step-total">09</span></span>
-                            <span class="pledge-stepper-name" id="s2-step-name"></span>
-                        </p>
+                            <!-- 장소명 + 더보기(모바일 전용: 상세 카드 하단 시트 열기) -->
+                            <span class="pledge-stepper-line">
+                                <span class="pledge-stepper-name" id="s2-step-name" aria-live="polite"></span>
+                                <button type="button" class="pledge-stepper-more" id="s2-more">더보기</button>
+                            </span>
+                        </div>
                         <button type="button" class="pledge-stepper-arrow" id="s2-next" aria-label="다음 장소">›</button>
                     </div>
                     <nav class="pledge-nav" id="s2-nav" aria-label="거점 단계"></nav>

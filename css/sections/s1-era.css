@@ -286,6 +286,29 @@
         box-shadow: 0 0 0 3px rgba(var(--red-rgb), 0.25);
     }
 
+    /* 선택 팝업 축소: 낮은 지도 높이(가로:세로 2.4:1) 안에 팝업 전체 표시 */
+    .era-popup .leaflet-popup-content {
+        margin: 7px 28px 7px 12px;
+    }
+
+    .era-popup .era-popup-title {
+        font-size: 14px;
+    }
+
+    .era-popup .era-popup-date {
+        margin-top: 0;
+        font-size: 12px;
+    }
+
+    .era-popup a.leaflet-popup-close-button {
+        top: 3px;
+        right: 3px;
+        width: 22px;
+        height: 22px;
+        font-size: 18px;
+        line-height: 22px;
+    }
+
     /* 서울 마커 분리: 남산(1) 제자리, 대한문(2) 왼쪽 → 동쪽 도쿄(3) 마커와 겹침 방지 */
     .is-split .era-marker[data-index="0"] {
         translate: none;

@@ -270,7 +270,9 @@
     }
 
     .places-lists {
-        max-height: 420px;
+        flex: none;
+        grid-template-rows: minmax(0, 1fr);
+        height: 420px;
     }
 
     /* 모바일 팝업: 분류·장소명·더보기만 표시 (주소·스마트서울맵·설명 → 하단 시트) */

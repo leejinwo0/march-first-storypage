@@ -5,10 +5,10 @@
    - 경로 카드 클릭 → 활성 경로 강조(빨간 점선 흐름) + 출발/도착 마커 + 경로 범위로 이동
    - 경로 7종 공통 배율: 경로별 맞춤 배율 최솟값 + 보정(PC ZOOM_UP / 모바일 ZOOM_UP_MOBILE)
      → 기본지도는 정수 줌(스마트서울맵 제공 레벨)으로 표시, 남는 배율은 지도 영역 CSS 확대·축소로 보정
-   - 모바일(1024px 이하): 좌상단 경로 정보 패널 숨김
+   - 모바일(1024px 이하): 좌상단 경로 정보 패널 · 크게 보기 버튼 숨김
    - 활성 카드: 경유지 ㄹ자 타임라인(한 줄 3곳) + 경로 설명 펼침/접힘, 활성 카드 재클릭 시 접기/펼치기
    - 경로 재생: 경로선 좌표를 따라 표시점 이동, 진행률 막대·퍼센트 연동 (경유지별 좌표 미제공 → 진행률만 표시)
-   - 크게 보기: 지도 프레임(정보·재생 패널 포함)을 화면 전체 팝업으로 확대, 닫기 버튼·Esc·배경 클릭으로 복귀
+   - 크게 보기(PC): 지도 프레임(정보·재생 패널 포함)을 화면 전체 팝업으로 확대, 닫기 버튼·Esc·배경 클릭으로 복귀
    - 지도 프레임 크기 변경 시 현재 경로 다시 맞춤 (모니터·창 크기와 관계없이 같은 화면 구성)
 ======================================================= */
 import { fetchTimeTravelData } from "/services/mapService.js";
@@ -237,18 +237,12 @@ export async function initRoutes() {
         zIndexOffset: 1000,
     });
 
-    // 경로 맞춤 여백: PC 상단 150px(정보 패널)
-    // 모바일 상단 64px(정보 패널 숨김, 지도 전환 토글 영역) / 모바일 크게 보기 상단 140px(정보 패널 표시)
+    // 경로 맞춤 여백: PC 상단 150px(정보 패널) / 모바일 상단 64px(정보 패널 숨김, 지도 전환 토글 영역)
     const isMobile = () => !window.matchMedia("(min-width: 1025px)").matches;
-    const isExpanded = () =>
-        mapEl.closest(".routes-map")?.classList.contains("is-expanded");
     const fitPadding = () => {
         if (!isMobile())
             return { paddingTopLeft: [60, 150], paddingBottomRight: [60, 100] };
-        return {
-            paddingTopLeft: [24, isExpanded() ? 140 : 64],
-            paddingBottomRight: [24, 80],
-        };
+        return { paddingTopLeft: [24, 64], paddingBottomRight: [24, 80] };
     };
 
     // 경로 표시 배율 통일: 7개 경로 공통 배율 적용
@@ -443,6 +437,10 @@ export async function initRoutes() {
     }
 
     expandBtn?.addEventListener("click", () => setExpanded(!expanded));
+    // 모바일 전환 시 크게 보기 해제 (모바일은 크게 보기 버튼 미표시)
+    window.matchMedia("(max-width: 1024px)").addEventListener("change", (e) => {
+        if (e.matches) setExpanded(false);
+    });
     backdrop.addEventListener("click", () => setExpanded(false));
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && expanded) setExpanded(false);

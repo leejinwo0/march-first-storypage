@@ -3,9 +3,9 @@
    - 데이터: 스마트서울맵 테마 11100550 (start_xx 거점 9곳)
    - 단계 버튼·마커 클릭 → 카드 갱신, 해당 마커 중심 이동(기본 줌 유지), 경로선 해당 단계까지 표시
    - 경성대지도 전환 시 줌 1.5단계 보정
-   - 활성 마커 팝업 고정 표시 (마커 재클릭·지도 클릭 시에도 유지), 우측 상단 X 클릭 시 닫힘
+   - PC: 활성 마커 팝업(장소명) 고정 표시 (마커 재클릭·지도 클릭 시에도 유지), 우측 상단 X 클릭 시 닫힘
    - 이전/다음 스테퍼(단계 번호·장소명) + 단계 버튼 9칸 진행 막대 표시 (PC·모바일 공통)
-   - 모바일(1024px 이하): 상세 카드 숨김, 마커 클릭 또는 팝업 '더보기' 클릭 시 하단 시트로 상세 카드 표시
+   - 모바일(1024px 이하): 지도 팝업 미표시, 상세 카드 숨김 → 마커 클릭 또는 스테퍼 '더보기' 클릭 시 하단 시트로 상세 카드 표시
 ======================================================= */
 import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap, generateCurvedPath } from "/js/utils/mapUtils.js";
@@ -62,7 +62,6 @@ export async function initPledge() {
     const { map, zoomFor } = createStoryMap("map-s2", {
         center: [37.5759, 126.985],
         zoom: DEFAULT_ZOOM,
-        // 경성대지도: 일반지도 기준 +1단계 확대 (음수 = 확대)
         zoomOffset: 1.5,
         mapOptions: {
             closePopupOnClick: false,
@@ -132,21 +131,9 @@ export async function initPledge() {
             iconAnchor: [15, 15],
         });
         const marker = L.marker(step.pos, { icon }).addTo(map);
-        const popupEl = document.createElement("div");
-        popupEl.className = "popup-mini-row";
-        popupEl.innerHTML = `
-      <div class="popup-mini-text">
-        <span class="popup-badge popup-badge-hub popup-mini-badge">준비과정</span>
-        <p class="popup-mini-title">${step.title}</p>
-      </div>
-      <button type="button" class="line-btn line-btn-gold popup-mini-more">더보기</button>`;
-        L.DomEvent.disableClickPropagation(popupEl);
-        popupEl
-            .querySelector(".popup-mini-more")
-            .addEventListener("click", () => {
-                activate(i);
-                openSheet(card);
-            });
+        const popupEl = document.createElement("p");
+        popupEl.className = "popup-mini-title";
+        popupEl.textContent = step.title;
         marker.bindPopup(popupEl, {
             className: "story-popup story-popup-mini",
             offset: [0, -14],
@@ -157,6 +144,8 @@ export async function initPledge() {
             // 활성 마커가 지도 중앙 → 자동 이동 불필요, 이동 애니메이션 중 autoPan 충돌 방지
             autoPan: false,
         });
+        // 마커 클릭: Leaflet 기본 팝업 토글 해제 → activate에서 PC만 팝업 표시
+        marker.off("click", marker._openPopup, marker);
         marker.on("click", () => {
             activate(i);
             // 모바일: 마커 클릭 시 상세 카드 하단 시트 표시
@@ -165,10 +154,11 @@ export async function initPledge() {
         return marker;
     });
 
+    // 웹폰트(나눔고딕) 로드 완료 후 열린 팝업 위치 재계산 (대체 글꼴 기준 폭으로 배치된 팝업 보정)
     document.fonts?.ready.then(() =>
         markers.forEach((m) => m?.isPopupOpen() && m.getPopup().update()),
     );
-    
+
     let currentIndex = -1;
 
     // 스테퍼 요소 (단계 번호 · 장소명 · 이전/다음)
@@ -228,6 +218,15 @@ export async function initPledge() {
         }
     }
 
+    // 팝업 동기화: PC는 활성 마커 팝업 표시, 모바일은 팝업 미표시 (장소명·더보기는 상단 스테퍼에 표시)
+    function syncPopups(index) {
+        markers.forEach((m, i) => {
+            if (!m) return;
+            if (i === index && !MOBILE_QUERY.matches) m.openPopup();
+            else m.closePopup();
+        });
+    }
+
     // 4. 단계 활성화: 카드·버튼·마커·경로선·지도 위치 갱신
     function activate(index) {
         const step = steps[index];
@@ -252,12 +251,7 @@ export async function initPledge() {
             pathLine.setLatLngs(generateCurvedPath(visible));
         }
 
-        // 팝업 동기화: Leaflet 기본 클릭 토글(재클릭 시 닫힘) 이후 실행 → 활성 마커 팝업 항상 표시
-        markers.forEach((m, i) => {
-            if (!m) return;
-            if (i === index) m.openPopup();
-            else m.closePopup();
-        });
+        syncPopups(index);
 
         if (!step.pos) return;
         // 선택 장소 중심 이동 (기본 줌 유지, 경성대지도 표시 중이면 보정 줌)
@@ -298,9 +292,15 @@ export async function initPledge() {
         navBtns[next].focus();
     });
 
-    // PC 화면 전환 시 시트 닫기 (상세 카드 원위치 복원)
+    // 모바일 스테퍼 '더보기': 상세 카드 하단 시트 표시
+    document
+        .getElementById("s2-more")
+        ?.addEventListener("click", () => openSheet(card));
+
+    // PC·모바일 화면 전환: PC 전환 시 시트 닫기(상세 카드 원위치 복원), 팝업 표시 여부 재적용
     MOBILE_QUERY.addEventListener("change", (e) => {
         if (!e.matches) closeSheet();
+        if (currentIndex >= 0) syncPopups(currentIndex);
     });
 
     activate(0);

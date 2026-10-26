@@ -1,6 +1,6 @@
 /* =======================================================
    02 거사의 맹세: 좌측(스테퍼 · 진행 막대 · 상세 카드) | 우측 지도
-   - 모바일: 스테퍼 → 진행 막대 → 지도, 상세 카드는 마커 클릭 시 하단 시트 표시
+   - 모바일: 스테퍼(장소명 + 더보기) → 진행 막대 → 지도, 지도 팝업 미표시, 상세 카드는 더보기·마커 클릭 시 하단 시트 표시
 ======================================================= */
 .pledge {
     display: grid;
@@ -129,8 +129,8 @@
     transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease;
 }
 
-/* 팝업 내용: 우측 X 버튼 영역 확보 */
-/* 팝업 내용: 좌우 동일 여백(우측 X 버튼 영역) → 장소명 가운데 정렬 */
+/* 팝업 내용: 좌우 동일 여백(우측 X 버튼 영역) → 장소명 가운데 정렬
+   width auto: Leaflet이 팝업 열 때 고정한 너비(px) 해제 → 웹폰트 로드 후 글자 폭 변화에도 가운데 유지 */
 #map-s2 .story-popup-mini .leaflet-popup-content {
     width: auto !important;
     margin: 10px 32px;
@@ -153,18 +153,6 @@
 
 #map-s2 .story-popup a.leaflet-popup-close-button:hover {
     color: var(--cream);
-}
-
-.popup-mini-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.popup-mini-badge,
-.popup-mini-more {
-    display: none;
 }
 
 .step-marker.is-active {
@@ -227,14 +215,44 @@
     font-size: 13px;
 }
 
+/* 장소명 + 더보기 한 줄 배치 (장소명 길면 말줄임) */
+.pledge-stepper-line {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    margin-top: 1px;
+}
+
 .pledge-stepper-name {
     display: block;
-    margin-top: 1px;
+    min-width: 0;
     overflow: hidden;
     font-size: 13px;
     font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* 더보기: 모바일 전용 (상세 카드 하단 시트 열기) */
+.pledge-stepper-more {
+    display: none;
+    flex: none;
+    align-items: center;
+    min-height: 26px;
+    padding: 2px 10px;
+    border: 1px solid rgba(var(--gold-rgb), 0.5);
+    border-radius: var(--radius-pill);
+    color: var(--gold-light);
+    font-size: 11.5px;
+    font-weight: 600;
+    transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
+}
+
+.pledge-stepper-more:hover {
+    background: var(--gold);
+    color: var(--ink);
 }
 
 /* ---------- 단계 진행 막대: 칸 클릭 시 해당 단계 이동 (클릭 영역 18px, 막대 4px) ---------- */
@@ -285,7 +303,7 @@
 /* ---------- 반응형 ---------- */
 @media (max-width: 1024px) {
     .pledge {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 8px;
         height: auto;
         min-height: 0;
@@ -307,46 +325,19 @@
         display: none;
     }
 
-    /* 모바일 팝업: 섹션4 팝업과 동일 구성 (좌측 배지·장소명 / 우측 더보기) */
-    #map-s2 .story-popup-mini .leaflet-popup-content {
-        margin: var(--space-4) 34px var(--space-4) var(--space-4);
-        text-align: left;
-    }
-
-    #map-s2 .popup-mini-row {
-        justify-content: space-between;
-        gap: var(--space-4);
-    }
-
-    #map-s2 .popup-mini-text {
-        min-width: 0;
-    }
-
-    .popup-mini-badge {
-        display: inline-block;
-    }
-
-    /* 장소명: 한 줄 유지, 48vw 초과 시에만 줄바꿈 */
-    #map-s2 .popup-mini-title {
-        width: max-content;
-        max-width: 48vw;
-        margin: var(--space-2) 0 0;
-        white-space: normal;
-        text-align: left;
-    }
-
-    /* 더보기 버튼 표시 (금색 테두리 알약형) */
-    .popup-mini-more {
+    /* 스테퍼 더보기 표시 (금색 테두리 알약형) */
+    .pledge-stepper-more {
         display: inline-flex;
-        flex: none;
-        align-items: center;
-        min-height: 32px;
-        padding: 4px 10px;
-        border: 1px solid rgba(var(--gold-rgb), 0.5);
-        border-radius: var(--radius-pill);
-        color: var(--gold-light);
-        font-size: 12px;
-        font-weight: 600;
+    }
+
+    .pledge-stepper-name {
+        display: -webkit-box;
+        white-space: normal;
+        line-height: 1.35;
+        word-break: keep-all;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
     }
 }
 

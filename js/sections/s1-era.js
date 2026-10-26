@@ -10,6 +10,7 @@
    - 확대 상태(전체 보기 줌 초과)에서는 호버 툴팁 미표시
    - 전체 보기 축척에서 서울 마커 2개(남산·대한문) 좌우 분리 표시
    - 모바일(560px 이하): 카드 설명 숨김, 사진 클릭 시 확대 모달에 설명 함께 표시
+     선택 마커를 지도 아래쪽(76% 지점)에 배치 + 팝업 축소 → 낮은 지도 높이에서 팝업 전체 표시
 ======================================================= */
 import { S1_ERA } from "/js/data/history-data.js";
 
@@ -21,6 +22,8 @@ const SPLIT_ZOOM = 12;
 const SPLIT_DIR = { 0: 1, 1: -1 };
 // 모바일 기준: 카드 설명 → 사진 확대 모달 표시, 세계지도 여백 축소
 const MOBILE_QUERY = window.matchMedia("(max-width: 560px)");
+// 모바일 선택 마커 세로 위치 보정: 지도 높이의 26% 아래로 이동 (중앙 50% → 76%, 위쪽 팝업 공간 확보)
+const MOBILE_MARKER_SHIFT = 0.26;
 
 /* ---------- 1. 카드 4종 렌더링 + 사진 확대 ---------- */
 export function initEra() {
@@ -138,7 +141,14 @@ function initEraMap(grid) {
         if (!item?.latlng) return;
         setActive(index);
         markers[index]?.openPopup();
-        map.flyTo(item.latlng, FOCUS_ZOOM, { duration: 1.4 });
+        // 모바일: 지도 높이가 낮아 중앙 배치 시 팝업 상단 잘림 → 지도 중심을 위로 옮겨 마커를 아래쪽에 배치
+        let center = L.latLng(item.latlng);
+        if (MOBILE_QUERY.matches) {
+            const point = map.project(center, FOCUS_ZOOM);
+            point.y -= mapEl.clientHeight * MOBILE_MARKER_SHIFT;
+            center = map.unproject(point, FOCUS_ZOOM);
+        }
+        map.flyTo(center, FOCUS_ZOOM, { duration: 1.4 });
     };
 
     // 번호 마커 (호버: 장소명·날짜 툴팁 / 클릭: 해당 위치 확대 + 팝업)
