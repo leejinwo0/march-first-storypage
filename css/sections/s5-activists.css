@@ -205,6 +205,7 @@
     align-items: center;
     gap: 10px;
     flex: 0 0 min(36%, 420px);
+    min-width: 0;
     height: 52px;
     padding: 0 18px;
     border: 1px solid rgba(var(--gold-rgb), 0.4);
@@ -218,14 +219,25 @@
     border-color: var(--gold-light);
 }
 
+/* 검색 입력: iOS Safari 기본 검색창 모양·고유 너비 해제 (width 0 + flex 늘림 → 상자 폭 안에 맞춤) */
 .search-box input {
-    flex: 1;
+    flex: 1 1 auto;
+    width: 0;
     min-width: 0;
+    padding: 0;
     border: none;
+    border-radius: 0;
     background: transparent;
     color: var(--cream);
     font-size: var(--fs-md);
     outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.search-box input::-webkit-search-decoration,
+.search-box input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
 }
 
 .search-box input::placeholder {
@@ -400,6 +412,7 @@
 
     .search-box {
         flex: 1 1 100%;
+        width: 100%;
     }
 
     .consonant-chips {
