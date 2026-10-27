@@ -53,15 +53,13 @@
     <main class="page">
 
         <!-- ============================================================
-         [00] 인트로: 좌측 타이틀 + 우측 기미독립선언서 카드 (js/sections/s0-hero.js)
+         [00] 인트로: 기미독립선언서 전체 배경 + 가운데 타이틀
          ============================================================ -->
         <section class="sheet hero" id="section-0" data-section="0">
-            <span class="hero-year" aria-hidden="true">1919</span>
-
-            <button type="button" class="hero-map js-doc-zoom" aria-label="기미독립선언서 전체 화면 보기">
-                <img src="/assets/images/history/march-first-walk/declaration-of-independence.jpg" alt="기미독립선언서" decoding="async">
-            </button>
-            <button type="button" class="glass-card hero-float hero-doc js-doc-zoom">기미독립선언서</button>
+            <!-- 기미독립선언서 전체 배경 (천천히 확대되는 켄 번스 효과) -->
+            <div class="hero-bg" aria-hidden="true">
+                <img src="/assets/images/history/march-first-walk/declaration-of-independence.jpg" alt="" decoding="async">
+            </div>
 
             <div class="hero-copy">
                 <p class="eyebrow eyebrow-dot">서울 히스토리맵, 1919년 3월 그날의 발자취</p>
@@ -69,35 +67,36 @@
                 <p class="hero-desc">세상을 깨운 1919년 3월의 뜨거운 외침. 태극기가 물결치기 전, 서울 곳곳에 은밀하게 새겨진 그날의 결의와 발자취를 지도 위에서 되짚어본다.</p>
                 <div class="btn-row">
                     <a class="pill-btn pill-btn-red" href="#section-1">스토리 시작하기 →</a>
+                    <button type="button" class="pill-btn pill-btn-ghost js-doc-zoom" aria-label="기미독립선언서 전체 화면 보기">선언서 원본 보기 <span aria-hidden="true">⤢</span></button>
                 </div>
             </div>
         </section>
 
         <!-- ============================================================
-         데이터 출처 + 수치 띠 (data-stat: 섹션 JS가 API 건수로 갱신)
+         데이터 출처 + 수치 띠 (data-stat: 섹션 JS가 API 건수로 갱신, 로드 전 '-' 표시)
          ============================================================ -->
         <section class="stats-band" aria-label="스토리맵 데이터 요약">
             <p class="stats-caption">숫자로 보는 1919년 3월의 서울</p>
             <dl class="stats-grid">
                 <div>
                     <dt>3.1운동 준비과정</dt>
-                    <dd data-stat="pledge">9</dd>
+                    <dd data-stat="pledge">-</dd>
                 </div>
                 <div>
                     <dt>3.1운동 이동경로</dt>
-                    <dd data-stat="route">7</dd>
+                    <dd data-stat="route">-</dd>
                 </div>
                 <div>
                     <dt>3.1운동 시위장소</dt>
-                    <dd data-stat="site">31</dd>
+                    <dd data-stat="site">-</dd>
                 </div>
                 <div>
                     <dt>3.1운동 중요지점</dt>
-                    <dd data-stat="hub">13</dd>
+                    <dd data-stat="hub">-</dd>
                 </div>
                 <div>
                     <dt>3.1운동 독립운동가</dt>
-                    <dd data-stat="activist">94</dd>
+                    <dd data-stat="activist">-</dd>
                 </div>
             </dl>
         </section>
@@ -382,7 +381,7 @@
         <span class="icon icon-chevron-up" aria-hidden="true"></span><span>TOP</span>
     </button>
 
-    <!-- 전역 이미지 확대 모달 (js/utils/uiUtils.js initGlobalModal) -->
+    <!-- 전역 이미지 확대 모달  -->
     <div id="image-modal" class="global-modal" role="dialog" aria-modal="true" aria-label="이미지 확대 보기">
         <button type="button" class="close-modal" aria-label="닫기">&times;</button>
         <img class="global-modal-content" id="img-in-modal" alt="">

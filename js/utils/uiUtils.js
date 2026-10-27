@@ -116,7 +116,7 @@ export function initGlobalModal() {
     const caption = document.getElementById("caption-modal");
     if (!modal || !modalImg || !caption) return;
 
-    // options.full: 전체 화면 모드 (뷰포트 기준 최대 크기)
+    // options.full: 전체 화면 모드 (화면 폭 기준 이미지 + 바로 아래 캡션, 세로 가운데 정렬)
     window.openGlobalModal = (imgUrl, text, options = {}) => {
         modal.classList.toggle("is-full", Boolean(options.full));
         modalImg.src = imgUrl;

@@ -386,16 +386,25 @@ ol {
     padding: var(--space-4);
 }
 
+/* 이미지 + 캡션 묶음 세로 가운데 정렬: 위·아래 auto 여백 (justify-content: center는 내용이 넘칠 때 위쪽 잘림) */
 .global-modal.is-full.is-open {
     display: flex;
     flex-direction: column;
-    justify-content: center;
 }
 
 .global-modal.is-full .global-modal-content {
-    width: 96vw;
-    max-width: 96vw;
-    max-height: 86vh;
+    flex: none;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: calc(100vh - 140px);
+    max-height: calc(100dvh - 140px);
+    margin: auto auto 0;
+    border-radius: 0;
+}
+
+.global-modal.is-full #caption-modal {
+    margin-bottom: auto;
 }
 
 /* 이미지 아래 캡션 */

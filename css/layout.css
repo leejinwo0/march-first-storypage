@@ -82,25 +82,26 @@
     transition: background-color var(--dur-base) ease;
 }
 
+/* 메뉴 글자: 좌측 사이트명과 동일 (크림색 · 16px · 굵게) */
 .top-nav-link {
     padding: var(--space-2) 15px;
     border-radius: var(--radius-pill);
-    color: var(--text-soft);
-    font-size: 13px;
+    color: var(--cream);
+    font-size: var(--fs-sm);
+    font-weight: 700;
     text-decoration: none;
     white-space: nowrap;
     transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
 }
 
 .top-nav-link:hover {
-    color: var(--cream);
+    background: rgba(var(--cream-rgb), 0.1);
 }
 
 /* 현재 보고 있는 섹션 (uiUtils.js 스크롤 위치 기준 부여) */
 .top-nav-link.active {
     background: var(--cream);
     color: var(--ink);
-    font-weight: 600;
 }
 
 /* 스크롤 80px 이후: 배경 진하게 (uiUtils.js .is-scrolled) */
@@ -501,6 +502,26 @@
 }
 
 /* ---------- 8. 반응형 ---------- */
+/* 1640px 이하: 메뉴 가운데 고정(absolute) 해제 → 로고 오른쪽 배치, 사이트명 말줄임 (로고·메뉴 겹침 방지) */
+@media (max-width: 1560px) {
+    .top-nav-menu {
+        position: static;
+        transform: none;
+        flex: none;
+    }
+
+    .top-nav-logo {
+        min-width: 0;
+    }
+
+    .top-nav-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
 /* 1180px 이하: 로고 문구 숨김, 메뉴 간격 축소 */
 @media (max-width: 1180px) {
     .top-nav-name {
@@ -537,6 +558,11 @@
 
     .top-nav-menu::-webkit-scrollbar {
         display: none;
+    }
+
+    /* 하단 메뉴 글자: 상단 사이트명(14px)과 동일 크기 */
+    .top-nav-link {
+        font-size: 13px;
     }
 
     /* 상단 바 모양: 하단 메뉴와 동일 (알약형 · 얇은 테두리 · 반투명 블러 배경) */
