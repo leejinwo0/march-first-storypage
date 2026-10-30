@@ -230,10 +230,20 @@
     background: rgba(var(--cream-rgb), 0.06);
     color: var(--cream);
 }
-
+/* 빨간 칩 (섹션 머리 '스마트서울맵 - …' 링크): 카드 테두리 버튼(.line-btn-red)과 같은 모양 */
 .chip-red {
-    border-color: rgba(217, 89, 76, 0.5);
+    min-height: 40px;
+    padding: 0 var(--space-4);
+    border-color: rgba(217, 89, 76, 0.6);
+    border-radius: var(--radius-md);
     color: var(--red-light);
+    font-size: 13px;
+}
+/* 호버: 빨간 배경 + 흰 글자 */
+.chip-red:hover {
+    border-color: var(--red);
+    background: var(--red);
+    color: var(--white);
 }
 
 /* 테두리 버튼 (카드·팝업의 스마트서울맵 · 더보기 등) */
