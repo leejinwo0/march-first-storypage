@@ -387,9 +387,14 @@
         opacity: 0;
     }
 }
-/* 경로 재생 (하단): 상단 경로 정보 패널과 동일 유리 패널 (glass-card 배경·블러 상속) */
-.route-player {
+/* 보기 컨트롤: 하단 재생 바 위 배치 (재생 바 하단 18px + 높이 56px + 간격 14px) */
+.routes-map .map-view-ctrl {
     right: 18px;
+    bottom: 88px;
+}
+/* 경로 재생 (하단): 상단 경로 정보 패널과 동일 유리 패널 (glass-card 배경·블러 상속), 우측은 보기 컨트롤 영역 확보 (컨트롤 너비 92px + 간격 10px) */
+.route-player {
+    right: 120px;
     bottom: 18px;
     left: 18px;
     display: flex;
@@ -397,6 +402,12 @@
     gap: 16px;
     padding: 8px 20px 8px 8px;
 }
+/* 보기 컨트롤: 재생 바 오른쪽, 하단 18px 맞춤 */
+.routes-map .map-view-ctrl {
+    right: 18px;
+    bottom: 18px;
+}
+
 .route-play {
     display: grid;
     place-items: center;
@@ -574,7 +585,9 @@
     .routes-map {
         height: 400px;
     }
+    /* 우측 보기 컨트롤 영역 확보 (모바일 컨트롤 너비 80px + 간격 10px) */
     .route-player {
+        right: 108px;
         gap: 12px;
         padding: 7px 14px 7px 7px;
     }

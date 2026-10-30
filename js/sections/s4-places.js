@@ -8,6 +8,7 @@
 // 옛지도(경성대지도) 전환 시 줌 1단계 축소 (장소 확대 줌도 동일 보정)
 // 팝업: 우측 상단 X 클릭 시 팝업만 닫힘(확대·선택 유지), 지도 클릭 시 유지, 설명은 '더보기' 클릭 시 펼침
 // 확대 상태: 호버 툴팁 미표시, 선택 장소 재클릭 시 팝업 표시 중이면 전체 보기 / 닫힌 상태면 팝업 재표시
+// 우측 하단 보기 컨트롤: 전체 보기(선택 해제 + 전체 범위 복귀) + 확대/축소 (mapUtils.js)
 // 모바일(1024px 이하): 팝업에 분류·장소명·더보기만 표시, 더보기 클릭 시 하단 시트로 상세(주소·설명·스마트서울맵) 표시
 import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
@@ -62,14 +63,13 @@ function createSheetContent(place, mapLink) {
 export async function initPlaces() {
     const list = document.getElementById("s4-list");
     const columns = { hub: document.getElementById("s4-list-hub"), site: document.getElementById("s4-list-site") };
-    const resetBtn = document.getElementById("s4-reset");
     const filterBtns = document.querySelectorAll("#s4-filters .places-filter");
     const mapEl = document.getElementById("map-s4");
     if (!mapEl || !list || !columns.hub || !columns.site) return;
 
     // 옛지도: 경성대지도 (일반지도 기준 1단계 축소, 복귀 시 복원)
     // 정수 줌 고정: 소수 줌 단계에서 기본지도 타일 미표시 방지 / 더블클릭 확대 비활성: 마커 연속 클릭 시 추가 확대 방지 (장소 확대는 FOCUS_ZOOM 고정)
-    const { map, zoomFor } = createStoryMap("map-s4", {
+    const { map, zoomFor, setHomeView } = createStoryMap("map-s4", {
         center: [37.5586, 126.9369],
         zoom: 7,
         historicalMap: "gyeongseong",
@@ -117,21 +117,18 @@ export async function initPlaces() {
         clearActivePin();
     };
 
-    // 확대 상태(장소 선택 또는 전체 보기보다 확대): 전체 보기 버튼 표시 + 호버 툴팁 숨김(.is-zoomed)
+    // 확대 상태(장소 선택 또는 전체 보기보다 확대): 호버 툴팁 숨김(.is-zoomed)
     const updateReset = () => {
         const base = defaultBounds ? map.getBoundsZoom(defaultBounds) : 7;
         const hasActive = !!list.querySelector(".places-item.active");
-        const zoomed = hasActive || map.getZoom() > base + 0.5;
-        if (resetBtn) resetBtn.classList.toggle("show", zoomed);
-        mapEl.classList.toggle("is-zoomed", zoomed);
+        mapEl.classList.toggle("is-zoomed", hasActive || map.getZoom() > base + 0.5);
     };
     map.on("zoomend", updateReset);
-    if (resetBtn) {
-        resetBtn.addEventListener("click", () => {
-            showAll();
-            updateReset();
-        });
-    }
+    // 우측 하단 전체 보기: 전체 범위 복귀 + 선택 해제
+    setHomeView(() => {
+        showAll();
+        updateReset();
+    });
 
     const geojson = await fetchTimeTravelData();
 

@@ -1,4 +1,4 @@
-/* 01 시대의 부름: 배경 카드 4종 (s1-era.js 렌더링) + 세계지도(OSM) / 모바일(560px 이하): 카드 설명 숨김(사진 클릭 시 모달 표시), 세계지도 가로형 비율 고정 */
+/* 01 시대의 부름: 배경 카드 4종 (s1-era.js 렌더링) + 세계지도(OSM, 서울 확대 시 스마트서울맵) / 모바일(560px 이하): 카드 설명 숨김(사진 클릭 시 모달 표시), 세계지도 가로형 비율 고정, 상시 라벨 숨김 */
 .era-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -154,16 +154,24 @@
         0 0 0 6px rgba(var(--red-rgb), 0.25),
         0 0 18px var(--accent-glow);
 }
-/* 호버 툴팁 (base.css .place-tooltip 공용 스타일) */
+/* 장소명·날짜 상시 라벨 (base.css .place-tooltip 공용 스타일) */
 .leaflet-tooltip.era-tooltip {
     font-size: 13.5px;
     text-align: center;
 }
-/* 확대 상태(s1-era.js .is-zoomed): 호버 툴팁 숨김 → 팝업만 표시 */
+/* 서울 2곳 라벨: 좌우로 벌려 배치 → 꼬리 숨김 */
+.era-tooltip-shift::before {
+    display: none;
+}
+/* 도쿄 라벨: 마커 아래 배치 → 위쪽 꼬리 색상 */
+.leaflet-tooltip-bottom.era-tooltip::before {
+    border-bottom-color: rgba(var(--umber-rgb), 0.94);
+}
+/* 확대 상태(s1-era.js .is-zoomed): 상시 라벨 숨김 → 팝업만 표시 */
 .is-zoomed .era-tooltip {
     display: none;
 }
-/* 툴팁 둘째 줄: 날짜 */
+/* 라벨 둘째 줄: 날짜 */
 .era-tooltip small {
     display: block;
     color: var(--text-soft);
@@ -199,8 +207,8 @@
 .era-popup a.leaflet-popup-close-button:hover {
     color: var(--cream);
 }
-/* OSM 저작권 표기 (base.css 전체 숨김 재정의) */
-.era-map .leaflet-control-attribution {
+/* OSM 저작권 표기 (base.css 전체 숨김 재정의, 세계지도만 표시) */
+#map-s1 .leaflet-control-attribution {
     display: block !important;
     margin: 0 var(--space-3) var(--space-2) 0 !important;
     padding: 1px 8px;
@@ -209,17 +217,43 @@
     color: var(--muted);
     font-size: 10.5px;
 }
-.era-map .leaflet-control-attribution a {
+#map-s1 .leaflet-control-attribution a {
     color: var(--text-soft);
 }
+/* 보기 컨트롤: 우측 상단 배치 (하단 도쿄 라벨·OSM 저작권 표기 가림 방지), 스마트서울맵 표시 중에는 현재지도/옛지도 전환 버튼 아래 */
+.era-map .map-view-ctrl {
+    top: var(--space-4);
+    bottom: auto;
+}
+.era-map.is-seoul .map-view-ctrl {
+    top: 66px;
+}
 
+/* ---------- 서울 확대: 스마트서울맵 (s1-era.js 서울 지점 선택 · 서울 범위 확대 시 표시) ---------- */
+/* 세계지도 · 스마트서울맵 쌓임 맥락 분리 (Leaflet 내부 레이어 섞임 방지), 전환 시 서서히 표시 */
+#map-s1 {
+    z-index: 0;
+}
+.era-seoul-map {
+    z-index: 1;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity var(--dur-slow) ease,
+        visibility var(--dur-slow) ease;
+}
+.era-map.is-seoul .era-seoul-map {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ---------- 반응형 ---------- */
 @media (max-width: 1180px) {
     .era-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-/* ---------- 모바일 ---------- */
 @media (max-width: 560px) {
     .era-grid {
         grid-template-columns: 1fr;
@@ -286,5 +320,9 @@
     }
     .is-split .era-marker[data-index="1"] {
         translate: -24px 0;
+    }
+    /* 세계지도 상시 라벨 숨김 (낮은 지도 높이에서 라벨 겹침) */
+    #map-s1 .era-tooltip {
+        display: none;
     }
 }

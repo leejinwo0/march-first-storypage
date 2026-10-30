@@ -308,32 +308,6 @@
     inset: 0;
 }
 
-/* 지도 좌측 하단 '전체 보기' 버튼 (.show: 섹션 JS 부여) */
-.map-reset-btn {
-    position: absolute;
-    left: var(--space-4);
-    bottom: var(--space-4);
-    z-index: 800;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 9px 14px;
-    border: 1px solid var(--sheet-line);
-    border-radius: var(--radius-pill);
-    background: rgba(var(--ink-rgb), 0.82);
-    font-size: var(--fs-xs);
-    opacity: 0;
-    visibility: hidden;
-    transition:
-        opacity var(--dur-base) ease,
-        visibility var(--dur-base) ease;
-}
-
-.map-reset-btn.show {
-    opacity: 1;
-    visibility: visible;
-}
-
 /* 범례 점: 중요 지점(빨강) · 시위 장소(금색) */
 .legend-dot {
     display: inline-block;

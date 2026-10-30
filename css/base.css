@@ -1,7 +1,5 @@
 @charset "utf-8";
-
 /* 기본 스타일: 리셋 · 공통 요소 · 등장 애니메이션 · 아이콘 · Leaflet 재정의 · 지도 팝업·툴팁 · 이미지 확대 모달 · 모바일 하단 시트 · TOP 버튼 */
-
 /* 섹션 공용 토큰 (tokens.css 확장) */
 :root {
     --sheet-gap: 20px; /* 섹션 패널 사이 간격 */
@@ -24,14 +22,12 @@
     margin: 0;
     padding: 0;
 }
-
 html {
     scroll-behavior: smooth;
     scroll-padding-top: 90px;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
 }
-
 body {
     background-color: var(--ink);
     color: var(--cream);
@@ -43,59 +39,48 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-
 h1,
 h2,
 h3,
 h4 {
     line-height: var(--lh-tight);
 }
-
 img {
     max-width: 100%;
 }
-
 a {
     color: inherit;
 }
-
 button,
 input {
     font: inherit;
     color: inherit;
 }
-
 button {
     border: none;
     background: none;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 }
-
 ul,
 ol {
     list-style: none;
 }
-
 [hidden] {
     display: none !important;
 }
-
 ::selection {
     background: rgba(var(--red-rgb), 0.55);
     color: var(--white);
 }
-
 :focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: 3px;
 }
-
 * {
     scrollbar-width: thin;
     scrollbar-color: rgba(var(--white-rgb), 0.2) transparent;
 }
-
 /* 불러오는 중 · 오류 안내 문구 */
 .status-text {
     padding: var(--space-6) 0;
@@ -103,7 +88,6 @@ ol {
     font-size: var(--fs-sm);
     text-align: center;
 }
-
 /* 지도 로드 실패 문구 (main.js) */
 .map-error {
     position: absolute;
@@ -120,7 +104,6 @@ ol {
         opacity 0.8s var(--ease-out) var(--delay, 0ms),
         transform 0.8s var(--ease-out) var(--delay, 0ms);
 }
-
 .reveal.is-visible {
     opacity: 1;
     transform: none;
@@ -136,23 +119,18 @@ ol {
     -webkit-mask: var(--icon) center / contain no-repeat;
     mask: var(--icon) center / contain no-repeat;
 }
-
 .icon-search {
     --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
 }
-
 .icon-expand {
     --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E");
 }
-
 .icon-chevron-left {
     --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
 }
-
 .icon-chevron-right {
     --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
 }
-
 .icon-chevron-up {
     --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m18 15-6-6-6 6'/%3E%3C/svg%3E");
 }
@@ -163,21 +141,17 @@ ol {
     background: #15120f !important;
     font-family: var(--font-sans);
 }
-
 .leaflet-tile {
     background: transparent !important;
 }
-
 /* 기본 저작권 표기 숨김 (섹션1 OSM 표기는 s1-era.css에서 별도 표시) */
 .leaflet-control-attribution {
     display: none !important;
 }
-
 /* 흑백 베이스맵 */
 .map-canvas .leaflet-tile-pane {
     filter: grayscale(100%) brightness(0.95);
 }
-
 /* 현재지도 / 옛지도(경성대지도 · 근세 지형도) 전환 컨트롤 (mapUtils.js 생성) */
 .custom-map-toggle {
     display: flex;
@@ -192,7 +166,6 @@ ol {
     font-size: var(--fs-xs);
     cursor: pointer;
 }
-
 /* 버튼 이름 한 줄 고정 (좁은 화면 줄바꿈 방지) */
 .map-type-label {
     padding: 6px 12px;
@@ -203,11 +176,82 @@ ol {
         background-color var(--dur-base) ease,
         color var(--dur-base) ease;
 }
-
 .map-type-label.active {
     background: var(--cream);
     color: var(--ink);
     font-weight: 600;
+}
+/* 지도 보기 컨트롤: 전체 보기 + 확대/축소 (mapUtils.js addMapViewControl, 지도 틀 기준 우측 하단 배치, 섹션1은 s1-era.css에서 우측 상단) */
+.map-view-ctrl {
+    position: absolute;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    z-index: 800;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 92px;
+}
+.map-view-home,
+.map-view-zoom {
+    border: 1px solid var(--sheet-line);
+    border-radius: 12px;
+    background: rgba(var(--ink-rgb), 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(var(--black-rgb), 0.35);
+}
+.map-view-home {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    color: var(--cream);
+    font-size: var(--fs-xs);
+    white-space: nowrap;
+    transition: border-color var(--dur-base) ease;
+}
+.map-view-home:hover {
+    border-color: rgba(var(--gold-rgb), 0.7);
+}
+/* 확대(+) | 축소(−) 가로 2칸 */
+.map-view-zoom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+}
+.map-view-zoom button {
+    height: 36px;
+    color: var(--cream);
+    font-size: 20px;
+    line-height: 1;
+    transition:
+        background-color var(--dur-base) ease,
+        opacity var(--dur-base) ease;
+}
+.map-view-zoom button + button {
+    border-left: 1px solid var(--sheet-line);
+}
+.map-view-zoom button:not(:disabled):hover {
+    background: rgba(var(--cream-rgb), 0.1);
+}
+/* 최대·최소 줌 도달 시 비활성 */
+.map-view-zoom button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+@media (max-width: 480px) {
+    .map-view-ctrl {
+        right: var(--space-3);
+        bottom: var(--space-3);
+        width: 80px;
+    }
+    .map-view-home,
+    .map-view-zoom button {
+        height: 32px;
+    }
 }
 
 /* ---------- 5. 지도 팝업 · 툴팁 ---------- */
@@ -221,50 +265,41 @@ ol {
     color: var(--cream);
     box-shadow: var(--shadow-lg);
 }
-
 .story-popup .leaflet-popup-content {
     margin: var(--space-5);
     font-size: var(--fs-sm);
     line-height: 1.6;
 }
-
 .story-popup .leaflet-popup-tip {
     background: rgba(var(--umber-rgb), 0.94);
 }
-
 /* Leaflet 기본 링크 색상 재정의 → 빨간 테두리 버튼 색 유지 */
 .leaflet-container .line-btn-red {
     color: var(--red-light);
 }
-
 .leaflet-container .line-btn-red:hover {
     color: var(--white);
 }
-
 /* 작은 팝업: 장소명·인물명만 표시 (섹션2·5) */
 .story-popup-mini .leaflet-popup-content {
     margin: var(--space-2) var(--space-4);
     text-align: center;
 }
-
 .popup-mini-title {
     font-family: var(--font-serif);
     font-size: var(--fs-md);
     font-weight: 600;
     white-space: nowrap;
 }
-
 /* 상세 팝업 (섹션4): 분류 배지 · 장소명 · 주소 · 버튼 · 설명 */
 .story-popup-inner {
     width: min(360px, 72vw);
 }
-
 .story-popup-inner h3 {
     margin: var(--space-2) 0 var(--space-1);
     font-family: var(--font-serif);
     font-size: var(--fs-lg);
 }
-
 /* 좌측 배지·장소명·주소 / 우측 버튼 세로 배치 */
 .popup-head {
     display: flex;
@@ -272,34 +307,28 @@ ol {
     justify-content: space-between;
     gap: var(--space-4);
 }
-
 .popup-head-text {
     min-width: 0;
 }
-
 .popup-actions {
     display: flex;
     flex: none;
     flex-direction: column;
     gap: var(--space-2);
 }
-
 .popup-actions .line-btn {
     min-height: 32px;
     padding: 0 var(--space-3);
     font-size: 12px;
 }
-
 .popup-addr {
     color: var(--muted);
     font-size: var(--fs-xs);
 }
-
 /* Leaflet 기본 p 여백(1.3em) 제거 → 버튼 영역과 높이 정렬 */
 .story-popup-inner .popup-addr {
     margin: var(--space-2) 0 0;
 }
-
 /* 설명: '더보기' 클릭 시 펼침 */
 .popup-desc {
     max-height: 180px;
@@ -309,7 +338,6 @@ ol {
     color: var(--text-soft);
     overflow-y: auto;
 }
-
 /* 마커 호버 툴팁 (섹션4 장소명 · 섹션5 인물명 공용) */
 .leaflet-tooltip.place-tooltip {
     padding: 5px 10px;
@@ -323,11 +351,9 @@ ol {
     white-space: nowrap;
     box-shadow: var(--shadow-md);
 }
-
 .leaflet-tooltip-top.place-tooltip::before {
     border-top-color: rgba(var(--umber-rgb), 0.94);
 }
-
 /* 분류 배지: 중요 지점(빨강) · 시위 장소(금색) */
 .popup-badge {
     display: inline-block;
@@ -336,12 +362,10 @@ ol {
     font-size: var(--fs-2xs);
     font-weight: 600;
 }
-
 .popup-badge-hub {
     background: rgba(var(--red-rgb), 0.25);
     color: var(--red-light);
 }
-
 .popup-badge-site {
     background: rgba(var(--gold-rgb), 0.2);
     color: var(--gold-light);
@@ -360,11 +384,9 @@ ol {
     -webkit-backdrop-filter: blur(6px);
     overscroll-behavior: contain;
 }
-
 .global-modal.is-open {
     display: block;
 }
-
 .global-modal-content {
     display: block;
     max-width: min(1000px, 92vw);
@@ -375,19 +397,16 @@ ol {
     box-shadow: var(--shadow-lg);
     animation: modal-in 0.4s var(--ease-out);
 }
-
 /* 전체 화면 모드: 화면 기준 최대 크기 (히어로 독립선언서) */
 .global-modal.is-full {
     display: none;
     padding: var(--space-4);
 }
-
 /* 이미지 + 캡션 묶음 세로 가운데 정렬: 위·아래 auto 여백 (justify-content: center는 내용이 넘칠 때 위쪽 잘림) */
 .global-modal.is-full.is-open {
     display: flex;
     flex-direction: column;
 }
-
 .global-modal.is-full .global-modal-content {
     flex: none;
     width: 100%;
@@ -398,11 +417,9 @@ ol {
     margin: auto auto 0;
     border-radius: 0; /* 선언서 원본: 모서리 각지게 */
 }
-
 .global-modal.is-full #caption-modal {
     margin-bottom: auto;
 }
-
 /* 이미지 아래 캡션 */
 #caption-modal {
     max-width: 1000px;
@@ -413,13 +430,11 @@ ol {
     font-size: var(--fs-lg);
     text-align: center;
 }
-
 #caption-modal small {
     color: var(--muted);
     font-family: var(--font-sans);
     font-size: var(--fs-sm);
 }
-
 /* 캡션 아래 상세 설명 (섹션1 모바일: 카드에서 숨긴 설명 표시) */
 #caption-modal .modal-desc {
     display: block;
@@ -430,7 +445,6 @@ ol {
     line-height: 1.75;
     text-align: left;
 }
-
 #caption-modal .modal-desc em {
     display: block;
     margin-top: var(--space-3);
@@ -441,7 +455,6 @@ ol {
     font-family: var(--font-serif);
     font-style: normal;
 }
-
 /* 우측 상단 닫기 버튼 */
 .close-modal {
     position: fixed;
@@ -458,7 +471,6 @@ ol {
     font-size: 1.75rem;
     line-height: 1;
 }
-
 .close-modal:hover {
     background: var(--red);
 }
@@ -476,7 +488,6 @@ html.is-sheet-open,
 html.is-sheet-open body {
     overflow: hidden;
 }
-
 .info-sheet {
     position: fixed;
     inset: 0;
@@ -485,7 +496,6 @@ html.is-sheet-open body {
     flex-direction: column;
     justify-content: flex-end;
 }
-
 /* 반투명 배경 (클릭 시 닫기) */
 .info-sheet-backdrop {
     position: absolute;
@@ -495,7 +505,6 @@ html.is-sheet-open body {
     -webkit-backdrop-filter: blur(4px);
     animation: sheet-fade 0.25s ease;
 }
-
 /* 하단에서 올라오는 패널 */
 .info-sheet-panel {
     position: relative;
@@ -508,7 +517,6 @@ html.is-sheet-open body {
     box-shadow: 0 -20px 50px rgba(var(--black-rgb), 0.5);
     animation: sheet-up 0.3s var(--ease-out);
 }
-
 .info-sheet-close {
     position: absolute;
     top: 12px;
@@ -525,7 +533,6 @@ html.is-sheet-open body {
     font-size: 22px;
     line-height: 1;
 }
-
 /* 내용 영역 (내부 스크롤) */
 .info-sheet-body {
     max-height: inherit;
@@ -533,7 +540,6 @@ html.is-sheet-open body {
     overflow-y: auto;
     overscroll-behavior: contain;
 }
-
 /* 시트 안 상세 카드: 카드 테두리·배경 제거 (시트 패널 사용) */
 .info-sheet-body > article {
     max-height: none;
@@ -587,36 +593,29 @@ html.is-sheet-open body {
         transform var(--dur-base) var(--ease-out),
         background-color var(--dur-base) ease;
 }
-
 .floating-top-btn .icon {
     width: 16px;
     height: 16px;
 }
-
 .floating-top-btn.show {
     opacity: 1;
     visibility: visible;
     transform: none;
 }
-
 .floating-top-btn:hover {
     background: var(--red);
 }
-
 /* 480px 이하: 지도 팝업 축소 (작은 지도 높이 안에 팝업 전체 표시) */
 @media (max-width: 480px) {
     .story-popup .leaflet-popup-content {
         margin: var(--space-4);
     }
-
     .story-popup-inner {
         width: min(280px, 72vw);
     }
-
     .story-popup-inner h3 {
         font-size: var(--fs-md);
     }
-
     .popup-desc {
         max-height: 90px;
         margin-top: var(--space-2);
@@ -630,7 +629,6 @@ html.is-sheet-open body {
     html {
         scroll-behavior: auto;
     }
-
     *,
     *::before,
     *::after {
@@ -638,7 +636,6 @@ html.is-sheet-open body {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
-
     .reveal {
         opacity: 1;
         transform: none;

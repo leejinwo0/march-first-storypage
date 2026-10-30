@@ -7,6 +7,7 @@
 // 마커: 기본 노란색, 선택 인물만 파란색 (선택 해제 시 노란색 복귀) / 호버: 인물명 툴팁 (확대 상태에서는 미표시)
 // 선택 팝업(인물명): 우측 상단 X 클릭 시 팝업만 닫힘, 같은 인물 재클릭 시 팝업 표시 중이면 전체 보기 / 닫힌 상태면 팝업 재표시
 // 전체 보기 버튼: 인물 선택 상태 또는 기본 줌보다 확대된 상태에서 표시
+// 우측 하단 보기 컨트롤: 전체 보기(선택 해제 + 전체 범위 복귀) + 확대/축소 (mapUtils.js)
 // 지도 크기 변경(모바일 배치 전환 등) 시 선택 인물 없으면 전체 보기 재적용
 import { fetchDailyLifeData, MAP_ENDPOINTS } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
@@ -63,10 +64,9 @@ export async function initActivists() {
     const searchInput = document.getElementById("s5-search");
     const filterBar = document.getElementById("s5-filters");
     const countEl = document.getElementById("s5-count");
-    const resetBtn = document.getElementById("s5-reset");
     if (!rail || !profile || !document.getElementById("map-s5")) return;
 
-    const { map } = createStoryMap("map-s5", {
+    const { map, setHomeView } = createStoryMap("map-s5", {
         center: [37.577613, 126.976897],
         zoom: DEFAULT_MAX_ZOOM,
         mapOptions: { zoomSnap: 1, doubleClickZoom: false }, // 정수 줌 고정 / 더블클릭 확대 비활성: 마커 연속 클릭 시 추가 확대 방지
@@ -113,6 +113,9 @@ export async function initActivists() {
 
     let activePerson = null;
 
+    // 프로필 패널 초기 화면 (index.html 안내 문구, 선택 해제 시 복원)
+    const EMPTY_PROFILE = profile.innerHTML;
+
     // 프로필 상세 항목 HTML (detail: null 로딩 / error / 데이터)
     const profileRows = (detail) => {
         if (detail === null) return '<div class="profile-skeleton" aria-label="상세 정보를 불러오는 중"><span></span><span></span><span></span></div>';
@@ -149,11 +152,9 @@ export async function initActivists() {
       </div>`;
     }
 
-    // 확대 상태(인물 선택 또는 기본 줌보다 확대): 전체 보기 버튼 표시 + 호버 툴팁 숨김(.is-zoomed)
+    // 확대 상태(인물 선택 또는 기본 줌보다 확대): 호버 툴팁 숨김(.is-zoomed)
     const updateReset = () => {
-        const zoomed = !!activePerson || map.getZoom() > DEFAULT_MAX_ZOOM;
-        if (resetBtn) resetBtn.classList.toggle("show", zoomed);
-        map.getContainer().classList.toggle("is-zoomed", zoomed);
+        map.getContainer().classList.toggle("is-zoomed", !!activePerson || map.getZoom() > DEFAULT_MAX_ZOOM);
     };
 
     // 마커 색상: 선택 인물 파란색 + 다른 마커 위 표시, 이전 선택 인물 노란색 복귀
@@ -163,11 +164,12 @@ export async function initActivists() {
         person.marker.setZIndexOffset(on ? 1000 : 0);
     };
 
-    // 선택 해제 + 전체 보기
+    // 선택 해제 + 프로필 패널 초기 화면 복원 + 전체 보기
     const clearSelection = () => {
         setPinActive(activePerson, false);
         activePerson = null;
         people.forEach((p) => p.card.classList.remove("active"));
+        profile.innerHTML = EMPTY_PROFILE;
         showAll();
         updateReset();
     };
@@ -281,7 +283,8 @@ export async function initActivists() {
     if (nextBtn) nextBtn.addEventListener("click", () => rail.scrollBy({ left: rail.clientWidth * 0.8, behavior: "smooth" }));
 
     map.on("zoomend", updateReset);
-    if (resetBtn) resetBtn.addEventListener("click", clearSelection);
+    // 우측 하단 전체 보기: 선택 해제 + 전체 범위 복귀
+    setHomeView(clearSelection);
 
     // 4. 지도 크기 변경 시 전체 보기 재적용 (선택 인물 없을 때, 초기 fitBounds가 모바일 배치 확정 전 크기로 계산 → 마커 범위 잘림 방지)
     let lastSize = "";

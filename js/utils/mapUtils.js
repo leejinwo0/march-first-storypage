@@ -1,13 +1,14 @@
 /* =======================================================
-   지도 공용 유틸 (섹션 2~5)
+   지도 공용 유틸 (섹션 1~5)
    1. 스마트서울맵 OpenAPI 스크립트 동적 로드
    2. 현재지도 / 옛지도 전환 컨트롤
-   3. 스토리 지도 생성 (현재지도 + 옛지도 + 전환 컨트롤)
+   3. 지도 보기 컨트롤 (우측 하단 '전체 보기' + 확대/축소, 섹션 1~5 공통)
+   4. 스토리 지도 생성 (현재지도 + 옛지도 + 전환 컨트롤 + 보기 컨트롤)
       · 전환 버튼 이름: '현재지도' / '옛지도' 고정 (섹션 공통)
       · 옛지도 종류: historicalMap 옵션
         - "modernKorea": 근세 한국 오만분지일 지형도 (섹션 2·3·5, 기본값)
         - "gyeongseong": 경성대지도 (섹션 4)
-   4. 곡선 경로 좌표 생성 (섹션2 경로선)
+   5. 곡선 경로 좌표 생성 (섹션2 경로선)
 ======================================================= */
 import { MAP_ENDPOINTS, HISTORICAL_MAPS } from "/services/mapService.js";
 
@@ -86,12 +87,54 @@ export function addMapToggleControl(map, baseMapLayer, secondaryMapLayer, second
 }
 
 /* =======================================================
-   3. 스토리 지도 생성 (섹션 2~5 공용)
-   - 스마트서울맵 한글 일반지도 + 옛지도(WMS) 전환 컨트롤
+   3. 지도 보기 컨트롤 (우측 하단: '전체 보기' 버튼 + 확대/축소 버튼)
+   - 지도 틀(.map-frame)에 직접 배치 → 섹션3 지도 CSS 배율 영향 없음
+   - onHome: 전체 보기 클릭 시 실행 (섹션별 기본 화면 복귀)
+   - onStep: 확대(1)/축소(-1) 실행 (미지정 시 Leaflet zoomIn/zoomOut)
+   - 최대·최소 줌 도달 시 해당 버튼 비활성
+======================================================= */
+export function addMapViewControl(map, options = {}) {
+    const onHome = options.onHome || (() => {});
+    const onStep = options.onStep || ((dir) => (dir > 0 ? map.zoomIn() : map.zoomOut()));
+    const container = map.getContainer();
+    const frame = container.parentElement || container;
+
+    const control = document.createElement("div");
+    control.className = "map-view-ctrl";
+    control.innerHTML = `
+        <button type="button" class="map-view-home" aria-label="전체 보기"><span class="icon icon-expand" aria-hidden="true"></span>전체 보기</button>
+        <div class="map-view-zoom">
+            <button type="button" data-step="1" aria-label="지도 확대">+</button>
+            <button type="button" data-step="-1" aria-label="지도 축소">−</button>
+        </div>`;
+    frame.appendChild(control);
+
+    const zoomInBtn = control.querySelector('[data-step="1"]');
+    const zoomOutBtn = control.querySelector('[data-step="-1"]');
+    control.querySelector(".map-view-home").addEventListener("click", () => onHome());
+    [zoomInBtn, zoomOutBtn].forEach((btn) => btn.addEventListener("click", () => onStep(Number(btn.dataset.step))));
+
+    // 줌 한계 도달 시 버튼 비활성 (줌 변경 · 레이어 전환 시 갱신)
+    const updateDisabled = () => {
+        const zoom = map.getZoom();
+        zoomInBtn.disabled = zoom >= map.getMaxZoom();
+        zoomOutBtn.disabled = zoom <= map.getMinZoom();
+    };
+    map.on("zoomend layeradd layerremove", updateDisabled);
+    map.whenReady(updateDisabled);
+
+    return control;
+}
+
+/* =======================================================
+   4. 스토리 지도 생성 (섹션 2~5 공용)
+   - 스마트서울맵 한글 일반지도 + 옛지도(WMS) 전환 컨트롤 + 우측 하단 보기 컨트롤
    - historicalMap: 옛지도 종류 ("modernKorea" 기본 / "gyeongseong")
    - zoomOffset: 옛지도 전환 시 줌 축소 단계 (복귀 시 복원)
+   - onHome: 전체 보기 동작 (미지정 시 생성 위치·줌 복귀, 생성 후 setHomeView로 교체 가능)
+   - 확대/축소: 일반지도 기준 정수 줌 단계 이동 (스마트서울맵 좌표계 소수 줌 미지원 → 기본지도 미표시 방지)
    - 지도 컨테이너 크기 변경 시 invalidateSize 자동 호출
-   - 반환: map, zoomFor(현재 레이어 기준 줌 값 변환)
+   - 반환: map, zoomFor(현재 레이어 기준 줌 값 변환), setHomeView(전체 보기 동작 교체), viewControl(보기 컨트롤 요소)
 ======================================================= */
 export function createStoryMap(containerId, options = {}) {
     const center = options.center || [37.5759, 126.985];
@@ -139,11 +182,26 @@ export function createStoryMap(containerId, options = {}) {
     // 현재 레이어 기준 줌 값 (옛지도 표시 중이면 보정값 차감)
     const zoomFor = (value) => (map.hasLayer(historicalLayer) ? value - zoomOffset : value);
 
-    return { map, zoomFor };
+    // 전체 보기: 기본값 생성 위치·줌 복귀, 애니메이션 없이 이동 (스마트서울맵 기본지도 줌 애니메이션 중 타일 미표시 방지)
+    let homeView = options.onHome || (() => map.setView(center, zoomFor(zoom), { animate: false }));
+    const setHomeView = (fn) => {
+        homeView = fn;
+    };
+
+    // 확대/축소: 일반지도 기준 줌으로 환산 후 다음 정수 단계 이동 → 옛지도 보정값 반영, 애니메이션 없이 이동 (줌 애니메이션 중 기본지도 타일 미표시 방지)
+    const stepZoom = (dir) => {
+        const offset = map.hasLayer(historicalLayer) ? zoomOffset : 0;
+        const baseZoom = map.getZoom() + offset;
+        const next = dir > 0 ? Math.floor(baseZoom + 0.01) + 1 : Math.ceil(baseZoom - 0.01) - 1;
+        map.setZoom(next - offset, { animate: false });
+    };
+    const viewControl = addMapViewControl(map, { onHome: () => homeView(), onStep: stepZoom });
+
+    return { map, zoomFor, setHomeView, viewControl };
 }
 
 /* =======================================================
-   4. 곡선 경로 좌표 생성 (섹션2 거점 연결선)
+   5. 곡선 경로 좌표 생성 (섹션2 거점 연결선)
    - 두 지점 사이를 2차 베지어 곡선(구간당 20분할)으로 변환
    - 구간별 휘는 방향: 1·2·5번째 구간 한쪽, 나머지 반대쪽 (경로선 겹침 방지)
 ======================================================= */

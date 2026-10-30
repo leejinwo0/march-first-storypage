@@ -4,6 +4,7 @@
 // 경로 카드 클릭 → 활성 경로 강조(빨간 점선 흐름) + 출발/도착 마커 + 경로 범위로 이동
 // 경로 7종 공통 배율: 경로별 맞춤 배율 최솟값 + 보정(PC ZOOM_UP / 모바일 ZOOM_UP_MOBILE), 기본지도는 정수 줌 표시 + 남는 배율은 지도 영역 CSS 확대·축소로 보정
 // 모바일(1024px 이하): 좌상단 경로 정보 패널 · 크게 보기 버튼 숨김
+// 우측 하단 보기 컨트롤: 전체 보기(현재 경로 다시 맞춤) + 확대/축소 (mapUtils.js)
 // 활성 카드: 경유지 ㄹ자 타임라인(한 줄 3곳) + 경로 설명 펼침/접힘, 활성 카드 재클릭 시 접기/펼치기
 // 경로 재생: 경로선 좌표를 따라 표시점 이동, 진행률 막대·퍼센트 연동 (경유지별 좌표 미제공 → 진행률만 표시)
 // 크게 보기(PC): 지도 프레임(정보·재생 패널 포함)을 화면 전체 팝업으로 확대, 닫기 버튼·Esc·배경 클릭으로 복귀
@@ -100,8 +101,8 @@ export async function initRoutes() {
     const bar = document.getElementById("s3-bar");
     if (!list || !mapEl) return;
 
-    // 평면 지도: 드래그 이동만 허용, 줌 조작 비활성 (사용자 줌 변경 시 일부 단계 기본지도 타일 미표시 → 경로 맞춤 줌으로 고정)
-    const { map } = createStoryMap("map-s3", {
+    // 평면 지도: 드래그 이동 + 우측 하단 확대/축소 버튼(정수 줌 단계)만 허용, 휠·터치·더블클릭 줌 비활성 (소수 줌 단계 기본지도 타일 미표시 방지)
+    const { map, setHomeView } = createStoryMap("map-s3", {
         zoom: 11,
         mapOptions: {
             zoomSnap: 1, // 정수 줌 고정: 스마트서울맵 좌표계 소수 줌 미지원 (소수 줌 적용 시 기본지도 미표시)
@@ -351,6 +352,11 @@ export async function initRoutes() {
     const backdrop = document.createElement("div");
     backdrop.className = "routes-map-backdrop";
     let expanded = false;
+
+    // 전체 보기: 현재 경로 다시 맞춤
+    setHomeView(() => {
+        if (currentIndex >= 0) fitRoute(routes[currentIndex]);
+    });
 
     const refitMap = () =>
         requestAnimationFrame(() => {

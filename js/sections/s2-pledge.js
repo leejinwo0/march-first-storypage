@@ -213,8 +213,10 @@ export async function initPledge() {
         syncPopups(index);
 
         if (!step.pos) return;
-        // 선택 장소 중심 이동 (기본 줌 유지, 옛지도 표시 중이면 보정 줌)
-        map.setView(step.pos, zoomFor(DEFAULT_ZOOM), { animate: true, duration: 0.8 });
+        // 선택 장소 중심 이동 (기본 줌 복귀, 옛지도 표시 중이면 보정 줌), +/− 버튼으로 줌 변경된 상태면 줌만 애니메이션 없이 먼저 복귀 후 이동 (줌 애니메이션 중 기본지도 타일 미표시 방지)
+        const targetZoom = zoomFor(DEFAULT_ZOOM);
+        if (Math.abs(map.getZoom() - targetZoom) > 0.01) map.setZoom(targetZoom, { animate: false });
+        map.panTo(step.pos, { animate: true, duration: 0.8 });
     }
 
     // 5. 조작: 진행 막대 칸 · 이전/다음 · 방향키
