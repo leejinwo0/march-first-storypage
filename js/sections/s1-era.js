@@ -1,7 +1,7 @@
 /* 01 시대의 부름: 배경 카드 4종 + 세계지도(OSM) */
 // 데이터: /js/data/history-data.js S1_ERA
-// 카드: 제목 · 영문/장소 → 사진 → 설명 순, 이미지 클릭 시 전역 확대 모달, 이미지 로드 실패 시 사진 영역 숨김
-// 세계지도: OpenStreetMap 타일, 카드 4곳 번호 마커 + 장소명·날짜 상시 라벨 (서울 2곳 좌우 분리, 도쿄 아래 배치, 모바일 미표시)
+// 카드: 제목 · 영문/장소 → 사진 → 설명 순 (인용문 미표시), 이미지 클릭 시 전역 확대 모달, 이미지 로드 실패 시 사진 영역 숨김
+// 세계지도: OpenStreetMap 타일, 카드 4곳 번호 마커 + 장소명·날짜 상시 라벨 (서울 2곳 상자 좌우 분리·꼬리 마커 위, 도쿄 아래 배치, 모바일 미표시)
 // 마커·카드 클릭: 해당 위치 확대 + 카드·마커 강조(빨간색), 선택된 카드 재클릭 시 선택 해제 + 전체 보기 복귀
 // 선택 팝업(장소명·날짜): 지도 클릭 시 유지, 우측 상단 X 클릭 시 닫힘 + 선택 해제 + 전체 보기 복귀
 // 확대 상태(전체 보기 줌 초과): 상시 라벨 숨김 / 전체 보기 축척: 서울 마커 2개(남산·대한문) 좌우 분리 표시
@@ -21,10 +21,10 @@ const SPLIT_DIR = { 0: 1, 1: -1 };
 const FIT_MAX_ZOOM = 5;
 // 모바일 기준: 카드 설명 → 사진 확대 모달 표시, 세계지도 여백 축소
 const MOBILE_QUERY = window.matchMedia("(max-width: 560px)");
-// 상시 라벨 위치: 카드 index → 방향 · 위치 보정 (shift: 서울 2곳 좌우로 벌림 → 꼬리 숨김)
+// 상시 라벨 위치: 카드 index → 방향 · 위치 보정 (서울 2곳: 라벨 기준점은 좌우 분리된 마커 바로 위 ±17px, 상자만 shift 방향으로 이동 → s1-era.css)
 const LABEL_POS = {
-    0: { direction: "top", offset: [58, -16], shift: true },
-    1: { direction: "top", offset: [-58, -16], shift: true },
+    0: { direction: "top", offset: [17, -16], shift: "right" },
+    1: { direction: "top", offset: [-17, -16], shift: "left" },
     2: { direction: "bottom", offset: [0, 16] },
     3: { direction: "top", offset: [0, -16] },
 };
@@ -49,11 +49,10 @@ export function initEra() {
     const grid = document.getElementById("s1-era");
     if (!grid) return;
 
-    grid.innerHTML = S1_ERA.map((item, index) => {
-        const quote = item.quote ? `<p class="era-quote">${item.quote}</p>` : "";
-        return `
-      <article class="era-card reveal" style="--delay:${index * 80}ms" data-index="${index}">
-        <h3 class="era-title">${item.title}</h3>
+    grid.innerHTML = S1_ERA.map(
+        (item, index) => `
+        <article class="era-card reveal" style="--delay:${index * 80}ms" data-index="${index}">
+        <h3 class="era-title"><span class="era-num" aria-hidden="true">${index + 1}</span>${item.title}</h3>
         <p class="era-en">${item.en} · ${item.place}</p>
         <button type="button" class="era-photo" data-index="${index}" aria-label="${item.caption} 확대 보기">
           <img src="${item.imgUrl}" alt="${item.caption}" loading="lazy" onerror="this.closest('.era-photo').classList.add('is-empty'); this.remove();">
@@ -61,18 +60,16 @@ export function initEra() {
           <span class="era-more" aria-hidden="true">눌러서 설명 보기</span>
         </button>
         <p class="era-body">${item.body}</p>
-        ${quote}
-      </article>`;
-    }).join("");
+      </article>`,
+    ).join("");
 
     // 사진 클릭: 확대 모달 (사진 로드 실패 카드 제외)
     grid.querySelectorAll(".era-photo").forEach((btn) => {
         btn.addEventListener("click", () => {
             if (typeof window.openGlobalModal !== "function" || btn.classList.contains("is-empty")) return;
             const item = S1_ERA[Number(btn.dataset.index)];
-            // 모바일: 카드에서 숨긴 설명·인용문을 캡션 아래 표시
-            const quote = item.quote ? `<em>${item.quote}</em>` : "";
-            const detail = MOBILE_QUERY.matches ? `<span class="modal-desc">${item.body}${quote}</span>` : "";
+            // 모바일: 카드에서 숨긴 설명을 캡션 아래 표시
+            const detail = MOBILE_QUERY.matches ? `<span class="modal-desc">${item.body}</span>` : "";
             window.openGlobalModal(item.imgUrl, `${item.caption}<br><small>${item.place}</small>${detail}`);
         });
     });
@@ -252,8 +249,10 @@ function initEraMap(grid) {
         if (!item.latlng) return;
         const marker = L.marker(item.latlng, { icon: markerIcon(index, SPLIT_DIR[index] || 0), riseOnHover: true }).addTo(map);
         const label = LABEL_POS[index] || { direction: "top", offset: [0, -16] };
+        // 서울 2곳: era-tooltip-to-right / era-tooltip-to-left 클래스로 상자만 좌우 이동 (s1-era.css)
+        const shiftClass = label.shift ? ` era-tooltip-to-${label.shift}` : "";
         marker.bindTooltip(`${item.place}<small>${item.date}</small>`, {
-            className: `place-tooltip era-tooltip${label.shift ? " era-tooltip-shift" : ""}`,
+            className: `place-tooltip era-tooltip${shiftClass}`,
             direction: label.direction,
             offset: label.offset,
             permanent: true,

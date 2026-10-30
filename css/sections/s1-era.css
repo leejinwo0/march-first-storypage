@@ -70,33 +70,55 @@
 .era-more {
     display: none;
 }
+/* 제목: 번호 + 제목 한 줄 배치 (번호 = 세계지도 마커 번호) */
 .era-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin: 6px 6px 0;
     font-family: var(--font-serif);
     font-size: 16.5px;
     font-weight: 600;
     line-height: 1.45;
 }
+/* 카드 번호: 세계지도 마커와 같은 모양 (빨간 원 · 흰 테두리) */
+.era-num {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--white);
+    border-radius: 50%;
+    background: var(--red);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 0 0 3px rgba(var(--red-rgb), 0.25);
+    transition: box-shadow var(--dur-base) ease;
+}
+/* 선택 카드 번호: 마커 선택 상태와 같은 광채 */
+.era-card.is-active .era-num {
+    box-shadow:
+        0 0 0 4px rgba(var(--red-rgb), 0.3),
+        0 0 12px var(--accent-glow);
+}
+/* 영문·장소: 밝은 보조 글자 (흐린 글자 가독성 보완) */
 .era-en {
     margin: 4px 6px 0;
-    color: var(--text-faint);
+    color: var(--text-soft);
     font-family: var(--font-display);
     font-size: var(--fs-xs);
     font-style: italic;
 }
+/* 설명: 밝은 본문 글자 (흐린 글자 가독성 보완) */
 .era-body {
     margin: 14px 6px 8px;
-    color: var(--muted);
+    color: #cfc7bb;
     font-size: 13px;
     line-height: 1.7;
-}
-.era-quote {
-    margin: auto 6px 6px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: rgba(var(--red-rgb), 0.15);
-    font-family: var(--font-serif);
-    font-size: 13px;
 }
 /* 카드 호버 · 선택 강조 */
 .era-card:hover {
@@ -159,9 +181,21 @@
     font-size: 13.5px;
     text-align: center;
 }
-/* 서울 2곳 라벨: 좌우로 벌려 배치 → 꼬리 숨김 */
-.era-tooltip-shift::before {
-    display: none;
+/* 서울 2곳 라벨: 꼬리는 마커 바로 위 고정, 네모 상자만 좌우 이동 (두 라벨 겹침 방지) */
+.era-tooltip-to-right {
+    --label-shift: 44px;
+}
+.era-tooltip-to-left {
+    --label-shift: -44px;
+}
+.era-tooltip-to-right,
+.era-tooltip-to-left {
+    margin-left: var(--label-shift);
+}
+/* 꼬리: 상자 이동량만큼 반대로 이동 (Leaflet 기본 margin-left -6px 기준), .leaflet-tooltip 추가로 우선순위 상향 → 나중에 로드되는 스마트서울맵 CSS(Leaflet 기본 꼬리 위치)에 덮어쓰기 방지 */
+.leaflet-tooltip.era-tooltip-to-right::before,
+.leaflet-tooltip.era-tooltip-to-left::before {
+    margin-left: calc(-6px - var(--label-shift));
 }
 /* 도쿄 라벨: 마커 아래 배치 → 위쪽 꼬리 색상 */
 .leaflet-tooltip-bottom.era-tooltip::before {
@@ -262,13 +296,11 @@
         height: 180px;
         margin-bottom: 4px;
     }
-    /* 카드 설명·인용문 숨김 (사진 클릭 시 확대 모달에 표시), 사진 없는 카드는 설명 유지 */
-    .era-body,
-    .era-quote {
+    /* 카드 설명 숨김 (사진 클릭 시 확대 모달에 표시), 사진 없는 카드는 설명 유지 */
+    .era-body {
         display: none;
     }
-    .era-card:has(.era-photo.is-empty) .era-body,
-    .era-card:has(.era-photo.is-empty) .era-quote {
+    .era-card:has(.era-photo.is-empty) .era-body {
         display: block;
     }
     .era-more {

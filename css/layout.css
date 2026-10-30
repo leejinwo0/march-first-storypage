@@ -160,7 +160,7 @@
 
 /* 제목 둘째 줄 흐린 글자 */
 .dim {
-    color: rgba(var(--cream-rgb), 0.32);
+    color: inherit;
 }
 
 .sec-desc {
