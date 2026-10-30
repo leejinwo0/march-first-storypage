@@ -1,9 +1,4 @@
-/* =======================================================
-   00 인트로 (풀스크린 배경형): 기미독립선언서 전체 배경 + 가운데 타이틀
-   - 배경: 어둡게 처리한 선언서 이미지, 천천히 확대·이동(켄 번스 효과)
-   - '스토리 시작하기' 옆 '선언서 원본 보기' 보조 버튼 클릭 시 전체 화면 보기 (s0-hero.js)
-   - 모바일(1024px 이하): 같은 구성, 480px 이하 두 버튼 같은 너비
-======================================================= */
+/* 00 인트로 (풀스크린 배경형): 기미독립선언서 전체 배경 + 가운데 타이틀 / 배경: 어둡게 처리한 선언서 이미지, 천천히 확대·이동(켄 번스 효과) / '스토리 시작하기' 옆 '선언서 원본 보기' 보조 버튼 클릭 시 전체 화면 보기 (s0-hero.js) / 모바일(1024px 이하): 같은 구성, 480px 이하 두 버튼 같은 너비 */
 .hero {
     display: grid;
     place-items: center;
@@ -15,15 +10,13 @@
 }
 
 /* ---------- 배경 이미지 ---------- */
-/* inset 1px + 가장자리 어둡게 처리(.hero::after)를 섹션 기준으로 분리
-   → 소수점 배율 화면(125%·150% 등)에서 확대 애니메이션 이미지 경계가 1px 밝은 세로줄로 보이는 현상 방지 */
+/* inset 1px + 가장자리 어둡게 처리(.hero::after)를 섹션 기준으로 분리 → 소수점 배율 화면(125%·150% 등)에서 확대 애니메이션 이미지 경계가 1px 밝은 세로줄로 보이는 현상 방지 */
 .hero-bg {
     position: absolute;
     inset: 1px;
     z-index: -1;
     overflow: hidden;
 }
-
 .hero-bg img {
     width: 100%;
     height: 100%;
@@ -31,17 +24,13 @@
     filter: sepia(0.4) brightness(0.32) contrast(1.1);
     animation: hero-ken-burns 24s ease-in-out infinite alternate;
 }
-
 /* 가장자리 어둡게 + 가운데 빨간 빛 (배경 이미지 위, 타이틀 아래) */
 .hero::after {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
-    background:
-        radial-gradient(ellipse 60% 55% at 50% 50%, rgba(var(--red-rgb), 0.28), transparent 70%),
-        radial-gradient(ellipse at center, transparent 35%, rgba(var(--ink-rgb), 0.9) 100%),
-        linear-gradient(180deg, rgba(var(--ink-rgb), 0.5), transparent 30%, transparent 70%, rgba(var(--ink-rgb), 0.85));
+    background: radial-gradient(ellipse 60% 55% at 50% 50%, rgba(var(--red-rgb), 0.28), transparent 70%), radial-gradient(ellipse at center, transparent 35%, rgba(var(--ink-rgb), 0.9) 100%), linear-gradient(180deg, rgba(var(--ink-rgb), 0.5), transparent 30%, transparent 70%, rgba(var(--ink-rgb), 0.85));
     pointer-events: none;
 }
 
@@ -49,7 +38,6 @@
     from {
         transform: scale(1.05) translate(0, 0);
     }
-
     to {
         transform: scale(1.18) translate(-2%, -2%);
     }
@@ -59,27 +47,21 @@
 .hero-copy {
     max-width: 760px;
 }
-
-.hero-copy>* {
+.hero-copy > * {
     animation: hero-fade-up 1s var(--ease-out) both;
 }
-
-.hero-copy> :nth-child(2) {
+.hero-copy > :nth-child(2) {
     animation-delay: 0.15s;
 }
-
-.hero-copy> :nth-child(3) {
+.hero-copy > :nth-child(3) {
     animation-delay: 0.3s;
 }
-
-.hero-copy> :nth-child(4) {
+.hero-copy > :nth-child(4) {
     animation-delay: 0.45s;
 }
-
 .hero-copy .eyebrow-dot {
     justify-content: center;
 }
-
 .hero-title {
     margin-top: var(--space-5);
     font-family: var(--font-serif);
@@ -89,20 +71,17 @@
     letter-spacing: -0.05em;
     text-shadow: 0 6px 40px rgba(var(--black-rgb), 0.6);
 }
-
 .hero-title em {
     color: var(--red-light);
     font-style: normal;
     font-weight: 800;
 }
-
 .hero-desc {
     max-width: 520px;
     margin: var(--space-6) auto var(--space-8);
     color: rgba(var(--cream-rgb), 0.78);
     line-height: 1.75;
 }
-
 /* 버튼 줄: 스토리 시작하기 + 선언서 원본 보기 */
 .hero-copy .btn-row {
     flex-wrap: wrap;
@@ -120,12 +99,10 @@
     color: var(--cream);
     cursor: zoom-in;
 }
-
 .pill-btn-ghost:hover {
     border-color: rgba(var(--gold-rgb), 0.7);
     background: rgba(var(--cream-rgb), 0.12);
 }
-
 /* 버튼 글자 한 줄 고정 */
 .hero-copy .pill-btn {
     white-space: nowrap;
@@ -152,14 +129,12 @@
         padding: 0 var(--space-4);
     }
 }
-
 /* 360px 이하: 두 버튼 세로 배치 (가로 공간 부족) */
 @media (max-width: 360px) {
     .hero-copy .btn-row .pill-btn {
         flex: 1 1 100%;
     }
 }
-
 /* 모션 최소화 설정: 배경 움직임 없음 */
 @media (prefers-reduced-motion: reduce) {
     .hero-bg img {

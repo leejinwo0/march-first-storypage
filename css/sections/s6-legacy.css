@@ -1,6 +1,4 @@
-/* =======================================================
-   06 남겨진 유산: 헌법 전문 인용 + 역사적 의의 펼침 목록
-======================================================= */
+/* 06 남겨진 유산: 헌법 전문 인용 + 역사적 의의 펼침 목록 */
 
 /* ---------- 헌법 전문 ---------- */
 .legacy-quote {
@@ -11,7 +9,6 @@
     background: linear-gradient(135deg, rgba(var(--red-rgb), 0.18), var(--sheet-bg-raised) 60%);
     overflow: hidden;
 }
-
 .legacy-quote-year {
     position: absolute;
     right: -10px;
@@ -23,7 +20,6 @@
     line-height: 1;
     pointer-events: none;
 }
-
 .legacy-quote-src {
     position: relative;
     display: flex;
@@ -33,7 +29,6 @@
     font-size: var(--fs-sm);
     font-weight: 600;
 }
-
 .legacy-quote-mark {
     display: grid;
     place-items: center;
@@ -43,7 +38,6 @@
     border-radius: 8px;
     font-family: var(--font-serif);
 }
-
 /* 줄 끝 글자 단위 줄바꿈 + 양쪽 정렬 */
 .legacy-quote-text {
     position: relative;
@@ -58,7 +52,6 @@
     text-justify: inter-character;
     text-align-last: left;
 }
-
 .legacy-quote-text strong {
     color: var(--white);
     background: linear-gradient(transparent 62%, rgba(var(--red-rgb), 0.6) 62%);
@@ -71,11 +64,9 @@
     margin-top: 18px;
     border-top: 1px solid var(--sheet-line);
 }
-
 .legacy-item {
     border-bottom: 1px solid var(--sheet-line);
 }
-
 .legacy-head {
     display: flex;
     align-items: flex-start;
@@ -85,36 +76,30 @@
     text-align: left;
     transition: background-color var(--dur-base) ease;
 }
-
 .legacy-head:hover {
     background: rgba(var(--cream-rgb), 0.03);
 }
-
 .legacy-num {
     margin-top: 3px;
     color: var(--red-light);
     font-size: var(--fs-sm);
 }
-
 .legacy-text {
     flex: 1;
     min-width: 0;
 }
-
 .legacy-title {
     display: block;
     font-family: var(--font-serif);
     font-size: 18px;
     font-weight: 500;
 }
-
 .legacy-title em {
     margin-left: 10px;
     color: var(--muted);
     font-size: var(--fs-sm);
     font-style: normal;
 }
-
 .legacy-summary {
     display: block;
     margin-top: 6px;
@@ -122,7 +107,6 @@
     font-size: 13px;
     line-height: 1.6;
 }
-
 .legacy-sign {
     position: relative;
     flex-shrink: 0;
@@ -130,9 +114,10 @@
     height: 30px;
     border: 1px solid var(--sheet-line);
     border-radius: 9px;
-    transition: background-color var(--dur-base) ease, border-color var(--dur-base) ease;
+    transition:
+        background-color var(--dur-base) ease,
+        border-color var(--dur-base) ease;
 }
-
 .legacy-sign::before,
 .legacy-sign::after {
     content: "";
@@ -145,48 +130,39 @@
     transform: translate(-50%, -50%);
     transition: transform var(--dur-base) var(--ease-out);
 }
-
 .legacy-sign::after {
     transform: translate(-50%, -50%) rotate(90deg);
 }
-
 .legacy-item.is-open .legacy-sign {
     border-color: var(--red);
     background: var(--red);
 }
-
 .legacy-item.is-open .legacy-sign::before,
 .legacy-item.is-open .legacy-sign::after {
     background: var(--white);
 }
-
 .legacy-item.is-open .legacy-sign::after {
     transform: translate(-50%, -50%) rotate(0deg);
 }
-
 /* 펼침: grid-template-rows 0fr → 1fr 전환 */
 .legacy-body {
     display: grid;
     grid-template-rows: 0fr;
     transition: grid-template-rows var(--dur-slow) var(--ease-out);
 }
-
 .legacy-item.is-open .legacy-body {
     grid-template-rows: 1fr;
 }
-
 .legacy-body-inner {
     overflow: hidden;
     padding-left: calc(6px + 18px + 1.2em);
 }
-
 .legacy-body-inner p {
     padding-right: 48px;
     color: var(--text-soft);
     font-size: 14px;
     line-height: 1.85;
 }
-
 .legacy-body-inner a {
     display: inline-block;
     margin: 10px 0 24px;
@@ -200,21 +176,17 @@
     .legacy-quote {
         padding: 24px 20px;
     }
-
     .legacy-title em {
         display: block;
         margin: 2px 0 0;
     }
-
     .legacy-head {
         gap: 12px;
         padding: 20px 2px;
     }
-
     .legacy-body-inner {
         padding-left: 0;
     }
-
     .legacy-body-inner p {
         padding-right: 0;
     }

@@ -1,35 +1,16 @@
-/* =======================================================
-   02 거사의 맹세: 스테퍼 · 진행 막대 · 상세 카드 + 지도
-   - 데이터: 스마트서울맵 테마 11100550 (start_xx 거점 9곳)
-   - 단계 버튼·마커 클릭 → 카드 갱신, 해당 마커 중심 이동(기본 줌 유지), 경로선 해당 단계까지 표시
-   - 경성대지도 전환 시 줌 1.5단계 보정
-   - PC: 활성 마커 팝업(장소명) 고정 표시 (마커 재클릭·지도 클릭 시에도 유지), 우측 상단 X 클릭 시 닫힘
-   - 이전/다음 스테퍼(단계 번호·장소명) + 단계 버튼 9칸 진행 막대 표시 (PC·모바일 공통)
-   - 모바일(1024px 이하): 지도 팝업 미표시, 상세 카드 숨김 → 마커 클릭 또는 스테퍼 '더보기' 클릭 시 하단 시트로 상세 카드 표시
-======================================================= */
+/* 02 거사의 맹세: 스테퍼 · 진행 막대 · 상세 카드 + 지도 */
+// 데이터: 스마트서울맵 테마 11100550 (start_xx 거점 9곳)
+// 단계 버튼·마커 클릭 → 카드 갱신, 해당 마커 중심 이동(기본 줌 유지), 경로선 해당 단계까지 표시
+// 옛지도(근세 지형도) 전환 시 줌 1.5단계 보정
+// PC: 활성 마커 팝업(장소명) 고정 표시 (마커 재클릭·지도 클릭 시에도 유지), 우측 상단 X 클릭 시 닫힘
+// 이전/다음 스테퍼(단계 번호·장소명) + 단계 버튼 9칸 진행 막대 표시 (PC·모바일 공통)
+// 모바일(1024px 이하): 지도 팝업 미표시, 상세 카드 숨김 → 마커 클릭 또는 스테퍼 '더보기' 클릭 시 하단 시트로 상세 카드 표시
 import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap, generateCurvedPath } from "/js/utils/mapUtils.js";
-import {
-    getImageCandidates,
-    attachImageFallback,
-    setStat,
-    openSheet,
-    closeSheet,
-} from "/js/utils/uiUtils.js";
+import { getImageCandidates, attachImageFallback, setStat, openSheet, closeSheet } from "/js/utils/uiUtils.js";
 
 // 타임라인 표시 순서 (테마 콘텐츠 ID)
-const TARGET_IDS = [
-    "start_01",
-    "start_02",
-    "start_03",
-    "start_04",
-    "start_08",
-    "start_05",
-    "start_09",
-    "start_07",
-    "start_13",
-];
-
+const TARGET_IDS = ["start_01", "start_02", "start_03", "start_04", "start_08", "start_05", "start_09", "start_07", "start_13"];
 // 기본 줌 및 장소 이동 줌 (동일 값, 장소 이동 시 줌 변경 없이 중심만 이동)
 const DEFAULT_ZOOM = 10;
 // 모바일 기준: 상세 카드 → 하단 시트 표시
@@ -51,8 +32,10 @@ const SAJEOK_KEYWORDS = {
 };
 
 // 사적지 검색어: 제목이 "사적지 명칭 - 부가 설명" 형태이면 " - " 앞부분만 사용
-const toSajeokKeyword = (step) =>
-    SAJEOK_KEYWORDS[step.id] || step.title.split(" - ")[0].trim();
+const toSajeokKeyword = (step) => SAJEOK_KEYWORDS[step.id] || step.title.split(" - ")[0].trim();
+
+// 두 자리 번호 표기 (1 → "01")
+const pad2 = (n) => String(n).padStart(2, "0");
 
 export async function initPledge() {
     const nav = document.getElementById("s2-nav");
@@ -65,32 +48,21 @@ export async function initPledge() {
         zoomOffset: 1.5,
         mapOptions: {
             closePopupOnClick: false,
-            // 더블클릭 확대 비활성: 기본 줌 외 레벨 진입 시 기본지도 타일 미표시(검은 화면) 방지
-            doubleClickZoom: false,
+            doubleClickZoom: false, // 더블클릭 확대 비활성: 기본 줌 외 레벨 진입 시 기본지도 타일 미표시(검은 화면) 방지
         },
     });
 
     // 거점 연결 점선 (선택 단계까지 곡선으로 표시)
-    const pathLine = L.polyline([], {
-        color: "#a83228",
-        weight: 3,
-        dashArray: "8, 8",
-        lineJoin: "round",
-    }).addTo(map);
+    const pathLine = L.polyline([], { color: "#a83228", weight: 3, dashArray: "8, 8", lineJoin: "round" }).addTo(map);
 
     const geojson = await fetchTimeTravelData();
 
     // 거점 데이터: TARGET_IDS 순서대로 추출 (좌표 [위도, 경도] 변환)
     const steps = TARGET_IDS.map((id) => {
-        const feature = geojson.features.find(
-            (f) => f.properties.COT_CONTS_ID === id,
-        );
+        const feature = geojson.features.find((f) => f.properties.COT_CONTS_ID === id);
         if (!feature) return null;
         const props = feature.properties;
-        const coords =
-            feature.geometry.type === "Point"
-                ? feature.geometry.coordinates
-                : null;
+        const coords = feature.geometry.type === "Point" ? feature.geometry.coordinates : null;
         return {
             id,
             title: props.COT_CONTS_NAME || "지명 없음",
@@ -103,22 +75,16 @@ export async function initPledge() {
         };
     }).filter(Boolean);
 
-    // 수치 띠 '3.1운동 준비' 갱신
+    // 수치 띠 '3.1운동 준비과정' 갱신
     setStat("pledge", steps.length);
 
     if (steps.length === 0) {
-        card.innerHTML =
-            '<p class="status-text">거점 정보를 불러올 수 없습니다.</p>';
+        card.innerHTML = '<p class="status-text">거점 정보를 불러올 수 없습니다.</p>';
         return;
     }
 
     // 1. 단계 버튼 (CSS로 9칸 진행 막대 표시)
-    nav.innerHTML = steps
-        .map(
-            (step, i) =>
-                `<button type="button" class="step-btn" data-index="${i}" aria-label="${i + 1}번째 장소: ${step.title}">${i + 1}</button>`,
-        )
-        .join("");
+    nav.innerHTML = steps.map((step, i) => `<button type="button" class="step-btn" data-index="${i}" aria-label="${i + 1}번째 장소: ${step.title}">${i + 1}</button>`).join("");
     const navBtns = [...nav.querySelectorAll(".step-btn")];
 
     // 2. 지도 마커 (번호 원형)
@@ -137,12 +103,10 @@ export async function initPledge() {
         marker.bindPopup(popupEl, {
             className: "story-popup story-popup-mini",
             offset: [0, -14],
-            // X 버튼: 팝업만 닫기 (선택 단계·카드 유지, 마커 재클릭 시 다시 표시)
-            closeButton: true,
+            closeButton: true, // X 버튼: 팝업만 닫기 (선택 단계·카드 유지, 마커 재클릭 시 다시 표시)
             autoClose: false,
             closeOnClick: false,
-            // 활성 마커가 지도 중앙 → 자동 이동 불필요, 이동 애니메이션 중 autoPan 충돌 방지
-            autoPan: false,
+            autoPan: false, // 활성 마커가 지도 중앙 → 자동 이동 불필요, 이동 애니메이션 중 autoPan 충돌 방지
         });
         // 마커 클릭: Leaflet 기본 팝업 토글 해제 → activate에서 PC만 팝업 표시
         marker.off("click", marker._openPopup, marker);
@@ -154,10 +118,14 @@ export async function initPledge() {
         return marker;
     });
 
-    // 웹폰트(나눔고딕) 로드 완료 후 열린 팝업 위치 재계산 (대체 글꼴 기준 폭으로 배치된 팝업 보정)
-    document.fonts?.ready.then(() =>
-        markers.forEach((m) => m?.isPopupOpen() && m.getPopup().update()),
-    );
+    // 웹폰트 로드 완료 후 열린 팝업 위치 재계산 (대체 글꼴 기준 폭으로 배치된 팝업 보정)
+    if (document.fonts) {
+        document.fonts.ready.then(() => {
+            markers.forEach((m) => {
+                if (m && m.isPopupOpen()) m.getPopup().update();
+            });
+        });
+    }
 
     let currentIndex = -1;
 
@@ -167,11 +135,10 @@ export async function initPledge() {
     const stepName = document.getElementById("s2-step-name");
     const prevBtn = document.getElementById("s2-prev");
     const nextBtn = document.getElementById("s2-next");
-    if (stepTotal)
-        stepTotal.textContent = String(steps.length).padStart(2, "0");
+    if (stepTotal) stepTotal.textContent = pad2(steps.length);
 
     const updateStepper = (index) => {
-        if (stepNum) stepNum.textContent = String(index + 1).padStart(2, "0");
+        if (stepNum) stepNum.textContent = pad2(index + 1);
         if (stepName) stepName.textContent = steps[index].title;
         if (prevBtn) prevBtn.disabled = index === 0;
         if (nextBtn) nextBtn.disabled = index === steps.length - 1;
@@ -182,40 +149,37 @@ export async function initPledge() {
         const mapLink = `https://map.seoul.go.kr/smgis2/poiViewMap?ti=11100550&pi=${step.id}&lang=ko`;
         // 국내 독립운동·국가수호 사적지 통합검색 결과 페이지 (경로형 검색 주소: /search/index/q/검색어)
         const sajeokLink = `http://sajeok.i815.or.kr/search/index/q/${encodeURIComponent(toSajeokKeyword(step))}`;
-        const info = step.infoLines.length
-            ? `<ul class="pledge-info">${step.infoLines.map((l) => `<li>${l.replace(/^-\s*/, "")}</li>`).join("")}</ul>`
-            : "";
-        const body = step.bodyLines.length
-            ? `<p class="pledge-body">${step.bodyLines.join("<br>")}</p>`
-            : "";
+        const infoItems = step.infoLines.map((l) => `<li>${l.replace(/^-\s*/, "")}</li>`).join("");
+        const info = step.infoLines.length ? `<ul class="pledge-info">${infoItems}</ul>` : "";
+        const body = step.bodyLines.length ? `<p class="pledge-body">${step.bodyLines.join("<br>")}</p>` : "";
+        const photoHtml = step.images.length ? `<button type="button" class="pledge-photo"><img src="${step.images[0]}" alt="${step.title}"></button>` : "";
+        const emptyHtml = !info && !body ? '<p class="pledge-body">상세 설명이 없습니다.</p>' : "";
 
         card.innerHTML = `
-      <p class="pledge-step">STEP ${String(index + 1).padStart(2, "0")} / ${String(steps.length).padStart(2, "0")}</p>
+      <p class="pledge-step">STEP ${pad2(index + 1)} / ${pad2(steps.length)}</p>
       <h3 class="pledge-title">${step.title}</h3>
-      ${step.images.length ? `<button type="button" class="pledge-photo"><img src="${step.images[0]}" alt="${step.title}"></button>` : ""}
+      ${photoHtml}
       <dl class="addr-box">
         <div><dt>현재</dt><dd>${step.addrNew}</dd></div>
         <div><dt>옛지명</dt><dd>${step.addrOld}</dd></div>
       </dl>
       ${info}
       ${body}
-      ${!info && !body ? '<p class="pledge-body">상세 설명이 없습니다.</p>' : ""}
+      ${emptyHtml}
       <div class="btn-pair">
         <a class="line-btn line-btn-red" href="${mapLink}" target="_blank" rel="noopener noreferrer">스마트서울맵</a>
         <a class="line-btn line-btn-gold" href="${sajeokLink}" target="_blank" rel="noopener noreferrer">독립운동 사적지</a>
-      </div>
-    `;
+      </div>`;
         card.scrollTop = 0;
 
         // 이미지: 후보 URL 순차 시도, 전체 실패 시 사진 영역 제거 / 클릭 시 확대 모달
         const photo = card.querySelector(".pledge-photo");
-        if (photo) {
-            const img = photo.querySelector("img");
-            attachImageFallback(img, step.images, () => photo.remove());
-            photo.addEventListener("click", () =>
-                window.openGlobalModal?.(img.src, step.title),
-            );
-        }
+        if (!photo) return;
+        const img = photo.querySelector("img");
+        attachImageFallback(img, step.images, () => photo.remove());
+        photo.addEventListener("click", () => {
+            if (typeof window.openGlobalModal === "function") window.openGlobalModal(img.src, step.title);
+        });
     }
 
     // 팝업 동기화: PC는 활성 마커 팝업 표시, 모바일은 팝업 미표시 (장소명·더보기는 상단 스테퍼에 표시)
@@ -234,15 +198,10 @@ export async function initPledge() {
         if (index !== currentIndex) {
             currentIndex = index;
             renderCard(step, index);
-            navBtns.forEach((btn, i) =>
-                btn.classList.toggle("active", i === index),
-            );
+            navBtns.forEach((btn, i) => btn.classList.toggle("active", i === index));
             updateStepper(index);
             document.querySelectorAll("#map-s2 .step-marker").forEach((el) => {
-                el.classList.toggle(
-                    "is-active",
-                    Number(el.dataset.index) === index,
-                );
+                el.classList.toggle("is-active", Number(el.dataset.index) === index);
             });
             const visible = steps
                 .slice(0, index + 1)
@@ -254,48 +213,38 @@ export async function initPledge() {
         syncPopups(index);
 
         if (!step.pos) return;
-        // 선택 장소 중심 이동 (기본 줌 유지, 경성대지도 표시 중이면 보정 줌)
-        map.setView(step.pos, zoomFor(DEFAULT_ZOOM), {
-            animate: true,
-            duration: 0.8,
-        });
+        // 선택 장소 중심 이동 (기본 줌 유지, 옛지도 표시 중이면 보정 줌)
+        map.setView(step.pos, zoomFor(DEFAULT_ZOOM), { animate: true, duration: 0.8 });
     }
 
     // 5. 조작: 진행 막대 칸 · 이전/다음 · 방향키
-    navBtns.forEach((btn) =>
-        btn.addEventListener("click", () =>
-            activate(Number(btn.dataset.index)),
-        ),
-    );
+    navBtns.forEach((btn) => btn.addEventListener("click", () => activate(Number(btn.dataset.index))));
 
     // 스테퍼: 이전/다음 장소 이동
-    prevBtn?.addEventListener("click", () => {
-        if (currentIndex > 0) activate(currentIndex - 1);
-    });
-    nextBtn?.addEventListener("click", () => {
-        if (currentIndex < steps.length - 1) activate(currentIndex + 1);
-    });
+    if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+            if (currentIndex > 0) activate(currentIndex - 1);
+        });
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+            if (currentIndex < steps.length - 1) activate(currentIndex + 1);
+        });
+    }
 
     // 키보드: 방향키로 단계 이동 (진행 막대 포커스 상태)
     nav.addEventListener("keydown", (e) => {
-        if (
-            !["ArrowDown", "ArrowUp", "ArrowRight", "ArrowLeft"].includes(e.key)
-        )
-            return;
+        if (!["ArrowDown", "ArrowUp", "ArrowRight", "ArrowLeft"].includes(e.key)) return;
         e.preventDefault();
         const dir = e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : -1;
-        const next = Math.min(
-            steps.length - 1,
-            Math.max(0, currentIndex + dir),
-        );
+        const next = Math.min(steps.length - 1, Math.max(0, currentIndex + dir));
         activate(next);
         navBtns[next].focus();
     });
 
     // 모바일 스테퍼 '더보기': 상세 카드 하단 시트 표시
-    document
-        .getElementById("s2-more")
-        ?.addEventListener("click", () => openSheet(card));
+    const moreBtn = document.getElementById("s2-more");
+    if (moreBtn) moreBtn.addEventListener("click", () => openSheet(card));
 
     // PC·모바일 화면 전환: PC 전환 시 시트 닫기(상세 카드 원위치 복원), 팝업 표시 여부 재적용
     MOBILE_QUERY.addEventListener("change", (e) => {

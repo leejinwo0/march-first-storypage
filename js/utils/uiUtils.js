@@ -23,16 +23,9 @@ export function initGlobalUI() {
         if (!navMenu || navMenu.scrollWidth <= navMenu.clientWidth) return;
         const menuRect = navMenu.getBoundingClientRect();
         const linkRect = link.getBoundingClientRect();
-        const target =
-            navMenu.scrollLeft +
-            (linkRect.left - menuRect.left) -
-            (menuRect.width - linkRect.width) / 2;
-        const left = Math.max(
-            0,
-            Math.min(target, navMenu.scrollWidth - navMenu.clientWidth),
-        );
-        if (typeof navMenu.scrollTo === "function")
-            navMenu.scrollTo({ left, behavior: "smooth" });
+        const target = navMenu.scrollLeft + (linkRect.left - menuRect.left) - (menuRect.width - linkRect.width) / 2;
+        const left = Math.max(0, Math.min(target, navMenu.scrollWidth - navMenu.clientWidth));
+        if (typeof navMenu.scrollTo === "function") navMenu.scrollTo({ left, behavior: "smooth" });
         else navMenu.scrollLeft = left;
     };
 
@@ -85,9 +78,7 @@ export function initGlobalUI() {
         { passive: true },
     );
     if (backToTopBtn) {
-        backToTopBtn.addEventListener("click", () =>
-            window.scrollTo({ top: 0, behavior: "smooth" }),
-        );
+        backToTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
     }
 
     // .reveal 요소: 화면 진입 시 .is-visible 부여 (1회)
@@ -101,9 +92,7 @@ export function initGlobalUI() {
         },
         { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
     );
-    document
-        .querySelectorAll(".reveal")
-        .forEach((el) => revealObserver.observe(el));
+    document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
 }
 
 /* =======================================================
@@ -132,7 +121,8 @@ export function initGlobalModal() {
     };
 
     // 닫기: 닫기 버튼 · 배경 클릭 · Esc
-    modal.querySelector(".close-modal")?.addEventListener("click", close);
+    const closeBtn = modal.querySelector(".close-modal");
+    if (closeBtn) closeBtn.addEventListener("click", close);
     modal.addEventListener("click", (e) => {
         if (e.target === modal) close();
     });
@@ -155,27 +145,7 @@ export function setStat(key, value) {
 ======================================================= */
 export function getInitialConsonant(word) {
     if (!word) return "";
-    const consonants = [
-        "ㄱ",
-        "ㄲ",
-        "ㄴ",
-        "ㄷ",
-        "ㄸ",
-        "ㄹ",
-        "ㅁ",
-        "ㅂ",
-        "ㅃ",
-        "ㅅ",
-        "ㅆ",
-        "ㅇ",
-        "ㅈ",
-        "ㅉ",
-        "ㅊ",
-        "ㅋ",
-        "ㅌ",
-        "ㅍ",
-        "ㅎ",
-    ];
+    const consonants = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
     const code = word.charCodeAt(0);
     if (code < 44032 || code > 55203) return "";
     const cho = consonants[Math.floor((code - 44032) / 588)];
@@ -191,32 +161,21 @@ export function getInitialConsonant(word) {
 export function toAbsoluteUrl(url) {
     const value = String(url || "").trim();
     if (!value || value === "null") return "";
-    if (value.startsWith("http://map.seoul.go.kr"))
-        return value.replace("http://", "https://");
+    if (value.startsWith("http://map.seoul.go.kr")) return value.replace("http://", "https://");
     if (value.startsWith("http")) return value;
-    return (
-        "https://map.seoul.go.kr" + (value.startsWith("/") ? "" : "/") + value
-    );
+    return "https://map.seoul.go.kr" + (value.startsWith("/") ? "" : "/") + value;
 }
 
 export function toSafeImageUrl(url) {
     const abs = toAbsoluteUrl(url);
-    return abs.startsWith("http://")
-        ? "https://images.weserv.nl/?url=" + encodeURIComponent(abs)
-        : abs;
+    return abs.startsWith("http://") ? "https://images.weserv.nl/?url=" + encodeURIComponent(abs) : abs;
 }
 
 // 이미지 후보 목록: COT_IMG_MAIN_URL1~4(스마트서울맵) → COT_IMG_MAIN_URL(프록시) → 원본
 export function getImageCandidates(props) {
-    const list = [
-        "COT_IMG_MAIN_URL1",
-        "COT_IMG_MAIN_URL2",
-        "COT_IMG_MAIN_URL3",
-        "COT_IMG_MAIN_URL4",
-    ].map((key) => toAbsoluteUrl(props[key]));
+    const list = ["COT_IMG_MAIN_URL1", "COT_IMG_MAIN_URL2", "COT_IMG_MAIN_URL3", "COT_IMG_MAIN_URL4"].map((key) => toAbsoluteUrl(props[key]));
     const main = toAbsoluteUrl(props.COT_IMG_MAIN_URL);
-    if (main.startsWith("http://"))
-        list.push("https://images.weserv.nl/?url=" + encodeURIComponent(main));
+    if (main.startsWith("http://")) list.push("https://images.weserv.nl/?url=" + encodeURIComponent(main));
     list.push(main);
     return [...new Set(list.filter(Boolean))];
 }
@@ -259,16 +218,11 @@ function ensureSheet() {
       <div class="info-sheet-body"></div>
     </div>`;
     document.body.appendChild(sheet);
-    sheet
-        .querySelector(".info-sheet-backdrop")
-        .addEventListener("click", closeSheet);
-    sheet
-        .querySelector(".info-sheet-close")
-        .addEventListener("click", closeSheet);
+    sheet.querySelector(".info-sheet-backdrop").addEventListener("click", closeSheet);
+    sheet.querySelector(".info-sheet-close").addEventListener("click", closeSheet);
     document.addEventListener("keydown", (e) => {
         const imageModalOpen = document.querySelector(".global-modal.is-open");
-        if (e.key === "Escape" && !sheet.hidden && !imageModalOpen)
-            closeSheet();
+        if (e.key === "Escape" && !sheet.hidden && !imageModalOpen) closeSheet();
     });
     return sheet;
 }

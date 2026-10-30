@@ -1,29 +1,19 @@
 @charset "utf-8";
 
-/* =======================================================
-   기본 스타일: 리셋 · 공통 요소 · 등장 애니메이션 · 아이콘 · Leaflet 재정의
-              · 지도 팝업·툴팁 · 이미지 확대 모달 · 모바일 하단 시트 · TOP 버튼
-======================================================= */
+/* 기본 스타일: 리셋 · 공통 요소 · 등장 애니메이션 · 아이콘 · Leaflet 재정의 · 지도 팝업·툴팁 · 이미지 확대 모달 · 모바일 하단 시트 · TOP 버튼 */
 
 /* 섹션 공용 토큰 (tokens.css 확장) */
 :root {
-    --sheet-gap: 20px;
-    /* 섹션 패널 사이 간격 */
+    --sheet-gap: 20px; /* 섹션 패널 사이 간격 */
     --sheet-radius: 32px;
-    --frame-radius: 28px;
-    /* 지도 틀 모서리 */
+    --frame-radius: 28px; /* 지도 틀 모서리 */
     --sheet-pad-x: clamp(1.25rem, 4.8vw, 4.375rem);
     --sheet-pad-top: clamp(3.5rem, 7vw, 6rem);
-    --sheet-bg: #1a1614;
-    /* 섹션 패널 배경 */
-    --sheet-bg-raised: #241e1b;
-    /* 패널 안 카드 배경 */
-    --sheet-line: rgba(var(--cream-rgb), 0.09);
-    /* 구분선 · 테두리 */
-    --text-soft: #b9b0a5;
-    /* 본문 보조 글자 */
-    --text-faint: #6d655c;
-    /* 흐린 안내 글자 */
+    --sheet-bg: #1a1614; /* 섹션 패널 배경 */
+    --sheet-bg-raised: #241e1b; /* 패널 안 카드 배경 */
+    --sheet-line: rgba(var(--cream-rgb), 0.09); /* 구분선 · 테두리 */
+    --text-soft: #b9b0a5; /* 본문 보조 글자 */
+    --text-faint: #6d655c; /* 흐린 안내 글자 */
 }
 
 /* ---------- 1. 리셋 · 공통 요소 ---------- */
@@ -126,7 +116,9 @@ ol {
 .reveal {
     opacity: 0;
     transform: translateY(24px);
-    transition: opacity 0.8s var(--ease-out) var(--delay, 0ms), transform 0.8s var(--ease-out) var(--delay, 0ms);
+    transition:
+        opacity 0.8s var(--ease-out) var(--delay, 0ms),
+        transform 0.8s var(--ease-out) var(--delay, 0ms);
 }
 
 .reveal.is-visible {
@@ -186,7 +178,7 @@ ol {
     filter: grayscale(100%) brightness(0.95);
 }
 
-/* 일반지도 / 경성대지도 전환 컨트롤 (mapUtils.js 생성) */
+/* 현재지도 / 옛지도(경성대지도 · 근세 지형도) 전환 컨트롤 (mapUtils.js 생성) */
 .custom-map-toggle {
     display: flex;
     gap: 2px;
@@ -201,11 +193,15 @@ ol {
     cursor: pointer;
 }
 
+/* 버튼 이름 한 줄 고정 (좁은 화면 줄바꿈 방지) */
 .map-type-label {
     padding: 6px 12px;
     border-radius: var(--radius-pill);
     color: var(--muted);
-    transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
+    white-space: nowrap;
+    transition:
+        background-color var(--dur-base) ease,
+        color var(--dur-base) ease;
 }
 
 .map-type-label.active {
@@ -400,7 +396,7 @@ ol {
     max-height: calc(100vh - 140px);
     max-height: calc(100dvh - 140px);
     margin: auto auto 0;
-    border-radius: 0;
+    border-radius: 0; /* 선언서 원본: 모서리 각지게 */
 }
 
 .global-modal.is-full #caption-modal {
@@ -539,7 +535,7 @@ html.is-sheet-open body {
 }
 
 /* 시트 안 상세 카드: 카드 테두리·배경 제거 (시트 패널 사용) */
-.info-sheet-body>article {
+.info-sheet-body > article {
     max-height: none;
     padding: 0;
     border: 0;
@@ -585,7 +581,11 @@ html.is-sheet-open body {
     opacity: 0;
     visibility: hidden;
     transform: translateY(16px);
-    transition: opacity var(--dur-base) ease, visibility var(--dur-base) ease, transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease;
+    transition:
+        opacity var(--dur-base) ease,
+        visibility var(--dur-base) ease,
+        transform var(--dur-base) var(--ease-out),
+        background-color var(--dur-base) ease;
 }
 
 .floating-top-btn .icon {

@@ -1,7 +1,4 @@
-/* =======================================================
-   05 독립의 별들: 검색 바 → 인물 카드 줄 → 지도 | 프로필
-   - 모바일: 지도 → 프로필 세로 배치
-======================================================= */
+/* 05 독립의 별들: 검색 바 → 인물 카드 줄 → 지도 | 프로필 / 모바일: 지도 → 프로필 세로 배치 */
 .activists {
     display: grid;
     grid-template-columns: 1.25fr 1fr;
@@ -11,27 +8,29 @@
 }
 
 /* ---------- 마커 ---------- */
+/* 기본 마커: 파란색 */
 .person-pin {
     display: block;
     width: 100%;
     height: 100%;
-    background: url("/assets/images/markers/marker-theme-100173-5.png") center bottom / contain no-repeat;
+    background: url("/assets/images/markers/peoples/marker-people-blue.png") center bottom / contain no-repeat;
     filter: drop-shadow(0 4px 6px rgba(var(--black-rgb), 0.5));
+}
+/* 선택 인물 마커: 빨간색 (s5-activists.js makePinIcon active) */
+.person-pin.is-active {
+    background-image: url("/assets/images/markers/peoples/marker-people-red.png");
 }
 
 /* ---------- 지도 팝업 닫기 버튼 · 확대 상태 툴팁 ---------- */
-/* 팝업 내용: 좌우 동일 여백(우측 X 버튼 영역) → 인물명 가운데 정렬
-   width auto: Leaflet이 팝업 열 때 고정한 너비(px) 해제 → 웹폰트 로드 후에도 가운데 유지 */
+/* 팝업 내용: 좌우 동일 여백(우측 X 버튼 영역) → 인물명 가운데 정렬 / width auto: Leaflet이 팝업 열 때 고정한 너비(px) 해제 → 웹폰트 로드 후에도 가운데 유지 */
 #map-s5 .story-popup-mini .leaflet-popup-content {
     width: auto !important;
     margin: 10px 32px;
 }
-
 /* 인물명: Leaflet 기본 p 여백(1.3em) 제거 → 팝업 높이 축소 */
 #map-s5 .popup-mini-title {
     margin: 0;
 }
-
 /* 팝업 닫기 버튼 (우측 상단 X): 팝업만 닫기 */
 #map-s5 .story-popup a.leaflet-popup-close-button {
     top: 6px;
@@ -41,11 +40,9 @@
     color: var(--muted);
     font: 20px/24px var(--font-sans);
 }
-
 #map-s5 .story-popup a.leaflet-popup-close-button:hover {
     color: var(--cream);
 }
-
 /* 확대 상태(s5-activists.js .is-zoomed): 호버 툴팁 숨김 → 팝업만 표시 */
 #map-s5.is-zoomed .place-tooltip {
     display: none;
@@ -56,12 +53,9 @@
     padding: 28px;
     border: 1px solid var(--sheet-line);
     border-radius: var(--frame-radius);
-    background:
-        radial-gradient(circle at 50% 0%, rgba(var(--red-rgb), 0.18), transparent 60%),
-        var(--sheet-bg-raised);
+    background: radial-gradient(circle at 50% 0%, rgba(var(--red-rgb), 0.18), transparent 60%), var(--sheet-bg-raised);
     overflow-y: auto;
 }
-
 .profile-empty {
     display: flex;
     flex-direction: column;
@@ -73,13 +67,11 @@
     font-size: var(--fs-sm);
     text-align: center;
 }
-
 .profile-head {
     display: flex;
     align-items: flex-end;
     gap: 18px;
 }
-
 .profile-photo {
     position: relative;
     flex-shrink: 0;
@@ -90,7 +82,6 @@
     background: var(--ink);
     overflow: hidden;
 }
-
 .profile-photo span {
     position: absolute;
     inset: 0;
@@ -100,7 +91,6 @@
     font-family: var(--font-serif);
     font-size: 30px;
 }
-
 .profile-photo img {
     position: absolute;
     inset: 0;
@@ -110,32 +100,27 @@
     object-fit: contain;
     background: var(--ink);
 }
-
 .profile-label {
     color: var(--gold-light);
     font-size: var(--fs-2xs);
     letter-spacing: 0.08em;
 }
-
 .profile-name {
     margin-top: 4px;
     font-family: var(--font-serif);
     font-size: 24px;
     font-weight: 600;
 }
-
 .profile-addr {
     margin-top: 4px;
     color: var(--muted);
     font-size: var(--fs-xs);
 }
-
 .profile-info {
     margin-top: 20px;
     border-top: 1px solid var(--sheet-line);
 }
-
-.profile-info>div {
+.profile-info > div {
     display: grid;
     grid-template-columns: 70px 1fr;
     gap: 12px;
@@ -144,22 +129,18 @@
     font-size: 13px;
     line-height: 1.65;
 }
-
 .profile-info dt {
     color: var(--gold-light);
     font-weight: 600;
 }
-
 .profile-info dd {
     color: #cfc7bb;
 }
-
 .profile-skeleton {
     display: grid;
     gap: 12px;
     margin-top: 24px;
 }
-
 .profile-skeleton span {
     height: 14px;
     border-radius: var(--radius-pill);
@@ -167,11 +148,9 @@
     background-size: 200% 100%;
     animation: shimmer 1.4s ease-in-out infinite;
 }
-
 .profile-skeleton span:nth-child(2) {
     width: 80%;
 }
-
 .profile-skeleton span:nth-child(3) {
     width: 60%;
 }
@@ -181,7 +160,6 @@
         background-position: -200% 0;
     }
 }
-
 .profile-btns {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -199,7 +177,6 @@
     border-radius: 22px;
     background: var(--sheet-bg-raised);
 }
-
 .search-box {
     display: flex;
     align-items: center;
@@ -214,11 +191,9 @@
     color: var(--gold-light);
     transition: border-color var(--dur-base) ease;
 }
-
 .search-box:focus-within {
     border-color: var(--gold-light);
 }
-
 /* 검색 입력: iOS Safari 기본 검색창 모양·고유 너비 해제 (width 0 + flex 늘림 → 상자 폭 안에 맞춤) */
 .search-box input {
     flex: 1 1 auto;
@@ -234,24 +209,20 @@
     -webkit-appearance: none;
     appearance: none;
 }
-
 .search-box input::-webkit-search-decoration,
 .search-box input::-webkit-search-cancel-button {
     -webkit-appearance: none;
 }
-
 .search-box input::placeholder {
     color: var(--muted);
     font-size: var(--fs-sm);
 }
-
 .consonant-chips {
     display: flex;
     flex: 1;
     flex-wrap: wrap;
     gap: 6px;
 }
-
 .consonant-chip {
     min-width: 34px;
     height: 34px;
@@ -261,25 +232,21 @@
     color: var(--text-soft);
     font-size: 13px;
 }
-
 .consonant-chip:hover {
     color: var(--cream);
 }
-
 .consonant-chip[aria-pressed="true"] {
     border-color: var(--gold);
     background: var(--gold);
     color: var(--ink);
     font-weight: 700;
 }
-
 .search-count {
     flex-shrink: 0;
     padding: 0 14px;
     color: var(--muted);
     font-size: var(--fs-sm);
 }
-
 .search-count b {
     margin-right: 4px;
     color: var(--gold-light);
@@ -294,7 +261,6 @@
     gap: 10px;
     margin-top: 14px;
 }
-
 .rail-btn {
     display: grid;
     place-items: center;
@@ -305,12 +271,10 @@
     border-radius: 50%;
     font-size: 18px;
 }
-
 .rail-btn:hover {
     background: var(--red);
     border-color: var(--red);
 }
-
 .rail-track {
     display: flex;
     flex: 1;
@@ -320,11 +284,9 @@
     scroll-snap-type: x proximity;
     scrollbar-width: none;
 }
-
 .rail-track::-webkit-scrollbar {
     display: none;
 }
-
 .person-card {
     display: flex;
     flex-direction: column;
@@ -333,22 +295,22 @@
     padding: 8px;
     border: 1px solid rgba(var(--gold-rgb), 0.3);
     border-radius: 14px;
-    background:
-        radial-gradient(circle at 50% 35%, rgba(var(--gold-rgb), 0.14), transparent 70%),
-        var(--sheet-bg-raised);
+    background: radial-gradient(circle at 50% 35%, rgba(var(--gold-rgb), 0.14), transparent 70%), var(--sheet-bg-raised);
     scroll-snap-align: start;
-    transition: border-color var(--dur-base) ease, box-shadow var(--dur-base) ease, transform var(--dur-base) var(--ease-out);
+    transition:
+        border-color var(--dur-base) ease,
+        box-shadow var(--dur-base) ease,
+        transform var(--dur-base) var(--ease-out);
 }
-
 .person-card:hover {
     transform: translateY(-4px);
 }
-
 .person-card.active {
     border-color: var(--red-light);
-    box-shadow: 0 0 0 1px var(--red-light), 0 10px 30px rgba(var(--red-rgb), 0.35);
+    box-shadow:
+        0 0 0 1px var(--red-light),
+        0 10px 30px rgba(var(--red-rgb), 0.35);
 }
-
 .person-photo {
     position: relative;
     display: block;
@@ -357,7 +319,6 @@
     background: var(--ink);
     overflow: hidden;
 }
-
 .person-mono {
     position: absolute;
     inset: 0;
@@ -367,7 +328,6 @@
     font-family: var(--font-serif);
     font-size: 30px;
 }
-
 .person-photo img {
     position: absolute;
     inset: 0;
@@ -379,12 +339,10 @@
     filter: grayscale(100%);
     transition: filter var(--dur-base) ease;
 }
-
 .person-card:hover img,
 .person-card.active img {
     filter: none;
 }
-
 .person-name {
     font-family: var(--font-serif);
     font-size: 14px;
@@ -397,30 +355,24 @@
         grid-template-columns: 1fr;
         height: auto;
     }
-
     .activists-map {
         height: 380px;
     }
-
     .activist-profile {
         min-height: 240px;
     }
-
     .activist-search {
         flex-wrap: wrap;
     }
-
     .search-box {
         flex: 1 1 100%;
         width: 100%;
     }
-
     .consonant-chips {
         flex-wrap: nowrap;
         overflow-x: auto;
         scrollbar-width: none;
     }
-
     .consonant-chip {
         flex-shrink: 0;
     }
@@ -430,23 +382,18 @@
     .activists-map {
         height: 320px;
     }
-
     .activist-profile {
         padding: 22px 18px;
     }
-
     .profile-btns {
         grid-template-columns: 1fr;
     }
-
     .rail-btn {
         display: none;
     }
-
     .person-card {
         flex-basis: 112px;
     }
-
     .search-count b {
         font-size: 26px;
     }

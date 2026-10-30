@@ -1,9 +1,4 @@
-/* =======================================================
-   레이아웃 공통: 섹션 패널(sheet) · 상단 내비 · 섹션 헤더 · 버튼·칩
-                · 유리 카드·지도 프레임 · 수치 띠 · CTA · 푸터
-   - 반응형 기준: 1180px(로고 문구 숨김) / 1024px(태블릿·모바일 배치, 상단 바 로고 문구 표시)
-                 / 768px(모바일 간격) / 480px(소형 화면)
-======================================================= */
+/* 레이아웃 공통: 섹션 패널(sheet) · 상단 내비 · 섹션 헤더 · 버튼·칩 · 유리 카드·지도 프레임 · 수치 띠 · CTA · 푸터 / 반응형 기준: 1560px(메뉴 가운데 고정 해제) · 1180px(로고 문구 숨김) · 1024px(태블릿·모바일 배치) · 768px(모바일 간격) · 480px(소형 화면) */
 
 /* ---------- 1. 페이지 · 섹션 패널 ---------- */
 /* 페이지 바깥 여백 */
@@ -32,11 +27,10 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
-    /* 바 여백 영역 클릭 통과 → 지도 조작 유지 */
-    pointer-events: none;
+    pointer-events: none; /* 바 여백 영역 클릭 통과 → 지도 조작 유지 */
 }
 
-.top-nav>* {
+.top-nav > * {
     pointer-events: auto;
 }
 
@@ -82,7 +76,7 @@
     transition: background-color var(--dur-base) ease;
 }
 
-/* 메뉴 글자: 좌측 사이트명과 동일 (크림색 · 16px · 굵게) */
+/* 메뉴 글자: 좌측 사이트명과 같은 색·굵기, 크기는 사이트명(16px)보다 작은 14px */
 .top-nav-link {
     padding: var(--space-2) 15px;
     border-radius: var(--radius-pill);
@@ -91,7 +85,9 @@
     font-weight: 700;
     text-decoration: none;
     white-space: nowrap;
-    transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
+    transition:
+        background-color var(--dur-base) ease,
+        color var(--dur-base) ease;
 }
 
 .top-nav-link:hover {
@@ -199,7 +195,10 @@
     font-size: var(--fs-sm);
     font-weight: 500;
     text-decoration: none;
-    transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) ease, border-color var(--dur-base) ease;
+    transition:
+        transform var(--dur-base) var(--ease-out),
+        background-color var(--dur-base) ease,
+        border-color var(--dur-base) ease;
 }
 
 .pill-btn:hover {
@@ -222,7 +221,9 @@
     color: var(--text-soft);
     font-size: var(--fs-xs);
     text-decoration: none;
-    transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
+    transition:
+        background-color var(--dur-base) ease,
+        color var(--dur-base) ease;
 }
 
 .chip:hover {
@@ -246,7 +247,9 @@
     border-radius: var(--radius-md);
     font-size: 13px;
     text-decoration: none;
-    transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
+    transition:
+        background-color var(--dur-base) ease,
+        color var(--dur-base) ease;
 }
 
 .line-btn-red {
@@ -270,7 +273,7 @@
 }
 
 /* ---------- 5. 유리 카드 · 지도 프레임 ---------- */
-/* 반투명 블러 패널 (히어로 문서 버튼 · 섹션3 지도 위 패널) */
+/* 반투명 블러 패널 (섹션3 지도 위 패널) */
 .glass-card {
     border: 1px solid rgba(var(--cream-rgb), 0.14);
     border-radius: var(--radius-xl);
@@ -321,7 +324,9 @@
     font-size: var(--fs-xs);
     opacity: 0;
     visibility: hidden;
-    transition: opacity var(--dur-base) ease, visibility var(--dur-base) ease;
+    transition:
+        opacity var(--dur-base) ease,
+        visibility var(--dur-base) ease;
 }
 
 .map-reset-btn.show {
@@ -369,7 +374,7 @@
     border-top: 1px solid rgba(var(--white-rgb), 0.22);
 }
 
-.stats-grid>div {
+.stats-grid > div {
     display: flex;
     flex-direction: column-reverse;
     align-items: center;
@@ -377,7 +382,7 @@
     text-align: center;
 }
 
-.stats-grid>div+div {
+.stats-grid > div + div {
     border-left: 1px solid rgba(var(--white-rgb), 0.22);
 }
 
@@ -485,7 +490,7 @@
     line-height: 1.6;
 }
 
-.footer-col li+li {
+.footer-col li + li {
     margin-top: 6px;
 }
 
@@ -502,18 +507,16 @@
 }
 
 /* ---------- 8. 반응형 ---------- */
-/* 1640px 이하: 메뉴 가운데 고정(absolute) 해제 → 로고 오른쪽 배치, 사이트명 말줄임 (로고·메뉴 겹침 방지) */
+/* 1560px 이하: 메뉴 가운데 고정(absolute) 해제 → 로고 오른쪽 배치, 사이트명 말줄임 (로고·메뉴 겹침 방지) */
 @media (max-width: 1560px) {
     .top-nav-menu {
         position: static;
         transform: none;
         flex: none;
     }
-
     .top-nav-logo {
         min-width: 0;
     }
-
     .top-nav-name {
         min-width: 0;
         overflow: hidden;
@@ -527,7 +530,6 @@
     .top-nav-name {
         display: none;
     }
-
     .top-nav-link {
         padding: var(--space-2) 11px;
     }
@@ -535,14 +537,12 @@
 
 /* 1024px 이하 (태블릿·모바일): 상단 바(로고 + 사이트명) 상단 고정, 메뉴 하단 고정, 헤더·푸터 1~2열 */
 @media (max-width: 1024px) {
-
     /* 상단 바: 하단 메뉴와 동일하게 화면 고정 (상단 12px 띄움, 스크롤 시에도 유지) */
     .top-nav {
         top: calc(12px + env(safe-area-inset-top));
         left: 12px;
         right: 12px;
     }
-
     /* 메뉴: 하단 고정 가로 스크롤 바로 이동 */
     .top-nav-menu {
         position: fixed;
@@ -555,22 +555,18 @@
         scrollbar-width: none;
         background: rgba(var(--umber-rgb), 0.9);
     }
-
     .top-nav-menu::-webkit-scrollbar {
         display: none;
     }
-
-    /* 하단 메뉴 글자: 상단 사이트명(14px)과 동일 크기 */
+    /* 하단 메뉴 글자: 상단 사이트명(14px)보다 작은 13px */
     .top-nav-link {
         font-size: 13px;
     }
-
     /* 상단 바 모양: 하단 메뉴와 동일 (알약형 · 얇은 테두리 · 반투명 블러 배경) */
     .top-nav-logo,
     .top-nav.is-scrolled .top-nav-logo {
         flex: 1;
-        justify-content: center;
-        /* 마크 + 사이트명 가운데 정렬 */
+        justify-content: center; /* 마크 + 사이트명 가운데 정렬 */
         min-width: 0;
         padding: 5px 16px;
         border: 1px solid var(--sheet-line);
@@ -579,7 +575,6 @@
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
     }
-
     /* 사이트명: 한 줄 고정, 좁은 화면에서 말줄임 */
     .top-nav-name {
         display: block;
@@ -589,7 +584,6 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-
     /* TOP 버튼: 하단 메뉴 위로 이동 */
     .floating-top-btn {
         bottom: calc(76px + env(safe-area-inset-bottom));
@@ -597,22 +591,18 @@
         width: 44px;
         height: 44px;
     }
-
     .sec-head {
         grid-template-columns: 1fr;
         margin-bottom: 36px;
     }
-
     .footer-top {
         grid-template-columns: 1fr 1fr;
     }
-
     .footer-top .footer-col {
         text-align: left;
     }
-
     .site-footer {
-        padding-bottom: 96px;
+        padding-bottom: 96px; /* 하단 고정 메뉴 높이 확보 */
     }
 }
 
@@ -623,34 +613,27 @@
         --sheet-radius: 24px;
         --frame-radius: 20px;
     }
-
     .stats-band {
         padding: 26px var(--sheet-pad-x) 30px;
     }
-
     .stats-grid {
         margin-top: 24px;
     }
-
-    .stats-grid>div {
+    .stats-grid > div {
         padding: 20px 2px 14px;
     }
-
     .stats-grid dd {
         font-size: clamp(1.6rem, 7vw, 2.4rem);
     }
-
     .stats-grid dt {
         margin-top: var(--space-2);
         font-size: 10.5px;
         line-height: 1.4;
         word-break: keep-all;
     }
-
     .cta {
         padding: 80px var(--sheet-pad-x) 72px;
     }
-
     .footer-slogan {
         font-size: 22px;
     }
