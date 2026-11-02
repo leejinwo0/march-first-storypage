@@ -39,7 +39,7 @@ const SNAKE_COLS = 3;
 const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
 
 // 경로선 스타일: 비활성(흐린 검정 실선) / 활성(빨간 점선, CSS route-flow 흐름 애니메이션)
-const INACTIVE_STYLE = { color: "#000000", weight: 4, opacity: 0.18, dashArray: null };
+const INACTIVE_STYLE = { color: "#000000", weight: 4, opacity: 0, dashArray: null };
 const ACTIVE_STYLE = { color: "#ff3b2f", weight: 6, opacity: 1, dashArray: "15, 15" };
 
 // "출발지 - 경유지 - 도착지" 문자열 → 경유지 배열
