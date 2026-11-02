@@ -3,9 +3,9 @@
 // 섹션 진입 시 마커 120ms 간격 순차 표시
 // 마커: 중요 지점 빨간색 · 시위 장소 노란색, 선택 장소만 파란색 (선택 해제 시 분류 색상 복귀)
 // 필터 카드: 레이어 ON/OFF / 목록·마커 클릭: 확대 + 팝업, 재클릭 시 전체 보기 복귀
-// 범례 목록: 중요 지점(좌) · 시위 장소(우) 2열 분리, 필터 OFF 시 해당 열 흐리게 표시
+// 범례 목록: 중요 지점(좌) · 시위 장소(우) 2열 분리, 필터 OFF 시 해당 열 흐리게 표시, 선택 항목은 목록 열 내부만 스크롤
 // 마커 호버: 장소명 툴팁 표시
-// 옛지도(경성대지도) 전환 시 줌 1단계 축소 (장소 확대 줌도 동일 보정)
+// 옛지도(경성대지도) 전환 시 일반지도와 동일 줌 유지, 장소 확대 줌만 1단계 축소
 // 팝업: 우측 상단 X 클릭 시 팝업만 닫힘(확대·선택 유지), 지도 클릭 시 유지, 설명은 '더보기' 클릭 시 펼침
 // 확대 상태: 호버 툴팁 미표시, 선택 장소 재클릭 시 팝업 표시 중이면 전체 보기 / 닫힌 상태면 팝업 재표시
 // 우측 하단 보기 컨트롤: 전체 보기(선택 해제 + 전체 범위 복귀) + 확대/축소 (mapUtils.js)
@@ -24,6 +24,7 @@ const CATEGORY = {
 const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
 const FOCUS_ZOOM = 10;
 const FOCUS_ZOOM_MOBILE = 7;
+const HISTORICAL_FOCUS_OFFSET = 1; // 옛지도 표시 중 장소 확대 줌 축소 단계
 
 // 전체 보기: 최대 줌 · 균등 여백 (범례 패널이 지도 밖에 위치)
 const FIT_MAX_ZOOM = 11;
@@ -63,6 +64,16 @@ function createSheetContent(place, mapLink) {
     </article>`;
 }
 
+// 선택 항목이 보이도록 목록 열 내부만 스크롤 (scrollIntoView 사용 시 페이지 전체 스크롤 발생)
+function scrollListItem(li) {
+    const col = li.parentElement;
+    const colRect = col.getBoundingClientRect();
+    const liRect = li.getBoundingClientRect();
+
+    if (liRect.top < colRect.top) col.scrollBy({ top: liRect.top - colRect.top, behavior: "smooth" });
+    else if (liRect.bottom > colRect.bottom) col.scrollBy({ top: liRect.bottom - colRect.bottom, behavior: "smooth" });
+}
+
 export async function initPlaces() {
     const list = document.getElementById("s4-list");
     const columns = { hub: document.getElementById("s4-list-hub"), site: document.getElementById("s4-list-site") };
@@ -71,15 +82,25 @@ export async function initPlaces() {
 
     if (!mapEl || !list || !columns.hub || !columns.site) return;
 
-    // 옛지도: 경성대지도 (일반지도 기준 1단계 축소, 복귀 시 복원)
+    // 옛지도: 경성대지도 (일반지도와 동일 줌)
     // 정수 줌 고정: 소수 줌 단계에서 기본지도 타일 미표시 방지 / 더블클릭 확대 비활성: 마커 연속 클릭 시 추가 확대 방지 (장소 확대는 FOCUS_ZOOM 고정)
-    const { map, zoomFor, setHomeView } = createStoryMap("map-s4", {
+    const { map, setHomeView } = createStoryMap("map-s4", {
         center: [37.5586, 126.9369],
         zoom: 7,
         historicalMap: "gyeongseong",
-        zoomOffset: 1,
         mapOptions: { zoomSnap: 1, doubleClickZoom: false },
     });
+
+    // 옛지도 표시 여부: 경성대지도 WMS 레이어 존재 확인
+    const isHistorical = () => {
+        let on = false;
+
+        map.eachLayer((layer) => {
+            if (layer instanceof L.TileLayer.WMS) on = true;
+        });
+
+        return on;
+    };
 
     const layers = { hub: L.layerGroup().addTo(map), site: L.layerGroup().addTo(map) };
     let defaultBounds = null;
@@ -247,7 +268,7 @@ export async function initPlaces() {
 
             list.querySelectorAll(".places-item").forEach((item) => item.classList.remove("active"));
             li.classList.add("active");
-            li.scrollIntoView({ block: "nearest", behavior: "smooth" });
+            scrollListItem(li);
 
             // 마커 색상: 이전 선택 장소 복귀 → 현재 장소 파란색
             clearActivePin();
@@ -255,8 +276,8 @@ export async function initPlaces() {
             setPinActive(place, true);
             updateReset();
 
-            // 팝업 공간 확보용 Y 오프셋: 지도 높이의 10% (최대 120px) → 마커를 중앙보다 약간 아래 배치, 옛지도 표시 중이면 1단계 축소 줌 적용 (zoomFor)
-            const zoom = zoomFor(MOBILE_QUERY.matches ? FOCUS_ZOOM_MOBILE : FOCUS_ZOOM);
+            // 팝업 공간 확보용 Y 오프셋: 지도 높이의 10% (최대 120px) → 마커를 중앙보다 약간 아래 배치, 옛지도 표시 중이면 1단계 축소
+            const zoom = (MOBILE_QUERY.matches ? FOCUS_ZOOM_MOBILE : FOCUS_ZOOM) - (isHistorical() ? HISTORICAL_FOCUS_OFFSET : 0);
             const point = map.project(place.latlng, zoom);
 
             point.y -= Math.min(120, mapEl.clientHeight * 0.1);
