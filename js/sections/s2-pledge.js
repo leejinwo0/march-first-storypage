@@ -1,7 +1,7 @@
 /* 02 거사의 맹세: 스테퍼 · 진행 막대 · 상세 카드 + 지도 */
 // 데이터: 스마트서울맵 테마 11100550 (start_xx 거점 9곳)
 // 단계 버튼·마커 클릭 → 카드 갱신, 해당 마커 중심 이동(기본 줌 유지), 경로선 해당 단계까지 표시
-// 옛지도(근세 지형도) 전환 시 줌 1.5단계 보정
+// 옛지도(근세 지형도) 전환 시 줌 보정: 옛지도 9.5 고정 (PC 현재지도 10 → 0.5단계 축소 / 모바일 현재지도 9 → 0.5단계 확대)
 // PC: 활성 마커 팝업(장소명) 고정 표시 (마커 재클릭·지도 클릭 시에도 유지), 우측 상단 X 클릭 시 닫힘
 // 이전/다음 스테퍼(단계 번호·장소명) + 단계 버튼 9칸 진행 막대 표시 (PC·모바일 공통)
 // 모바일(1024px 이하): 지도 팝업 미표시, 상세 카드 숨김 → 마커 클릭 또는 스테퍼 '더보기' 클릭 시 하단 시트로 상세 카드 표시
@@ -12,8 +12,11 @@ import { getImageCandidates, attachImageFallback, setStat, openSheet, closeSheet
 // 타임라인 표시 순서 (테마 콘텐츠 ID)
 const TARGET_IDS = ["start_01", "start_02", "start_03", "start_04", "start_08", "start_05", "start_09", "start_07", "start_13"];
 
-// 기본 줌 및 장소 이동 줌 (동일 값, 장소 이동 시 줌 변경 없이 중심만 이동)
+// 기본 줌 및 장소 이동 줌 (동일 값, 장소 이동 시 줌 변경 없이 중심만 이동): PC 10 / 모바일 9 (낮은 지도 높이 → 1단계 축소)
 const DEFAULT_ZOOM = 10;
+const DEFAULT_ZOOM_MOBILE = 9;
+// 옛지도(근세 지형도) 줌: PC·모바일 공통 (현재지도와의 차이를 zoomOffset으로 적용)
+const HISTORICAL_ZOOM = 9.5;
 
 // 모바일 기준: 상세 카드 → 하단 시트 표시
 const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
@@ -45,10 +48,12 @@ export async function initPledge() {
 
     if (!nav || !card || !document.getElementById("map-s2")) return;
 
+    // 기본 줌: 초기화 시점 화면 기준 (PC 10 / 모바일 9), 옛지도 보정값 = 기본 줌 - 옛지도 줌
+    const baseZoom = MOBILE_QUERY.matches ? DEFAULT_ZOOM_MOBILE : DEFAULT_ZOOM;
     const { map, zoomFor } = createStoryMap("map-s2", {
         center: [37.5759, 126.985],
-        zoom: DEFAULT_ZOOM,
-        zoomOffset: 1.5,
+        zoom: baseZoom,
+        zoomOffset: baseZoom - HISTORICAL_ZOOM,
         mapOptions: {
             closePopupOnClick: false,
             doubleClickZoom: false, // 더블클릭 확대 비활성: 기본 줌 외 레벨 진입 시 기본지도 타일 미표시(검은 화면) 방지
@@ -231,7 +236,7 @@ export async function initPledge() {
         if (!step.pos) return;
 
         // 선택 장소 중심 이동 (기본 줌 복귀, 옛지도 표시 중이면 보정 줌), +/− 버튼으로 줌 변경된 상태면 줌만 애니메이션 없이 먼저 복귀 후 이동 (줌 애니메이션 중 기본지도 타일 미표시 방지)
-        const targetZoom = zoomFor(DEFAULT_ZOOM);
+        const targetZoom = zoomFor(baseZoom);
 
         if (Math.abs(map.getZoom() - targetZoom) > 0.01) map.setZoom(targetZoom, { animate: false });
         map.panTo(step.pos, { animate: true, duration: 0.8 });
