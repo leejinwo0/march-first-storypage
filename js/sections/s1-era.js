@@ -1,11 +1,11 @@
 /* 01 시대의 부름: 배경 카드 4종 + 세계지도(OSM) */
 // 데이터: /js/data/history-data.js S1_ERA
 // 카드: 제목 · 영문/장소 → 사진 → 설명 순 (인용문 미표시), 이미지 클릭 시 전역 확대 모달, 이미지 로드 실패 시 사진 영역 숨김
-// 세계지도: OpenStreetMap 타일, 카드 4곳 번호 마커 + 장소명·날짜 상시 라벨 (서울 2곳 상자 좌우 분리·꼬리 마커 위, 도쿄 아래 배치, 모바일 미표시)
+// 세계지도: OpenStreetMap 타일, 카드 4곳 번호 마커 + 장소명·주소 상시 라벨 (PC) (서울 2곳 상자 좌우 분리·꼬리 마커 위, 도쿄 아래 배치, 모바일 미표시)
 // 마커·카드 클릭: 해당 위치 확대 + 카드·마커 강조(빨간색), 선택된 카드·마커 재클릭 시 팝업 표시 중이면 선택 해제 + 전체 보기 복귀 / 팝업 닫힌 상태면 팝업만 다시 표시
-// 선택 팝업(장소명·날짜): 지도 클릭 시 유지, 우측 상단 X 클릭 시 팝업만 닫힘 (확대·선택 유지)
+// 선택 팝업(장소명 + 주소, 모바일은 장소명만): 지도 클릭 시 유지, 우측 상단 X 클릭 시 팝업만 닫힘 (확대·선택 유지)
 // 확대 상태(전체 보기 줌 초과): 상시 라벨 숨김 / 전체 보기 축척: 서울 마커 2개(남산·대한문) 좌우 분리 표시
-// 서울 확대: 서울 지점(1·2번) 선택 또는 서울 범위 확대 시 스마트서울맵(현재지도만, 옛지도 전환 버튼 숨김)으로 전환, 일정 줌 미만 축소·전체 보기 시 세계지도 복귀
+// 서울 확대: 서울 지점(1·2번) 선택 또는 서울 범위 확대 시 스마트서울맵(현재지도만, 옛지도 전환 버튼 숨김, 상시 라벨 없음)으로 전환, 일정 줌 미만 축소·전체 보기 시 세계지도 복귀
 // 우측 상단 보기 컨트롤: 전체 보기(선택 해제 + 세계지도 전체 범위 복귀) + 확대/축소 (mapUtils.js), OSM 저작권 표기는 우측 하단
 // 모바일(560px 이하): 카드 설명 숨김, 사진 클릭 시 확대 모달에 설명 함께 표시, 선택 마커를 지도 아래쪽(76% 지점)에 배치 + 팝업 축소 (세계지도·스마트서울맵 공통), 보기 컨트롤은 확대 상태에서만 축소 표시
 import { S1_ERA } from "/js/data/history-data.js";
@@ -108,9 +108,9 @@ function initEraMap(grid) {
     const cards = [...grid.querySelectorAll(".era-card")];
     const bounds = L.latLngBounds(items.map((item) => item.latlng));
     const seoulArea = L.latLngBounds(SEOUL_AREA);
-    // 전체 보기 여백: PC 좌우 70px·상하 40px / 모바일 좌우 24px·상하 22px (마커 여유)
-    const fitPadding = () => (MOBILE_QUERY.matches ? [24, 22] : [70, 40]);
-    const showAll = (animate = true) => map.fitBounds(bounds, { maxZoom: FIT_MAX_ZOOM, padding: fitPadding(), animate });
+    // 전체 보기 여백: PC 상시 라벨(장소명 + 주소) 표시 공간 확보 (좌 160px · 위 85px 파리 라벨 / 우 200px · 아래 85px 도쿄 라벨, 주소 한 줄 표시 기준) / 모바일 좌우 24px·상하 22px (라벨 미표시, 마커 여유)
+    const fitPadding = () => (MOBILE_QUERY.matches ? { padding: [24, 22] } : { paddingTopLeft: [160, 85], paddingBottomRight: [200, 85] });
+    const showAll = (animate = true) => map.fitBounds(bounds, Object.assign({ maxZoom: FIT_MAX_ZOOM, animate }, fitPadding()));
 
     let activeIndex = -1; // 선택 카드 번호 (-1: 선택 없음)
     let isSeoul = false; // 스마트서울맵 표시 여부
@@ -131,7 +131,8 @@ function initEraMap(grid) {
             iconSize: [30, 30],
             iconAnchor: [15, 15],
         });
-    const popupHtml = (item) => `<p class="era-popup-title">${item.place}</p><p class="era-popup-date">${item.date}</p>`;
+    // 팝업 내용: 장소명 + 주소 (주소 없으면 장소명만)
+    const popupHtml = (item) => `<p class="era-popup-title">${item.place}</p>${item.address ? `<p class="era-popup-addr">${item.address}</p>` : ""}`;
     // 팝업: 지도 클릭 시 유지, 우측 상단 X 클릭 시에만 닫힘 (다른 장소 선택 시 교체, 닫혀도 선택 유지)
     const POPUP_OPTIONS = {
         className: "story-popup era-popup",
@@ -172,13 +173,10 @@ function initEraMap(grid) {
         SEOUL_INDEXES.forEach((index) => {
             const item = S1_ERA[index];
             const marker = L.marker(item.latlng, { icon: markerIcon(index, 0), riseOnHover: true }).addTo(created.map);
-            marker.bindTooltip(`${item.place}<small>${item.date}</small>`, { className: "place-tooltip era-tooltip", direction: "top", offset: [0, -16], permanent: true });
+            // 상시 라벨 없음: 팝업만 표시 (X 클릭 시 팝업만 닫힘, 확대·선택 유지)
             marker.bindPopup(popupHtml(item), POPUP_OPTIONS);
             marker.off("click", marker._openPopup, marker);
             marker.on("click", () => toggle(index));
-            // 팝업 표시 중 상시 라벨 숨김, 닫히면 다시 표시 (X 클릭: 팝업만 닫힘, 확대·선택 유지)
-            marker.on("popupopen", () => marker.closeTooltip());
-            marker.on("popupclose", () => marker.openTooltip());
             markers[index] = marker;
         });
         // 일정 줌 미만으로 축소 시 세계지도 복귀
@@ -264,14 +262,14 @@ function initEraMap(grid) {
 
     const markers = []; // 카드 index → 세계지도 마커
 
-    // 번호 마커 + 상시 라벨(장소명·날짜) / 클릭: 해당 위치 확대 + 팝업
+    // 번호 마커 + 상시 라벨(장소명 + 주소, 주소 없으면 날짜) / 클릭: 해당 위치 확대 + 팝업
     S1_ERA.forEach((item, index) => {
         if (!item.latlng) return;
         const marker = L.marker(item.latlng, { icon: markerIcon(index, SPLIT_DIR[index] || 0), riseOnHover: true }).addTo(map);
         const label = LABEL_POS[index] || { direction: "top", offset: [0, -16] };
         // 서울 2곳: era-tooltip-to-right / era-tooltip-to-left 클래스로 상자만 좌우 이동 (s1-era.css)
         const shiftClass = label.shift ? ` era-tooltip-to-${label.shift}` : "";
-        marker.bindTooltip(`${item.place}<small>${item.date}</small>`, {
+        marker.bindTooltip(`${item.place}<small>${item.address || item.date}</small>`, {
             className: `place-tooltip era-tooltip${shiftClass}`,
             direction: label.direction,
             offset: label.offset,
