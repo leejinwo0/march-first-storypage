@@ -180,7 +180,7 @@ export function getInitialConsonant(word) {
    - 상대경로 → 스마트서울맵 https 절대경로
    - http 외부 이미지 → weserv 프록시 (HTTPS 혼합 콘텐츠 차단 회피)
 ======================================================= */
-export function toAbsoluteUrl(url) {
+function toAbsoluteUrl(url) {
     const value = String(url || "").trim();
 
     if (!value || value === "null") return "";

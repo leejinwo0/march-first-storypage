@@ -11,7 +11,7 @@ const IMG = "/assets/images/history/march-first-movement";
 
 /* ---------- 01 시대의 부름: 카드 4종 ---------- */
 // date: 사진 우하단 날짜 / en·place: 제목 아래 영문·장소
-// caption: 확대 모달 캡션 / body: 설명 / quote: 인용문(선택)
+// caption: 확대 모달 캡션 / body: 설명
 export const S1_ERA = [
     {
         date: "1910.08.22",
@@ -56,7 +56,6 @@ export const S1_ERA = [
         imgUrl: `${IMG}/204-kim-kyusik-letter.jpg`,
         caption: "김규식이 윌슨에게 보낸 편지",
         body: "1919년부터 1920년까지 열린 파리강화회의는 제1차 세계대전의 전후 처리를 논의하기 위한 회의였다. 1918년 미국 대통령 윌슨이 제시한 '민족자결주의'는 식민 지배를 받고 있던 한국인에게 독립에 대한 희망을 불러일으켰고, 국제사회에 한국의 독립을 호소하는 움직임으로 이어졌다.",
-        quote: '"각 민족은 스스로의 운명을 결정할 권리가 있다"',
     },
 ];
 

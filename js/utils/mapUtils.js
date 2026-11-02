@@ -61,7 +61,7 @@ export function loadSeoulMapAPI() {
    2. 지도 전환 컨트롤 (우측 상단 '현재지도 / 옛지도' 토글)
    - secondaryLabel: 보조 레이어 버튼 이름
 ======================================================= */
-export function addMapToggleControl(map, baseMapLayer, secondaryMapLayer, secondaryLabel) {
+function addMapToggleControl(map, baseMapLayer, secondaryMapLayer, secondaryLabel) {
     const ToggleControl = L.Control.extend({
         options: { position: "topright" },
         onAdd() {
