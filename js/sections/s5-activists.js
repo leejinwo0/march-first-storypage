@@ -15,36 +15,45 @@ import { getInitialConsonant, setStat, toSafeImageUrl } from "/js/utils/uiUtils.
 
 // 초성 필터 칩 목록 (쌍자음은 기본 자음으로 통합: uiUtils.js getInitialConsonant)
 const CONSONANTS = ["ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+
 // 전체 보기 최대 줌 / 인물 선택 시 줌
 const DEFAULT_MAX_ZOOM = 10;
 const FOCUS_ZOOM = 10;
+
 // 인물 상세 API 결과 캐시 (poiId → 상세 정보)
 const detailCache = new Map();
 
 // 일제감시대상인물카드 주소: API COT_EXTRA_DATA_02 값 그대로 사용 (http 주소 포함, 링크 이동은 혼합 콘텐츠 차단 대상 아님), http/https로 시작하지 않는 값(빈 값 · "null")은 미사용
 const toCardUrl = (raw) => {
     const url = String(raw || "").trim();
+
     return /^https?:\/\//.test(url) ? url : "";
 };
+
 // 카드 주소 없을 때: 한국사데이터베이스 일제감시대상인물카드 이름 검색
 const toCardSearchUrl = (name) => `https://db.history.go.kr/modern/ia/level.do?nameKr=${encodeURIComponent(name)}&orderColumn=person_id&recordCountPerPage=20&pageIndex=1`;
 
 // 상세 API: NAME_xx 라벨 매칭 → 대응 VALUE_xx, 미매칭 시 COT_VALUE_xx 직접 조회
 async function fetchDetail(poiId) {
     if (detailCache.has(poiId)) return detailCache.get(poiId);
+
     const baseUrl = MAP_ENDPOINTS.themeData_100173.split("/public/")[0];
     const res = await fetch(`${baseUrl}/public/themes/contents/detail?theme_id=100173&conts_id=${poiId}`);
     const data = await res.json();
+
     // 옵셔널 체이닝 미사용: 에디터 자동 정렬 시 물음표와 점이 분리되어 문법 오류 발생 방지
     const d = (data && Array.isArray(data.body) && data.body[0]) || {};
     const pick = (label, directKey) => {
         for (const key in d) {
             if (key.includes("NAME_") && String(d[key]).includes(label)) {
                 const val = d[key.replace("NAME_", "VALUE_")];
+
                 if (val && val !== "null" && String(val).trim()) return val;
             }
         }
+
         const direct = d[directKey];
+
         return direct && direct !== "null" && String(direct).trim() ? direct : "";
     };
     const detail = {
@@ -54,7 +63,9 @@ async function fetchDetail(poiId) {
         joemyung: pick("죄명", "COT_VALUE_05"),
         cardUrl: toCardUrl(d.COT_EXTRA_DATA_02 || d.EXTRA_DATA_02),
     };
+
     detailCache.set(poiId, detail);
+
     return detail;
 }
 
@@ -64,6 +75,7 @@ export async function initActivists() {
     const searchInput = document.getElementById("s5-search");
     const filterBar = document.getElementById("s5-filters");
     const countEl = document.getElementById("s5-count");
+
     if (!rail || !profile || !document.getElementById("map-s5")) return;
 
     const { map, setHomeView } = createStoryMap("map-s5", {
@@ -90,6 +102,7 @@ export async function initActivists() {
         .filter((p) => p.COT_COORD_Y && p.COT_COORD_X)
         .map((p) => {
             const name = p.COT_CONTS_NAME || "무명 열사";
+
             return {
                 name,
                 initial: getInitialConsonant(name),
@@ -120,13 +133,16 @@ export async function initActivists() {
     const profileRows = (detail) => {
         if (detail === null) return '<div class="profile-skeleton" aria-label="상세 정보를 불러오는 중"><span></span><span></span><span></span></div>';
         if (detail.error) return '<p class="status-text">상세 정보를 불러올 수 없습니다.</p>';
+
         const items = [
             ["신분", detail.sinbun],
             ["사건 개요", detail.sagun],
             ["판결일", detail.pangyul],
             ["죄명", detail.joemyung],
         ].filter(([, v]) => v);
+
         if (!items.length) return '<p class="status-text">등록된 상세 정보가 없습니다.</p>';
+
         return `<dl class="profile-info">${items.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>`;
     };
 
@@ -136,6 +152,7 @@ export async function initActivists() {
         const mapLink = `https://map.seoul.go.kr/smgis2/poiViewMap?ti=100173&pi=${person.poiId}&lang=ko`;
         // 카드 주소 있으면 인물카드 바로가기, 없으면 이름 검색
         const cardLink = person.cardUrl || toCardSearchUrl(person.name);
+
         profile.innerHTML = `
       <div class="profile-head">
         <div class="profile-photo${person.imgUrl ? "" : " is-empty"}"><span aria-hidden="true">${person.name.charAt(0)}</span>${photo}</div>
@@ -160,6 +177,7 @@ export async function initActivists() {
     // 마커 색상: 선택 인물 파란색 + 다른 마커 위 표시, 이전 선택 인물 노란색 복귀
     const setPinActive = (person, on) => {
         if (!person) return;
+
         person.marker.setIcon(on ? PIN_ICON_ACTIVE : PIN_ICON);
         person.marker.setZIndexOffset(on ? 1000 : 0);
     };
@@ -178,6 +196,7 @@ export async function initActivists() {
         // 재클릭: 팝업 표시 중이면 선택 해제 + 전체 보기, X로 닫은 상태면 팝업만 다시 표시
         if (activePerson === person) {
             if (person.marker.isPopupOpen()) return clearSelection();
+
             return person.marker.openPopup();
         }
 
@@ -191,9 +210,12 @@ export async function initActivists() {
         updateReset();
 
         renderProfile(person, null);
+
         if (!person.poiId) return renderProfile(person, {});
+
         try {
             const detail = await fetchDetail(person.poiId);
+
             // 목록 API에 카드 주소 없으면 상세 API 주소로 보완
             if (!person.cardUrl && detail.cardUrl) person.cardUrl = detail.cardUrl;
             if (activePerson === person) renderProfile(person, detail);
@@ -207,6 +229,7 @@ export async function initActivists() {
     people.forEach((person) => {
         const photo = person.imgUrl ? `<img src="${person.imgUrl}" alt="" loading="lazy" onerror="this.parentNode.classList.add('is-empty'); this.remove();">` : "";
         const card = document.createElement("button");
+
         card.type = "button";
         card.className = "person-card";
         card.innerHTML = `
@@ -220,6 +243,7 @@ export async function initActivists() {
         person.card = card;
 
         person.marker = L.marker(person.latlng, { icon: PIN_ICON }).addTo(map);
+
         // 호버 툴팁: 인물명 (선택 시 이름 팝업 표시 중에는 툴팁 숨김)
         person.marker.bindTooltip(person.name, { className: "place-tooltip", direction: "top", offset: [0, -34] });
         person.marker.on("popupopen", () => person.marker.closeTooltip());
@@ -229,6 +253,7 @@ export async function initActivists() {
             closeButton: true, // X 버튼: 팝업만 닫기 (인물 선택·프로필·확대 상태 유지)
             autoPan: false,
         });
+
         // 마커 클릭: Leaflet 기본 팝업 토글(재클릭 시 닫힘) 해제 → select에서 열기
         person.marker.off("click", person.marker._openPopup, person.marker);
         person.marker.on("click", () => select(person));
@@ -240,12 +265,16 @@ export async function initActivists() {
     filterBar.innerHTML = ["all", ...CONSONANTS].map((c) => `<button type="button" class="consonant-chip" data-filter="${c}" aria-pressed="${c === "all"}">${c === "all" ? "전체" : c}</button>`).join("");
 
     let activeFilter = "all";
+
     function applyFilter() {
         const keyword = searchInput.value.trim();
         let visible = 0;
+
         people.forEach((p) => {
             const match = (activeFilter === "all" || p.initial === activeFilter) && (!keyword || p.name.includes(keyword));
+
             p.card.hidden = !match;
+
             if (match) {
                 visible++;
                 if (!map.hasLayer(p.marker)) p.marker.addTo(map);
@@ -253,6 +282,7 @@ export async function initActivists() {
                 map.removeLayer(p.marker);
             }
         });
+
         countEl.textContent = visible;
         rail.scrollTo({ left: 0, behavior: "smooth" });
     }
@@ -264,12 +294,15 @@ export async function initActivists() {
 
     filterBar.addEventListener("click", (e) => {
         const btn = e.target.closest(".consonant-chip");
+
         if (!btn) return;
+
         activeFilter = btn.dataset.filter;
         setChip(activeFilter);
         searchInput.value = "";
         applyFilter();
     });
+
     searchInput.addEventListener("input", () => {
         activeFilter = "all";
         setChip("all");
@@ -279,19 +312,24 @@ export async function initActivists() {
     // 3. 카드 이동 버튼 · 전체 보기
     const prevBtn = document.getElementById("s5-prev");
     const nextBtn = document.getElementById("s5-next");
+
     if (prevBtn) prevBtn.addEventListener("click", () => rail.scrollBy({ left: -rail.clientWidth * 0.8, behavior: "smooth" }));
     if (nextBtn) nextBtn.addEventListener("click", () => rail.scrollBy({ left: rail.clientWidth * 0.8, behavior: "smooth" }));
 
     map.on("zoomend", updateReset);
+
     // 우측 하단 전체 보기: 선택 해제 + 전체 범위 복귀
     setHomeView(clearSelection);
 
     // 4. 지도 크기 변경 시 전체 보기 재적용 (선택 인물 없을 때, 초기 fitBounds가 모바일 배치 확정 전 크기로 계산 → 마커 범위 잘림 방지)
     let lastSize = "";
+
     new ResizeObserver(() => {
         const el = map.getContainer();
         const size = `${el.clientWidth}x${el.clientHeight}`;
+
         if (!el.clientWidth || size === lastSize) return;
+
         lastSize = size;
         map.invalidateSize();
         if (!activePerson) showAll(false);
@@ -301,6 +339,7 @@ export async function initActivists() {
     new IntersectionObserver(
         (entries, observer) => {
             if (!entries.some((e) => e.isIntersecting)) return;
+
             observer.disconnect();
             map.invalidateSize();
             if (!activePerson) showAll(false);

@@ -12,7 +12,6 @@ const IMG = "/assets/images/history/march-first-movement";
 /* ---------- 01 시대의 부름: 카드 4종 ---------- */
 // date: 사진 우하단 날짜 / en·place: 제목 아래 영문·장소
 // caption: 확대 모달 캡션 / body: 설명 / quote: 인용문(선택)
-
 export const S1_ERA = [
     {
         date: "1910.08.22",

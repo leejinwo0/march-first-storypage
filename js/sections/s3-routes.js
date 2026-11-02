@@ -22,15 +22,19 @@ const ROUTE_GROUPS = [
 
 // 경로 맞춤 최대 줌: 12 초과 시 타일 미제공 가능성 → 12 고정 (섹션2 확대 줌과 동일)
 const FIT_MAX_ZOOM = 12;
+
 // 공통 줌 보정: PC / 모바일 별도 (맞춤 배율 기준 추가 확대 단계, 0 = 가장 넓은 경로가 여백 안에 꽉 참)
 const ZOOM_UP = 0;
 const ZOOM_UP_MOBILE = 0;
+
 // 재생 속도: 경로 1km당 소요 시간(ms), 최소·최대 재생 시간
 const PLAY_MS_PER_KM = 2200;
 const PLAY_MIN_MS = 5000;
 const PLAY_MAX_MS = 14000;
+
 // 경유지 ㄹ자 배치: 한 줄당 경유지 수 (홀수 줄 왼쪽→오른쪽, 짝수 줄 오른쪽→왼쪽)
 const SNAKE_COLS = 3;
+
 // 모바일 기준: 정보 패널 · 크게 보기 숨김, 경로 맞춤 여백 축소
 const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
 
@@ -53,7 +57,9 @@ const pad2 = (n) => String(n).padStart(2, "0");
 function renderSnake(stops) {
     const center = (col) => `${(((col - 0.5) / SNAKE_COLS) * 100).toFixed(4)}%`;
     const rows = [];
+
     for (let i = 0; i < stops.length; i += SNAKE_COLS) rows.push(stops.slice(i, i + SNAKE_COLS));
+
     const last = stops.length - 1;
 
     return rows
@@ -61,13 +67,17 @@ function renderSnake(stops) {
             const ltr = r % 2 === 0; // 왼쪽→오른쪽 진행 줄
             const isLast = r === rows.length - 1;
             const endCol = ltr ? row.length : SNAKE_COLS - row.length + 1;
+
             // 가로선 시작·끝: 첫 줄 시작점·마지막 줄 끝점은 경유지 점 중심, 그 외는 꺾임선과 연결되는 줄 끝(꺾임선 반지름만큼 안쪽)
             let lineL = "var(--turn-r)";
             let lineR = "var(--turn-r)";
+
             if (ltr && r === 0) lineL = center(1);
             if (ltr && isLast) lineR = `calc(100% - ${center(endCol)})`;
             if (!ltr && isLast) lineL = center(endCol);
+
             let turn = "";
+
             if (!isLast) turn = ltr ? " is-turn-right" : " is-turn-left";
 
             const items = row
@@ -76,6 +86,7 @@ function renderSnake(stops) {
                     const col = ltr ? j + 1 : SNAKE_COLS - j;
                     let cls = "";
                     let tag = "";
+
                     if (n === 0) {
                         cls = "is-start";
                         tag = "<small>출발</small>";
@@ -83,9 +94,11 @@ function renderSnake(stops) {
                         cls = "is-end";
                         tag = "<small>도착</small>";
                     }
+
                     return `<li class="route-stop ${cls}" style="grid-column:${col}"><span class="route-stop-name">${name}</span>${tag}</li>`;
                 })
                 .join("");
+
             return `<ol class="route-snake-row${turn}" style="--line-l:${lineL};--line-r:${lineR}">${items}</ol>`;
         })
         .join("");
@@ -99,6 +112,7 @@ export async function initRoutes() {
     const playBtn = document.getElementById("s3-play");
     const playPct = document.getElementById("s3-play-pct");
     const bar = document.getElementById("s3-bar");
+
     if (!list || !mapEl) return;
 
     // 평면 지도: 드래그 이동 + 우측 하단 확대/축소 버튼(정수 줌 단계)만 허용, 휠·터치·더블클릭 줌 비활성 (소수 줌 단계 기본지도 타일 미표시 방지)
@@ -119,14 +133,19 @@ export async function initRoutes() {
 
     // 경로 데이터: 구분·순서별 추출 + 비활성 경로선 생성 (좌표 [경도, 위도] → LatLng)
     const routes = [];
+
     ROUTE_GROUPS.forEach((group) => {
         let order = 0;
+
         group.ids.forEach((id) => {
             const feature = findFeature(id);
+
             if (!feature || feature.geometry.type !== "LineString") return;
+
             const props = feature.properties;
             const layer = L.geoJSON(feature, { style: INACTIVE_STYLE, interactive: false }).addTo(map);
             const coords = feature.geometry.coordinates.map(([x, y]) => L.latLng(y, x));
+
             order += 1;
             routes.push({
                 id,
@@ -146,6 +165,7 @@ export async function initRoutes() {
     setStat("route", routes.length);
     ROUTE_GROUPS.forEach((g) => {
         const el = document.querySelector(`#s3-tabs [data-count="${g.key}"]`);
+
         if (el) el.textContent = routes.filter((r) => r.group === g.key).length;
     });
 
@@ -156,12 +176,14 @@ export async function initRoutes() {
 
     // 1. 경로 카드 렌더링 (구분별 묶음, 탭으로 표시 전환)
     const stopsOf = (route) => (route.stops.length ? route.stops : ["출발지", "도착지"]);
+
     list.innerHTML = ROUTE_GROUPS.map((g) => {
         const cards = routes
             .map((route, i) => ({ route, i }))
             .filter(({ route }) => route.group === g.key)
             .map(({ route, i }) => {
                 const stops = stopsOf(route);
+
                 return `
           <article class="route-card" data-index="${i}">
             <button type="button" class="route-card-head" aria-expanded="false" aria-controls="route-card-body-${i}">
@@ -184,6 +206,7 @@ export async function initRoutes() {
           </article>`;
             })
             .join("");
+
         return `<div class="route-group" data-group="${g.key}">${cards}</div>`;
     }).join("");
 
@@ -210,6 +233,7 @@ export async function initRoutes() {
     // 경로 맞춤 여백: PC 상단 150px(정보 패널) / 모바일 상단 64px(정보 패널 숨김, 지도 전환 토글 영역)
     const fitPadding = () => {
         if (MOBILE_QUERY.matches) return { paddingTopLeft: [24, 64], paddingBottomRight: [24, 80] };
+
         return { paddingTopLeft: [60, 150], paddingBottomRight: [60, 100] };
     };
 
@@ -227,9 +251,11 @@ export async function initRoutes() {
             const p2 = map.project(b.getSouthEast(), BASE_ZOOM);
             const w = Math.max(1, Math.abs(p2.x - p1.x));
             const h = Math.max(1, Math.abs(p2.y - p1.y));
+
             return BASE_ZOOM + Math.log2(Math.min(availW / w, availH / h));
         });
         const up = MOBILE_QUERY.matches ? ZOOM_UP_MOBILE : ZOOM_UP;
+
         return Math.min(FIT_MAX_ZOOM, Math.min(...fits) + up);
     };
 
@@ -250,15 +276,19 @@ export async function initRoutes() {
         const frameEl = mapEl.parentElement;
         const W = frameEl.clientWidth;
         const H = frameEl.clientHeight;
+
         if (!W || !H) return;
+
         const target = fitValue(W, H);
         const zoom = Math.round(target);
         const scale = 2 ** (target - zoom);
+
         setMapScale(scale);
 
         // 여백: 화면 px → Leaflet px (배율 역산)
         const { paddingTopLeft: tl, paddingBottomRight: br } = fitPadding();
         const center = map.project(L.latLngBounds(route.coords).getCenter(), zoom);
+
         center.x -= (tl[0] - br[0]) / 2 / scale;
         center.y -= (tl[1] - br[1]) / 2 / scale;
         map.setView(map.unproject(center, zoom), zoom, { animate: false });
@@ -267,12 +297,15 @@ export async function initRoutes() {
     // 2. 경로 활성화
     function activate(index) {
         if (index === currentIndex) return;
+
         stopPlay(true);
         currentIndex = index;
+
         const route = routes[index];
 
         cards.forEach((card, i) => {
             const on = i === index;
+
             card.classList.toggle("is-active", on);
             card.classList.remove("is-collapsed");
             card.querySelector(".route-card-head").setAttribute("aria-expanded", String(on));
@@ -282,9 +315,11 @@ export async function initRoutes() {
         // Leaflet setStyle의 className은 최초 생성 시에만 반영 → SVG path에 classList 직접 적용
         routes.forEach((r, i) => {
             const on = i === index;
+
             r.layer.setStyle(on ? ACTIVE_STYLE : INACTIVE_STYLE);
             r.layer.eachLayer((l) => {
                 const el = typeof l.getElement === "function" ? l.getElement() : null;
+
                 if (el) el.classList.toggle("route-flow", on);
             });
         });
@@ -318,6 +353,7 @@ export async function initRoutes() {
     function setDesc(card, open) {
         const btn = card.querySelector(".route-desc-btn");
         const desc = card.querySelector(".route-desc");
+
         btn.setAttribute("aria-expanded", String(open));
         btn.textContent = open ? "경로 설명 접기" : "경로 설명 보기";
         desc.hidden = !open;
@@ -326,12 +362,16 @@ export async function initRoutes() {
     cards.forEach((card) => {
         const index = Number(card.dataset.index);
         const head = card.querySelector(".route-card-head");
+
         // 활성 카드 재클릭: 경유지·설명 영역 접기/펼치기 (지도 경로 선택 유지)
         head.addEventListener("click", () => {
             if (index !== currentIndex) return activate(index);
+
             const collapsed = card.classList.toggle("is-collapsed");
+
             head.setAttribute("aria-expanded", String(!collapsed));
         });
+
         card.querySelector(".route-desc-btn").addEventListener("click", () => {
             setDesc(card, card.querySelector(".route-desc").hidden);
         });
@@ -340,6 +380,7 @@ export async function initRoutes() {
     tabs.forEach((tab) => {
         tab.addEventListener("click", () => {
             const first = routes.findIndex((r) => r.group === tab.dataset.group);
+
             if (first >= 0) activate(first);
         });
     });
@@ -349,8 +390,10 @@ export async function initRoutes() {
     const expandBtn = document.getElementById("s3-expand");
     const placeholder = document.createElement("div");
     placeholder.className = "routes-map-placeholder";
+
     const backdrop = document.createElement("div");
     backdrop.className = "routes-map-backdrop";
+
     let expanded = false;
 
     // 전체 보기: 현재 경로 다시 맞춤
@@ -366,7 +409,9 @@ export async function initRoutes() {
 
     function setExpanded(on) {
         if (!frame || on === expanded) return;
+
         expanded = on;
+
         if (on) {
             placeholder.style.height = `${frame.offsetHeight}px`;
             frame.before(placeholder);
@@ -375,20 +420,25 @@ export async function initRoutes() {
             placeholder.replaceWith(frame);
             backdrop.remove();
         }
+
         frame.classList.toggle("is-expanded", on);
         document.body.style.overflow = on ? "hidden" : "";
+
         if (expandBtn) {
             expandBtn.textContent = on ? "✕" : "⤢";
             expandBtn.setAttribute("aria-label", on ? "크게 보기 닫기" : "지도 크게 보기");
         }
+
         refitMap();
     }
 
     if (expandBtn) expandBtn.addEventListener("click", () => setExpanded(!expanded));
+
     // 모바일 전환 시 크게 보기 해제 (모바일은 크게 보기 버튼 미표시)
     MOBILE_QUERY.addEventListener("change", (e) => {
         if (e.matches) setExpanded(false);
     });
+
     backdrop.addEventListener("click", () => setExpanded(false));
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && expanded) setExpanded(false);
@@ -403,20 +453,26 @@ export async function initRoutes() {
 
     const buildTrack = (route) => {
         const cum = [0];
+
         for (let i = 1; i < route.coords.length; i++) cum.push(cum[i - 1] + map.distance(route.coords[i - 1], route.coords[i]));
+
         const total = cum[cum.length - 1] || 1;
         const duration = Math.min(PLAY_MAX_MS, Math.max(PLAY_MIN_MS, (total / 1000) * PLAY_MS_PER_KM));
+
         return { coords: route.coords, cum, total, duration };
     };
 
     const pointAt = (t) => {
         const target = t * track.total;
         let i = 1;
+
         while (i < track.cum.length - 1 && track.cum[i] < target) i++;
+
         const seg = track.cum[i] - track.cum[i - 1] || 1;
         const r = Math.min(1, Math.max(0, (target - track.cum[i - 1]) / seg));
         const a = track.coords[i - 1];
         const b = track.coords[i];
+
         return L.latLng(a.lat + (b.lat - a.lat) * r, a.lng + (b.lng - a.lng) * r);
     };
 
@@ -428,29 +484,36 @@ export async function initRoutes() {
 
     const setPlayUi = (on) => {
         if (!playBtn) return;
+
         playBtn.classList.toggle("is-playing", on);
         playBtn.setAttribute("aria-label", on ? "일시정지" : "경로 재생");
     };
 
     const step = (time) => {
         if (!playing) return;
+
         const dt = lastTime ? time - lastTime : 0;
+
         lastTime = time;
         progress = Math.min(1, progress + dt / track.duration);
         render();
+
         if (progress >= 1) {
             playing = false;
             setPlayUi(false);
             return;
         }
+
         rafId = requestAnimationFrame(step);
     };
 
     function startPlay() {
         if (currentIndex < 0) return;
+
         if (!track) track = buildTrack(routes[currentIndex]);
         if (progress >= 1) progress = 0;
         if (!map.hasLayer(runner)) runner.addTo(map);
+
         playing = true;
         lastTime = 0;
         setPlayUi(true);
@@ -460,12 +523,14 @@ export async function initRoutes() {
     function stopPlay(reset = false) {
         playing = false;
         cancelAnimationFrame(rafId);
+
         if (reset) {
             progress = 0;
             track = null;
             if (map.hasLayer(runner)) map.removeLayer(runner);
             render();
         }
+
         setPlayUi(false);
     }
 
@@ -475,8 +540,11 @@ export async function initRoutes() {
     if (bar) {
         bar.addEventListener("click", (e) => {
             if (currentIndex < 0) return;
+
             if (!track) track = buildTrack(routes[currentIndex]);
+
             const rect = bar.getBoundingClientRect();
+
             progress = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
             if (!map.hasLayer(runner)) runner.addTo(map);
             render();
@@ -493,6 +561,7 @@ export async function initRoutes() {
     new IntersectionObserver(
         (entries, observer) => {
             if (!entries.some((e) => e.isIntersecting)) return;
+
             observer.disconnect();
             map.invalidateSize({ animate: false });
             if (currentIndex >= 0) fitRoute(routes[currentIndex]);
@@ -503,9 +572,12 @@ export async function initRoutes() {
     // 7. 지도 프레임 크기 변경(브라우저 창 크기 조절 등) 시 현재 경로 다시 맞춤 → 같은 화면 구성 유지 (지도 요소는 배율 적용으로 크기 변경 → 프레임 기준 감지)
     let lastSize = "";
     const frameEl = mapEl.parentElement;
+
     new ResizeObserver(() => {
         const size = `${frameEl.clientWidth}x${frameEl.clientHeight}`;
+
         if (!frameEl.clientWidth || size === lastSize) return;
+
         lastSize = size;
         if (currentIndex >= 0) fitRoute(routes[currentIndex]);
     }).observe(frameEl);

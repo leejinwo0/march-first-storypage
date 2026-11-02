@@ -11,8 +11,10 @@ import { getImageCandidates, attachImageFallback, setStat, openSheet, closeSheet
 
 // 타임라인 표시 순서 (테마 콘텐츠 ID)
 const TARGET_IDS = ["start_01", "start_02", "start_03", "start_04", "start_08", "start_05", "start_09", "start_07", "start_13"];
+
 // 기본 줌 및 장소 이동 줌 (동일 값, 장소 이동 시 줌 변경 없이 중심만 이동)
 const DEFAULT_ZOOM = 10;
+
 // 모바일 기준: 상세 카드 → 하단 시트 표시
 const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
 
@@ -40,6 +42,7 @@ const pad2 = (n) => String(n).padStart(2, "0");
 export async function initPledge() {
     const nav = document.getElementById("s2-nav");
     const card = document.getElementById("s2-card");
+
     if (!nav || !card || !document.getElementById("map-s2")) return;
 
     const { map, zoomFor } = createStoryMap("map-s2", {
@@ -60,9 +63,12 @@ export async function initPledge() {
     // 거점 데이터: TARGET_IDS 순서대로 추출 (좌표 [위도, 경도] 변환)
     const steps = TARGET_IDS.map((id) => {
         const feature = geojson.features.find((f) => f.properties.COT_CONTS_ID === id);
+
         if (!feature) return null;
+
         const props = feature.properties;
         const coords = feature.geometry.type === "Point" ? feature.geometry.coordinates : null;
+
         return {
             id,
             title: props.COT_CONTS_NAME || "지명 없음",
@@ -90,6 +96,7 @@ export async function initPledge() {
     // 2. 지도 마커 (번호 원형)
     const markers = steps.map((step, i) => {
         if (!step.pos) return null;
+
         const icon = L.divIcon({
             className: "step-marker-wrap",
             html: `<span class="step-marker" data-index="${i}">${i + 1}</span>`,
@@ -98,6 +105,7 @@ export async function initPledge() {
         });
         const marker = L.marker(step.pos, { icon }).addTo(map);
         const popupEl = document.createElement("p");
+
         popupEl.className = "popup-mini-title";
         popupEl.textContent = step.title;
         marker.bindPopup(popupEl, {
@@ -108,6 +116,7 @@ export async function initPledge() {
             closeOnClick: false,
             autoPan: false, // 활성 마커가 지도 중앙 → 자동 이동 불필요, 이동 애니메이션 중 autoPan 충돌 방지
         });
+
         // 마커 클릭: Leaflet 기본 팝업 토글 해제 → activate에서 PC만 팝업 표시
         marker.off("click", marker._openPopup, marker);
         marker.on("click", () => {
@@ -115,6 +124,7 @@ export async function initPledge() {
             // 모바일: 마커 클릭 시 상세 카드 하단 시트 표시
             if (MOBILE_QUERY.matches) openSheet(card);
         });
+
         return marker;
     });
 
@@ -135,6 +145,7 @@ export async function initPledge() {
     const stepName = document.getElementById("s2-step-name");
     const prevBtn = document.getElementById("s2-prev");
     const nextBtn = document.getElementById("s2-next");
+
     if (stepTotal) stepTotal.textContent = pad2(steps.length);
 
     const updateStepper = (index) => {
@@ -174,8 +185,11 @@ export async function initPledge() {
 
         // 이미지: 후보 URL 순차 시도, 전체 실패 시 사진 영역 제거 / 클릭 시 확대 모달
         const photo = card.querySelector(".pledge-photo");
+
         if (!photo) return;
+
         const img = photo.querySelector("img");
+
         attachImageFallback(img, step.images, () => photo.remove());
         photo.addEventListener("click", () => {
             if (typeof window.openGlobalModal === "function") window.openGlobalModal(img.src, step.title);
@@ -186,6 +200,7 @@ export async function initPledge() {
     function syncPopups(index) {
         markers.forEach((m, i) => {
             if (!m) return;
+
             if (i === index && !MOBILE_QUERY.matches) m.openPopup();
             else m.closePopup();
         });
@@ -203,6 +218,7 @@ export async function initPledge() {
             document.querySelectorAll("#map-s2 .step-marker").forEach((el) => {
                 el.classList.toggle("is-active", Number(el.dataset.index) === index);
             });
+
             const visible = steps
                 .slice(0, index + 1)
                 .map((s) => s.pos)
@@ -213,8 +229,10 @@ export async function initPledge() {
         syncPopups(index);
 
         if (!step.pos) return;
+
         // 선택 장소 중심 이동 (기본 줌 복귀, 옛지도 표시 중이면 보정 줌), +/− 버튼으로 줌 변경된 상태면 줌만 애니메이션 없이 먼저 복귀 후 이동 (줌 애니메이션 중 기본지도 타일 미표시 방지)
         const targetZoom = zoomFor(DEFAULT_ZOOM);
+
         if (Math.abs(map.getZoom() - targetZoom) > 0.01) map.setZoom(targetZoom, { animate: false });
         map.panTo(step.pos, { animate: true, duration: 0.8 });
     }
@@ -228,6 +246,7 @@ export async function initPledge() {
             if (currentIndex > 0) activate(currentIndex - 1);
         });
     }
+
     if (nextBtn) {
         nextBtn.addEventListener("click", () => {
             if (currentIndex < steps.length - 1) activate(currentIndex + 1);
@@ -237,15 +256,19 @@ export async function initPledge() {
     // 키보드: 방향키로 단계 이동 (진행 막대 포커스 상태)
     nav.addEventListener("keydown", (e) => {
         if (!["ArrowDown", "ArrowUp", "ArrowRight", "ArrowLeft"].includes(e.key)) return;
+
         e.preventDefault();
+
         const dir = e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : -1;
         const next = Math.min(steps.length - 1, Math.max(0, currentIndex + dir));
+
         activate(next);
         navBtns[next].focus();
     });
 
     // 모바일 스테퍼 '더보기': 상세 카드 하단 시트 표시
     const moreBtn = document.getElementById("s2-more");
+
     if (moreBtn) moreBtn.addEventListener("click", () => openSheet(card));
 
     // PC·모바일 화면 전환: PC 전환 시 시트 닫기(상세 카드 원위치 복원), 팝업 표시 여부 재적용

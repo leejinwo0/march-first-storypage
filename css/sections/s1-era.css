@@ -4,6 +4,7 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
 }
+
 /* 카드: 클릭 시 세계지도 해당 위치 이동 (s1-era.js) */
 .era-card {
     display: flex;
@@ -20,6 +21,7 @@
         border-color var(--dur-base) ease,
         box-shadow var(--dur-base) ease;
 }
+
 /* 제목·장소 아래 사진 배치 */
 .era-photo {
     position: relative;
@@ -31,6 +33,7 @@
     overflow: hidden;
     cursor: zoom-in;
 }
+
 .era-photo img {
     width: 100%;
     height: 100%;
@@ -40,10 +43,12 @@
         transform var(--dur-slow) var(--ease-out),
         filter var(--dur-slow) ease;
 }
+
 .era-photo:hover img {
     transform: scale(1.04);
     filter: grayscale(0.2) sepia(0.1);
 }
+
 .era-photo::after {
     content: "";
     position: absolute;
@@ -51,11 +56,13 @@
     background: linear-gradient(180deg, transparent 50%, rgba(var(--ink-rgb), 0.75));
     pointer-events: none;
 }
+
 .era-photo.is-empty {
     height: 120px;
     background: radial-gradient(circle at 50% 40%, rgba(var(--red-rgb), 0.2), transparent 70%), var(--ink);
     cursor: default;
 }
+
 .era-date {
     position: absolute;
     right: 16px;
@@ -66,10 +73,12 @@
     letter-spacing: -0.03em;
     font-variant-numeric: tabular-nums;
 }
+
 /* 모바일 전용 안내 문구 (사진 우상단) */
 .era-more {
     display: none;
 }
+
 /* 제목: 번호 + 제목 한 줄 배치 (번호 = 세계지도 마커 번호) */
 .era-title {
     display: flex;
@@ -81,6 +90,7 @@
     font-weight: 600;
     line-height: 1.45;
 }
+
 /* 카드 번호: 세계지도 마커와 같은 모양 (빨간 원 · 흰 테두리) */
 .era-num {
     display: grid;
@@ -99,12 +109,14 @@
     box-shadow: 0 0 0 3px rgba(var(--red-rgb), 0.25);
     transition: box-shadow var(--dur-base) ease;
 }
+
 /* 선택 카드 번호: 마커 선택 상태와 같은 광채 */
 .era-card.is-active .era-num {
     box-shadow:
         0 0 0 4px rgba(var(--red-rgb), 0.3),
         0 0 12px var(--accent-glow);
 }
+
 /* 영문·장소: 밝은 보조 글자 (흐린 글자 가독성 보완) */
 .era-en {
     margin: 4px 6px 0;
@@ -113,6 +125,7 @@
     font-size: var(--fs-xs);
     font-style: italic;
 }
+
 /* 설명: 밝은 본문 글자 (흐린 글자 가독성 보완) */
 .era-body {
     margin: 14px 6px 8px;
@@ -120,10 +133,12 @@
     font-size: 13px;
     line-height: 1.7;
 }
+
 /* 카드 호버 · 선택 강조 */
 .era-card:hover {
     border-color: rgba(var(--cream-rgb), 0.18);
 }
+
 .era-card.is-active {
     border-color: rgba(var(--red-rgb), 0.7);
     box-shadow:
@@ -137,11 +152,14 @@
     height: clamp(340px, 26vw, 480px);
     margin-top: 24px;
 }
-/* 마커 아이콘 상자(30px) 안 가운데 정렬 (모바일 축소 마커 대응) */
-.era-marker-wrap {
+
+/* 마커 아이콘 상자(30px) 안 가운데 정렬 (모바일 축소 마커 대응), 상자는 클릭 제외 → 보이는 원(.era-marker)만 클릭 (서울 2곳 좌우 분리 시 겹친 상자가 다른 마커 클릭을 가로채는 현상 방지), .leaflet-container 추가로 우선순위 상향 → 나중에 로드되는 스마트서울맵 CSS(Leaflet 기본 클릭 설정)에 덮어쓰기 방지 */
+.leaflet-container .leaflet-marker-icon.era-marker-wrap {
     display: grid;
     place-items: center;
+    pointer-events: none;
 }
+
 .era-marker {
     display: grid;
     place-items: center;
@@ -161,14 +179,22 @@
         scale var(--dur-base) var(--ease-out),
         box-shadow var(--dur-base) ease;
 }
+
+/* 클릭 대상: 상자(.era-marker-wrap) 대신 원 */
+.leaflet-container .era-marker {
+    pointer-events: auto;
+}
+
 /* 낮은 줌: 서울 마커 2개 좌우 분리 (--split: -1 왼쪽 / 1 오른쪽 / 0 고정) */
 .is-split .era-marker {
     translate: calc(var(--split) * 17px) 0;
 }
+
 /* 호버: 빨간색 유지, 확대만 적용 */
 .era-marker:hover {
     scale: 1.12;
 }
+
 /* 선택: 섹션2 활성 마커와 동일 (빨간 배경 · 흰 테두리 · 빨간 광채) */
 .era-marker.is-active {
     scale: 1.3;
@@ -176,35 +202,43 @@
         0 0 0 6px rgba(var(--red-rgb), 0.25),
         0 0 18px var(--accent-glow);
 }
+
 /* 장소명·날짜 상시 라벨 (base.css .place-tooltip 공용 스타일) */
 .leaflet-tooltip.era-tooltip {
     font-size: 13.5px;
     text-align: center;
 }
+
 /* 서울 2곳 라벨: 꼬리는 마커 바로 위 고정, 네모 상자만 좌우 이동 (두 라벨 겹침 방지) */
 .era-tooltip-to-right {
     --label-shift: 44px;
 }
+
 .era-tooltip-to-left {
     --label-shift: -44px;
 }
+
 .era-tooltip-to-right,
 .era-tooltip-to-left {
     margin-left: var(--label-shift);
 }
+
 /* 꼬리: 상자 이동량만큼 반대로 이동 (Leaflet 기본 margin-left -6px 기준), .leaflet-tooltip 추가로 우선순위 상향 → 나중에 로드되는 스마트서울맵 CSS(Leaflet 기본 꼬리 위치)에 덮어쓰기 방지 */
 .leaflet-tooltip.era-tooltip-to-right::before,
 .leaflet-tooltip.era-tooltip-to-left::before {
     margin-left: calc(-6px - var(--label-shift));
 }
+
 /* 도쿄 라벨: 마커 아래 배치 → 위쪽 꼬리 색상 */
 .leaflet-tooltip-bottom.era-tooltip::before {
     border-bottom-color: rgba(var(--umber-rgb), 0.94);
 }
+
 /* 확대 상태(s1-era.js .is-zoomed): 상시 라벨 숨김 → 팝업만 표시 */
 .is-zoomed .era-tooltip {
     display: none;
 }
+
 /* 라벨 둘째 줄: 날짜 */
 .era-tooltip small {
     display: block;
@@ -218,18 +252,21 @@
     margin: 12px 34px 12px 18px;
     text-align: left;
 }
+
 .era-popup .era-popup-title {
     margin: 0;
     font-size: 16px;
     font-weight: 700;
     white-space: nowrap;
 }
+
 /* Leaflet 기본 p 여백(1.3em) 재정의 */
 .era-popup .era-popup-date {
     margin: 2px 0 0;
     color: var(--text-soft);
     font-size: 13px;
 }
+
 .era-popup a.leaflet-popup-close-button {
     top: 6px;
     right: 6px;
@@ -238,9 +275,11 @@
     color: var(--muted);
     font: 20px/24px var(--font-sans);
 }
+
 .era-popup a.leaflet-popup-close-button:hover {
     color: var(--cream);
 }
+
 /* OSM 저작권 표기 (base.css 전체 숨김 재정의, 세계지도만 표시) */
 #map-s1 .leaflet-control-attribution {
     display: block !important;
@@ -251,16 +290,15 @@
     color: var(--muted);
     font-size: 10.5px;
 }
+
 #map-s1 .leaflet-control-attribution a {
     color: var(--text-soft);
 }
-/* 보기 컨트롤: 우측 상단 배치 (하단 도쿄 라벨·OSM 저작권 표기 가림 방지), 스마트서울맵 표시 중에는 현재지도/옛지도 전환 버튼 아래 */
+
+/* 보기 컨트롤: 우측 상단 배치 (하단 도쿄 라벨·OSM 저작권 표기 가림 방지) */
 .era-map .map-view-ctrl {
     top: var(--space-4);
     bottom: auto;
-}
-.era-map.is-seoul .map-view-ctrl {
-    top: 66px;
 }
 
 /* ---------- 서울 확대: 스마트서울맵 (s1-era.js 서울 지점 선택 · 서울 범위 확대 시 표시) ---------- */
@@ -268,6 +306,7 @@
 #map-s1 {
     z-index: 0;
 }
+
 .era-seoul-map {
     z-index: 1;
     opacity: 0;
@@ -276,9 +315,15 @@
         opacity var(--dur-slow) ease,
         visibility var(--dur-slow) ease;
 }
+
 .era-map.is-seoul .era-seoul-map {
     opacity: 1;
     visibility: visible;
+}
+
+/* 스마트서울맵 현재지도/옛지도 전환 버튼 숨김 (섹션1은 현재지도만 표시) */
+.era-seoul-map .custom-map-toggle {
+    display: none !important;
 }
 
 /* ---------- 반응형 ---------- */
@@ -292,17 +337,21 @@
     .era-grid {
         grid-template-columns: 1fr;
     }
+
     .era-photo {
         height: 180px;
         margin-bottom: 4px;
     }
+
     /* 카드 설명 숨김 (사진 클릭 시 확대 모달에 표시), 사진 없는 카드는 설명 유지 */
     .era-body {
         display: none;
     }
+
     .era-card:has(.era-photo.is-empty) .era-body {
         display: block;
     }
+
     .era-more {
         position: absolute;
         top: 12px;
@@ -315,29 +364,35 @@
         color: var(--cream);
         font-size: 11px;
     }
+
     /* 세계지도: PC와 같은 가로형 화면 구성 (파리~도쿄 가로폭 맞춤) */
     .era-map {
         height: auto;
         aspect-ratio: 2.4 / 1;
         margin-top: 18px;
     }
+
     .era-marker {
         width: 24px;
         height: 24px;
         font-size: 12px;
         box-shadow: 0 0 0 3px rgba(var(--red-rgb), 0.25);
     }
+
     /* 선택 팝업 축소: 낮은 지도 높이(가로:세로 2.4:1) 안에 팝업 전체 표시 */
     .era-popup .leaflet-popup-content {
         margin: 7px 28px 7px 12px;
     }
+
     .era-popup .era-popup-title {
         font-size: 14px;
     }
+
     .era-popup .era-popup-date {
         margin-top: 0;
         font-size: 12px;
     }
+
     .era-popup a.leaflet-popup-close-button {
         top: 3px;
         right: 3px;
@@ -346,15 +401,56 @@
         font-size: 18px;
         line-height: 22px;
     }
+
     /* 서울 마커 분리: 남산(1) 제자리, 대한문(2) 왼쪽 → 동쪽 도쿄(3) 마커와 겹침 방지 */
     .is-split .era-marker[data-index="0"] {
         translate: none;
     }
+
     .is-split .era-marker[data-index="1"] {
         translate: -24px 0;
     }
-    /* 세계지도 상시 라벨 숨김 (낮은 지도 높이에서 라벨 겹침) */
-    #map-s1 .era-tooltip {
+
+    /* 상시 라벨 숨김: 세계지도 · 스마트서울맵 공통 (낮은 지도 높이에서 라벨 겹침, X로 팝업 닫은 뒤 라벨이 팝업처럼 보이는 현상 방지) */
+    .era-map .era-tooltip {
         display: none;
+    }
+
+    /* 보기 컨트롤: 전체 지도 화면에서는 숨김 (낮은 지도 높이에서 지도 가림) */
+    .era-map .map-view-ctrl {
+        display: none;
+    }
+
+    /* 확대 상태: 세계지도 확대(#map-s1.is-zoomed) · 스마트서울맵 표시(.is-seoul) → 전체 보기 + 확대/축소 표시 */
+    #map-s1.is-zoomed~.map-view-ctrl,
+    .era-map.is-seoul .map-view-ctrl {
+        display: flex;
+    }
+
+    /* 보기 컨트롤 축소: 낮은 지도 높이 대응 */
+    .era-map .map-view-ctrl {
+        top: var(--space-2);
+        right: var(--space-2);
+        gap: 4px;
+        width: 68px;
+    }
+
+    .era-map .map-view-home,
+    .era-map .map-view-zoom button {
+        height: 26px;
+    }
+
+    .era-map .map-view-home {
+        gap: 4px;
+        border-radius: 9px;
+        font-size: 10.5px;
+    }
+
+    .era-map .map-view-zoom {
+        border-radius: 9px;
+    }
+
+    .era-map .map-view-zoom button {
+        font-size: 16px;
     }
 }

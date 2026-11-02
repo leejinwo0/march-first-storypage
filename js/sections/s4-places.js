@@ -24,6 +24,7 @@ const CATEGORY = {
 const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
 const FOCUS_ZOOM = 10;
 const FOCUS_ZOOM_MOBILE = 7;
+
 // 전체 보기: 최대 줌 · 균등 여백 (범례 패널이 지도 밖에 위치)
 const FIT_MAX_ZOOM = 11;
 const FIT_PADDING = [40, 40];
@@ -31,6 +32,7 @@ const FIT_PADDING = [40, 40];
 // 팝업 내용 DOM 생성: 좌측 분류 배지 · 장소명 · 주소 / 우측 [스마트서울맵]·[더보기] 세로 배치 → 설명(접힘)
 function createPopupContent(place, mapLink) {
     const el = document.createElement("div");
+
     el.className = "story-popup-inner";
     el.innerHTML = `
     <div class="popup-head">
@@ -45,6 +47,7 @@ function createPopupContent(place, mapLink) {
       </div>
     </div>
     <div class="popup-desc" hidden>${place.desc}</div>`;
+
     return el;
 }
 
@@ -65,6 +68,7 @@ export async function initPlaces() {
     const columns = { hub: document.getElementById("s4-list-hub"), site: document.getElementById("s4-list-site") };
     const filterBtns = document.querySelectorAll("#s4-filters .places-filter");
     const mapEl = document.getElementById("map-s4");
+
     if (!mapEl || !list || !columns.hub || !columns.site) return;
 
     // 옛지도: 경성대지도 (일반지도 기준 1단계 축소, 복귀 시 복원)
@@ -76,6 +80,7 @@ export async function initPlaces() {
         zoomOffset: 1,
         mapOptions: { zoomSnap: 1, doubleClickZoom: false },
     });
+
     const layers = { hub: L.layerGroup().addTo(map), site: L.layerGroup().addTo(map) };
     let defaultBounds = null;
 
@@ -95,9 +100,11 @@ export async function initPlaces() {
 
     // 선택 장소 (마커 파란색 표시 대상)
     let activePlace = null;
+
     // 마커 색상: 선택 장소 파란색 + 다른 마커 위 표시, 선택 해제 시 분류 색상 복귀
     const setPinActive = (place, on) => {
         if (!place) return;
+
         place.marker.setIcon(PIN_ICONS[place.key][on ? "active" : "normal"]);
         place.marker.setZIndexOffset(on ? 1000 : 0);
     };
@@ -121,9 +128,12 @@ export async function initPlaces() {
     const updateReset = () => {
         const base = defaultBounds ? map.getBoundsZoom(defaultBounds) : 7;
         const hasActive = !!list.querySelector(".places-item.active");
+
         mapEl.classList.toggle("is-zoomed", hasActive || map.getZoom() > base + 0.5);
     };
+
     map.on("zoomend", updateReset);
+
     // 우측 하단 전체 보기: 전체 범위 복귀 + 선택 해제
     setHomeView(() => {
         showAll();
@@ -133,10 +143,13 @@ export async function initPlaces() {
     const geojson = await fetchTimeTravelData();
 
     const places = [];
+
     geojson.features.forEach((feature) => {
         const props = feature.properties;
         const key = Object.keys(CATEGORY).find((k) => CATEGORY[k].subId === String(props.COT_THEME_SUB_ID));
+
         if (!key || !props.COT_COORD_Y || !props.COT_COORD_X) return;
+
         places.push({
             key,
             name: props.COT_CONTS_NAME || "알 수 없는 장소",
@@ -149,6 +162,7 @@ export async function initPlaces() {
 
     const hubCount = places.filter((p) => p.key === "hub").length;
     const siteCount = places.filter((p) => p.key === "site").length;
+
     setStat("hub", hubCount);
     setStat("site", siteCount);
     setStat("place-total", hubCount + siteCount);
@@ -158,7 +172,9 @@ export async function initPlaces() {
     // 1. 목록 + 마커 생성
     places.forEach((place) => {
         const mapLink = `https://map.seoul.go.kr/smgis2/poiViewMap?ti=11100550&pi=${place.poiId}&lang=ko`;
+
         place.marker = L.marker(place.latlng, { icon: PIN_ICONS[place.key].normal });
+
         // 호버 툴팁: 장소명 (핀 위쪽)
         place.marker.bindTooltip(place.name, { className: "place-tooltip", direction: "top", offset: [0, -34] });
 
@@ -171,17 +187,22 @@ export async function initPlaces() {
             moreBtn.textContent = open ? "접기" : "더보기";
             moreBtn.setAttribute("aria-expanded", String(open));
         };
+
         moreBtn.addEventListener("click", () => {
             // 모바일: 하단 시트로 상세 표시
             if (MOBILE_QUERY.matches) {
                 openSheet(createSheetContent(place, mapLink));
                 return;
             }
+
             setDesc(descEl.hidden);
+
             // 높이 변경 후 팝업 위치 재계산
             const popup = place.marker.getPopup();
+
             if (popup) popup.update();
         });
+
         place.marker.bindPopup(popupEl, {
             className: "story-popup",
             maxWidth: 420,
@@ -191,6 +212,7 @@ export async function initPlaces() {
             autoPanPaddingTopLeft: [12, 60],
             autoPanPaddingBottomRight: [12, 12],
         });
+
         // 팝업 열릴 때 설명 접힘 상태로 초기화, 툴팁 숨김
         place.marker.on("popupopen", () => {
             setDesc(false);
@@ -199,6 +221,7 @@ export async function initPlaces() {
 
         // 분류별 열(좌 중요 지점 / 우 시위 장소)에 항목 추가
         const li = document.createElement("li");
+
         li.className = `places-item places-item-${place.key}`;
         li.innerHTML = `<button type="button"><i class="legend-dot legend-${place.key}"></i>${place.name}</button>`;
         columns[place.key].appendChild(li);
@@ -213,10 +236,13 @@ export async function initPlaces() {
                 } else {
                     place.marker.openPopup();
                 }
+
                 return;
             }
+
             // 필터 OFF 상태면 해당 레이어 재활성화
             const btn = document.querySelector(`#s4-filters [data-filter="${place.key}"]`);
+
             if (btn && !btn.classList.contains("is-on")) toggleFilter(btn, true);
 
             list.querySelectorAll(".places-item").forEach((item) => item.classList.remove("active"));
@@ -232,22 +258,27 @@ export async function initPlaces() {
             // 팝업 공간 확보용 Y 오프셋: 지도 높이의 10% (최대 120px) → 마커를 중앙보다 약간 아래 배치, 옛지도 표시 중이면 1단계 축소 줌 적용 (zoomFor)
             const zoom = zoomFor(MOBILE_QUERY.matches ? FOCUS_ZOOM_MOBILE : FOCUS_ZOOM);
             const point = map.project(place.latlng, zoom);
+
             point.y -= Math.min(120, mapEl.clientHeight * 0.1);
 
             // 팝업은 지도 이동 완료 후 열기 (이동 애니메이션 중 팝업 autoPan 실행 시 줌 애니메이션 중단 → 타일 미표시 회색 화면 발생)
             place.marker.closePopup();
+
             let opened = false;
             const openAfterMove = () => {
                 if (opened) return;
+
                 opened = true;
                 place.marker.openPopup();
             };
+
             map.once("moveend", openAfterMove);
             setTimeout(openAfterMove, 1000); // 이동 없음(moveend 미발생) 대비
             map.setView(map.unproject(point, zoom), zoom, { animate: true, duration: 0.8 });
         };
 
         li.querySelector("button").addEventListener("click", activate);
+
         // 마커 클릭: Leaflet 기본 즉시 팝업 열림 해제 후 activate에서 이동 완료 시점에 열기
         place.marker.off("click", place.marker._openPopup, place.marker);
         place.marker.on("click", activate);
@@ -257,27 +288,37 @@ export async function initPlaces() {
     function toggleFilter(btn, force) {
         const key = btn.dataset.filter;
         const on = typeof force === "boolean" ? force : !btn.classList.contains("is-on");
+
         btn.classList.toggle("is-on", on);
         btn.setAttribute("aria-pressed", String(on));
+
         if (on) map.addLayer(layers[key]);
         else map.removeLayer(layers[key]);
+
         // 목록 열: 숨기지 않고 흐리게 표시 (항목 클릭 시 필터 자동 재활성화)
         columns[key].classList.toggle("is-off", !on);
+
         if (on) return;
+
         columns[key].querySelectorAll(".places-item").forEach((li) => li.classList.remove("active"));
+
         // 꺼진 분류의 선택 장소: 마커 색상 복귀
         if (activePlace && activePlace.key === key) clearActivePin();
     }
+
     filterBtns.forEach((btn) => btn.addEventListener("click", () => toggleFilter(btn)));
 
     // 3. 섹션 진입 시 전체 보기 + 마커 순차 표시 (1회)
     new IntersectionObserver(
         (entries, observer) => {
             if (!entries.some((e) => e.isIntersecting)) return;
+
             observer.disconnect();
             map.invalidateSize();
             fitAll(false);
+
             const delay = { hub: 0, site: 0 };
+
             places.forEach((place) => {
                 setTimeout(() => place.marker.addTo(layers[place.key]), delay[place.key]);
                 delay[place.key] += 120;

@@ -13,6 +13,7 @@ if (!MAP_API_KEY || !THEMA_API_KEY) {
 }
 
 const config = { MAP_API_KEY, THEMA_API_KEY };
+
 writeFileSync(
     "services/config.js",
     `const CONFIG = ${JSON.stringify(config)};\n`,

@@ -21,10 +21,12 @@ export function initGlobalUI() {
     // 모바일 가로 스크롤 메뉴: 활성 링크를 메뉴 가운데로 이동 (페이지 세로 스크롤 영향 없음)
     const centerActiveLink = (link) => {
         if (!navMenu || navMenu.scrollWidth <= navMenu.clientWidth) return;
+
         const menuRect = navMenu.getBoundingClientRect();
         const linkRect = link.getBoundingClientRect();
         const target = navMenu.scrollLeft + (linkRect.left - menuRect.left) - (menuRect.width - linkRect.width) / 2;
         const left = Math.max(0, Math.min(target, navMenu.scrollWidth - navMenu.clientWidth));
+
         if (typeof navMenu.scrollTo === "function") navMenu.scrollTo({ left, behavior: "smooth" });
         else navMenu.scrollLeft = left;
     };
@@ -34,13 +36,17 @@ export function initGlobalUI() {
         const mid = window.innerHeight / 2;
         const current = sections.find((sec) => {
             const r = sec.getBoundingClientRect();
+
             return r.top <= mid && r.bottom >= mid;
         });
         const id = current ? current.getAttribute("data-section") : null;
+
         if (id === activeSection) return;
+
         activeSection = id;
         navLinks.forEach((link) => {
             const on = link.getAttribute("data-target-section") === id;
+
             link.classList.toggle("active", on);
             if (on) centerActiveLink(link);
         });
@@ -48,10 +54,12 @@ export function initGlobalUI() {
 
     // 스크롤 시 프레임당 1회만 활성 표시 갱신
     let navTicking = false;
+
     window.addEventListener(
         "scroll",
         () => {
             if (navTicking) return;
+
             navTicking = true;
             requestAnimationFrame(() => {
                 updateActive();
@@ -60,23 +68,28 @@ export function initGlobalUI() {
         },
         { passive: true },
     );
+
     window.addEventListener("resize", () => {
         activeSection = null;
         updateActive();
     });
+
     updateActive();
 
     // 스크롤 80px 이후 내비 배경 진하게, 300px 이후 TOP 버튼 표시
     const backToTopBtn = document.getElementById("backToTopBtn");
+
     window.addEventListener(
         "scroll",
         () => {
             const y = window.scrollY;
+
             if (topNav) topNav.classList.toggle("is-scrolled", y > 80);
             if (backToTopBtn) backToTopBtn.classList.toggle("show", y > 300);
         },
         { passive: true },
     );
+
     if (backToTopBtn) {
         backToTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
     }
@@ -86,12 +99,14 @@ export function initGlobalUI() {
         (entries, observer) => {
             entries.forEach((entry) => {
                 if (!entry.isIntersecting) return;
+
                 entry.target.classList.add("is-visible");
                 observer.unobserve(entry.target);
             });
         },
         { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
     );
+
     document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
 }
 
@@ -103,6 +118,7 @@ export function initGlobalModal() {
     const modal = document.getElementById("image-modal");
     const modalImg = document.getElementById("img-in-modal");
     const caption = document.getElementById("caption-modal");
+
     if (!modal || !modalImg || !caption) return;
 
     // options.full: 전체 화면 모드 (화면 폭 기준 이미지 + 바로 아래 캡션, 세로 가운데 정렬)
@@ -122,7 +138,9 @@ export function initGlobalModal() {
 
     // 닫기: 닫기 버튼 · 배경 클릭 · Esc
     const closeBtn = modal.querySelector(".close-modal");
+
     if (closeBtn) closeBtn.addEventListener("click", close);
+
     modal.addEventListener("click", (e) => {
         if (e.target === modal) close();
     });
@@ -145,11 +163,15 @@ export function setStat(key, value) {
 ======================================================= */
 export function getInitialConsonant(word) {
     if (!word) return "";
+
     const consonants = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
     const code = word.charCodeAt(0);
+
     if (code < 44032 || code > 55203) return "";
+
     const cho = consonants[Math.floor((code - 44032) / 588)];
     const mapDouble = { ㄲ: "ㄱ", ㄸ: "ㄷ", ㅃ: "ㅂ", ㅆ: "ㅅ", ㅉ: "ㅈ" };
+
     return mapDouble[cho] || cho;
 }
 
@@ -160,14 +182,17 @@ export function getInitialConsonant(word) {
 ======================================================= */
 export function toAbsoluteUrl(url) {
     const value = String(url || "").trim();
+
     if (!value || value === "null") return "";
     if (value.startsWith("http://map.seoul.go.kr")) return value.replace("http://", "https://");
     if (value.startsWith("http")) return value;
+
     return "https://map.seoul.go.kr" + (value.startsWith("/") ? "" : "/") + value;
 }
 
 export function toSafeImageUrl(url) {
     const abs = toAbsoluteUrl(url);
+
     return abs.startsWith("http://") ? "https://images.weserv.nl/?url=" + encodeURIComponent(abs) : abs;
 }
 
@@ -175,20 +200,25 @@ export function toSafeImageUrl(url) {
 export function getImageCandidates(props) {
     const list = ["COT_IMG_MAIN_URL1", "COT_IMG_MAIN_URL2", "COT_IMG_MAIN_URL3", "COT_IMG_MAIN_URL4"].map((key) => toAbsoluteUrl(props[key]));
     const main = toAbsoluteUrl(props.COT_IMG_MAIN_URL);
+
     if (main.startsWith("http://")) list.push("https://images.weserv.nl/?url=" + encodeURIComponent(main));
     list.push(main);
+
     return [...new Set(list.filter(Boolean))];
 }
 
 // <img>에 후보 URL 순차 적용, 전체 실패(404 등) 시 onFail 호출
 export function attachImageFallback(img, candidates, onFail) {
     let index = 0;
+
     img.addEventListener("error", () => {
         index++;
+
         if (index < candidates.length) {
             img.src = candidates[index];
             return;
         }
+
         if (onFail) onFail(img);
         else img.hidden = true;
     });
@@ -206,6 +236,7 @@ let sheetRestore = null;
 
 function ensureSheet() {
     if (sheet) return sheet;
+
     sheet = document.createElement("div");
     sheet.className = "info-sheet";
     sheet.hidden = true;
@@ -218,30 +249,38 @@ function ensureSheet() {
       <div class="info-sheet-body"></div>
     </div>`;
     document.body.appendChild(sheet);
+
     sheet.querySelector(".info-sheet-backdrop").addEventListener("click", closeSheet);
     sheet.querySelector(".info-sheet-close").addEventListener("click", closeSheet);
     document.addEventListener("keydown", (e) => {
         const imageModalOpen = document.querySelector(".global-modal.is-open");
+
         if (e.key === "Escape" && !sheet.hidden && !imageModalOpen) closeSheet();
     });
+
     return sheet;
 }
 
 export function openSheet(content) {
     const el = ensureSheet();
     const body = el.querySelector(".info-sheet-body");
+
     closeSheet();
+
     if (typeof content === "string") {
         body.innerHTML = content;
     } else if (content) {
         // 기존 요소: 자리 표시 주석으로 원래 위치 기록
         if (content.isConnected) {
             const marker = document.createComment("sheet-placeholder");
+
             content.before(marker);
             sheetRestore = () => marker.replaceWith(content);
         }
+
         body.replaceChildren(content);
     }
+
     el.hidden = false;
     body.scrollTop = 0;
     document.documentElement.classList.add("is-sheet-open");
@@ -250,11 +289,14 @@ export function openSheet(content) {
 
 export function closeSheet() {
     if (!sheet || sheet.hidden) return;
+
     sheet.hidden = true;
     document.documentElement.classList.remove("is-sheet-open");
+
     if (sheetRestore) {
         sheetRestore();
         sheetRestore = null;
     }
+
     sheet.querySelector(".info-sheet-body").replaceChildren();
 }

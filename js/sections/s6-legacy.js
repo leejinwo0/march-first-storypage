@@ -43,6 +43,7 @@ export function initLegacy() {
         head.addEventListener("click", () => {
             const item = head.closest(".legacy-item");
             const open = !item.classList.contains("is-open");
+
             item.classList.toggle("is-open", open);
             head.setAttribute("aria-expanded", String(open));
         });

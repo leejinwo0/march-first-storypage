@@ -21,6 +21,7 @@ export const HISTORICAL_MAPS = {
 
 /* ---------- 2. API 주소 ---------- */
 const OPENAPI = "https://map.seoul.go.kr/openapi/v5";
+
 // 테마 콘텐츠 목록 조회 주소 (전체 건수 · 전체 범위 조회)
 const themeUrl = (themeId) => `${OPENAPI}/${CONFIG.THEMA_API_KEY}/public/themes/contents/ko?page_size=999&page_no=1&coord_x=126.974695&coord_y=37.564150&distance=999999&search_type=0&search_name=&theme_id=${themeId}&content_id=&subcate_id=`;
 
@@ -43,6 +44,7 @@ function transformToGeoJSON(apiData) {
         if (item.COT_COORD_DATA && item.COT_COORD_DATA !== "[]") {
             try {
                 const parsedPath = JSON.parse(item.COT_COORD_DATA);
+
                 if (Array.isArray(parsedPath) && Array.isArray(parsedPath[0])) {
                     geomType = "LineString";
                     coords = parsedPath;
@@ -67,7 +69,9 @@ function transformToGeoJSON(apiData) {
 async function fetchTheme(url, label) {
     try {
         const response = await fetch(url);
+
         if (!response.ok) throw new Error(`${label} 테마 API 통신 에러`);
+
         return transformToGeoJSON(await response.json());
     } catch (error) {
         console.error("데이터 로드 실패:", error);

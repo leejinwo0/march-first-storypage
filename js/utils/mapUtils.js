@@ -14,6 +14,7 @@ import { MAP_ENDPOINTS, HISTORICAL_MAPS } from "/services/mapService.js";
 
 // 옛지도 전환 버튼 이름 (경성대지도 · 근세 지형도 공통)
 const HISTORICAL_LABEL = "옛지도";
+
 // 사용 가능한 옛지도 종류 (HISTORICAL_MAPS 레이어 키)
 const HISTORICAL_KEYS = ["gyeongseong", "modernKorea"];
 
@@ -34,20 +35,24 @@ export function loadSeoulMapAPI() {
         const base = `https://map.seoul.go.kr/openapi/v5/${key}/public/map`;
 
         const link = document.createElement("link");
+
         link.rel = "stylesheet";
         link.href = `${base}/css/5.0`;
         document.head.appendChild(link);
 
         const mainScript = document.createElement("script");
+
         mainScript.src = `${base}/js/5.0`;
         mainScript.onerror = () => reject(new Error("서울맵 V5 메인 스크립트 로드 실패"));
         mainScript.onload = () => {
             const crsScript = document.createElement("script");
+
             crsScript.src = `${base}/base/js/5179/5.0`;
             crsScript.onload = () => resolve();
             crsScript.onerror = () => reject(new Error("좌표계 스크립트 로드 실패"));
             document.head.appendChild(crsScript);
         };
+
         document.head.appendChild(mainScript);
     });
 }
@@ -61,10 +66,12 @@ export function addMapToggleControl(map, baseMapLayer, secondaryMapLayer, second
         options: { position: "topright" },
         onAdd() {
             const container = L.DomUtil.create("div", "custom-map-toggle");
+
             container.innerHTML = `
         <span class="map-type-label active" data-type="base">현재지도</span>
         <span class="map-type-label" data-type="secondary">${secondaryLabel}</span>
       `;
+
             const baseLabel = container.querySelector('[data-type="base"]');
             const secondaryLabelEl = container.querySelector('[data-type="secondary"]');
             let isSecondary = false;
@@ -83,6 +90,7 @@ export function addMapToggleControl(map, baseMapLayer, secondaryMapLayer, second
             return container;
         },
     });
+
     map.addControl(new ToggleControl());
 }
 
@@ -94,12 +102,13 @@ export function addMapToggleControl(map, baseMapLayer, secondaryMapLayer, second
    - 최대·최소 줌 도달 시 해당 버튼 비활성
 ======================================================= */
 export function addMapViewControl(map, options = {}) {
-    const onHome = options.onHome || (() => {});
+    const onHome = options.onHome || (() => { });
     const onStep = options.onStep || ((dir) => (dir > 0 ? map.zoomIn() : map.zoomOut()));
     const container = map.getContainer();
     const frame = container.parentElement || container;
 
     const control = document.createElement("div");
+
     control.className = "map-view-ctrl";
     control.innerHTML = `
         <button type="button" class="map-view-home" aria-label="전체 보기"><span class="icon icon-expand" aria-hidden="true"></span>전체 보기</button>
@@ -111,15 +120,18 @@ export function addMapViewControl(map, options = {}) {
 
     const zoomInBtn = control.querySelector('[data-step="1"]');
     const zoomOutBtn = control.querySelector('[data-step="-1"]');
+
     control.querySelector(".map-view-home").addEventListener("click", () => onHome());
     [zoomInBtn, zoomOutBtn].forEach((btn) => btn.addEventListener("click", () => onStep(Number(btn.dataset.step))));
 
     // 줌 한계 도달 시 버튼 비활성 (줌 변경 · 레이어 전환 시 갱신)
     const updateDisabled = () => {
         const zoom = map.getZoom();
+
         zoomInBtn.disabled = zoom >= map.getMaxZoom();
         zoomOutBtn.disabled = zoom <= map.getMinZoom();
     };
+
     map.on("zoomend layeradd layerremove", updateDisabled);
     map.whenReady(updateDisabled);
 
@@ -193,8 +205,10 @@ export function createStoryMap(containerId, options = {}) {
         const offset = map.hasLayer(historicalLayer) ? zoomOffset : 0;
         const baseZoom = map.getZoom() + offset;
         const next = dir > 0 ? Math.floor(baseZoom + 0.01) + 1 : Math.ceil(baseZoom - 0.01) - 1;
+
         map.setZoom(next - offset, { animate: false });
     };
+
     const viewControl = addMapViewControl(map, { onHome: () => homeView(), onStep: stepZoom });
 
     return { map, zoomFor, setHomeView, viewControl };
@@ -211,24 +225,30 @@ const CURVE_FORWARD_SEGMENTS = [0, 1, 4]; // 정방향으로 휘는 구간 번�
 
 export function generateCurvedPath(coords) {
     if (coords.length < 2) return coords;
+
     const curved = [];
+
     for (let i = 0; i < coords.length - 1; i++) {
         const [lat1, lng1] = coords[i];
         const [lat2, lng2] = coords[i + 1];
         const midLat = (lat1 + lat2) / 2;
         const midLng = (lng1 + lng2) / 2;
         const direction = CURVE_FORWARD_SEGMENTS.includes(i) ? 1 : -1;
+
         // 제어점: 두 지점 중간에서 수직 방향으로 이동
         const cpLat = midLat - (lng2 - lng1) * CURVE_INTENSITY * direction;
         const cpLng = midLng + (lat2 - lat1) * CURVE_INTENSITY * direction;
 
         for (let step = 0; step <= CURVE_STEPS; step++) {
             if (i > 0 && step === 0) continue; // 구간 연결점 중복 제외
+
             const t = step / CURVE_STEPS;
             const lat = (1 - t) * (1 - t) * lat1 + 2 * (1 - t) * t * cpLat + t * t * lat2;
             const lng = (1 - t) * (1 - t) * lng1 + 2 * (1 - t) * t * cpLng + t * t * lng2;
+
             curved.push([lat, lng]);
         }
     }
+
     return curved;
 }

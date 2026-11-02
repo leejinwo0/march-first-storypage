@@ -5,6 +5,7 @@ export function initHero() {
     document.querySelectorAll(".js-doc-zoom").forEach((el) => {
         el.addEventListener("click", () => {
             if (typeof window.openGlobalModal !== "function") return;
+
             window.openGlobalModal(DOC_IMG, "기미독립선언서<br><small>1919년 3월 1일 · 서울역사편찬원</small>", { full: true });
         });
     });
