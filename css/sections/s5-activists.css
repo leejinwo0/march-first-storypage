@@ -135,7 +135,7 @@
     border-top: 1px solid var(--sheet-line);
 }
 
-.profile-info>div {
+.profile-info > div {
     display: grid;
     grid-template-columns: 70px 1fr;
     gap: 12px;
@@ -262,8 +262,14 @@
     font-size: 13px;
 }
 
-.consonant-chip:hover {
+.consonant-chip:hover:not(:disabled) {
     color: var(--cream);
+}
+
+/* 해당 초성 인물 없음: 클릭 비활성 */
+.consonant-chip:disabled {
+    opacity: 0.3;
+    cursor: default;
 }
 
 .consonant-chip[aria-pressed="true"] {

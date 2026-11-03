@@ -10,6 +10,8 @@
 // 확대 상태: 호버 툴팁 미표시, 선택 장소 재클릭 시 팝업 표시 중이면 전체 보기 / 닫힌 상태면 팝업 재표시
 // 우측 하단 보기 컨트롤: 전체 보기(선택 해제 + 전체 범위 복귀) + 확대/축소 (mapUtils.js)
 // 모바일(1024px 이하): 팝업에 분류·장소명·더보기만 표시, 더보기 클릭 시 하단 시트로 상세(주소·설명·스마트서울맵) 표시
+// 지도 이동: 줌 변경 시 애니메이션 미사용 (스마트서울맵 타일 다단계 줌 애니메이션 중 검은 화면 발생), 같은 줌 이동만 애니메이션 적용
+// 장소 선택 줌: 확대 줌보다 확대된 상태면 현재 줌 유지 + 중심만 이동
 import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
 import { setStat, openSheet } from "/js/utils/uiUtils.js";
@@ -83,7 +85,7 @@ export async function initPlaces() {
     if (!mapEl || !list || !columns.hub || !columns.site) return;
 
     // 옛지도: 경성대지도 (일반지도와 동일 줌)
-    // 정수 줌 고정: 소수 줌 단계에서 기본지도 타일 미표시 방지 / 더블클릭 확대 비활성: 마커 연속 클릭 시 추가 확대 방지 (장소 확대는 FOCUS_ZOOM 고정)
+    // 정수 줌 고정: 소수 줌 단계에서 기본지도 타일 미표시 방지 / 더블클릭 확대 비활성: 마커 연속 클릭 시 추가 확대 방지 (장소 확대는 FOCUS_ZOOM 이상 유지)
     const { map, setHomeView } = createStoryMap("map-s4", {
         center: [37.5586, 126.9369],
         zoom: 7,
@@ -136,7 +138,11 @@ export async function initPlaces() {
 
     // 전체 보기: 모든 장소 범위 맞춤 + 팝업 닫기 + 목록 선택 해제 + 마커 색상 복귀
     const fitAll = (animate) => {
-        if (defaultBounds) map.fitBounds(defaultBounds, { padding: FIT_PADDING, maxZoom: FIT_MAX_ZOOM, animate });
+        if (!defaultBounds) return;
+
+        const zoom = Math.min(map.getBoundsZoom(defaultBounds, false, L.point(FIT_PADDING[0] * 2, FIT_PADDING[1] * 2)), FIT_MAX_ZOOM);
+
+        map.fitBounds(defaultBounds, { padding: FIT_PADDING, maxZoom: FIT_MAX_ZOOM, animate: animate && map.getZoom() === zoom });
     };
     const showAll = () => {
         fitAll(true);
@@ -276,8 +282,10 @@ export async function initPlaces() {
             setPinActive(place, true);
             updateReset();
 
-            // 팝업 공간 확보용 Y 오프셋: 지도 높이의 10% (최대 120px) → 마커를 중앙보다 약간 아래 배치, 옛지도 표시 중이면 1단계 축소
-            const zoom = (MOBILE_QUERY.matches ? FOCUS_ZOOM_MOBILE : FOCUS_ZOOM) - (isHistorical() ? HISTORICAL_FOCUS_OFFSET : 0);
+            // 이동 줌: 확대 줌(옛지도 표시 중이면 1단계 축소)보다 현재 줌이 크면 현재 줌 유지
+            const focusZoom = (MOBILE_QUERY.matches ? FOCUS_ZOOM_MOBILE : FOCUS_ZOOM) - (isHistorical() ? HISTORICAL_FOCUS_OFFSET : 0);
+            const zoom = Math.max(map.getZoom(), focusZoom);
+            // 팝업 공간 확보용 Y 오프셋: 지도 높이의 10% (최대 120px) → 마커를 중앙보다 약간 아래 배치
             const point = map.project(place.latlng, zoom);
 
             point.y -= Math.min(120, mapEl.clientHeight * 0.1);
@@ -295,7 +303,7 @@ export async function initPlaces() {
 
             map.once("moveend", openAfterMove);
             setTimeout(openAfterMove, 1000); // 이동 없음(moveend 미발생) 대비
-            map.setView(map.unproject(point, zoom), zoom, { animate: true, duration: 0.8 });
+            map.setView(map.unproject(point, zoom), zoom, { animate: map.getZoom() === zoom, duration: 0.8 });
         };
 
         li.querySelector("button").addEventListener("click", activate);

@@ -9,6 +9,9 @@
 // 전체 보기 버튼: 인물 선택 상태 또는 기본 줌보다 확대된 상태에서 표시
 // 우측 하단 보기 컨트롤: 전체 보기(선택 해제 + 전체 범위 복귀) + 확대/축소 (mapUtils.js)
 // 지도 크기 변경(모바일 배치 전환 등) 시 선택 인물 없으면 전체 보기 재적용
+// 지도 이동: 줌 변경 시 애니메이션 미사용 (스마트서울맵 타일 다단계 줌 애니메이션 중 검은 화면 발생), 같은 줌 이동만 애니메이션 적용
+// 인물 선택 줌: FOCUS_ZOOM보다 확대된 상태면 현재 줌 유지 + 중심만 이동
+// 초성 칩: 해당 초성 인물이 없는 칩은 비활성(disabled)
 import { fetchDailyLifeData, MAP_ENDPOINTS } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
 import { getInitialConsonant, setStat, toSafeImageUrl } from "/js/utils/uiUtils.js";
@@ -16,7 +19,7 @@ import { getInitialConsonant, setStat, toSafeImageUrl } from "/js/utils/uiUtils.
 // 초성 필터 칩 목록 (쌍자음은 기본 자음으로 통합: uiUtils.js getInitialConsonant)
 const CONSONANTS = ["ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
 
-// 전체 보기 최대 줌 / 인물 선택 시 줌
+// 전체 보기 최대 줌 / 인물 선택 시 최소 줌
 const DEFAULT_MAX_ZOOM = 10;
 const FOCUS_ZOOM = 10;
 
@@ -57,10 +60,14 @@ async function fetchDetail(poiId) {
         return direct && direct !== "null" && String(direct).trim() ? direct : "";
     };
     const detail = {
-        sinbun: pick("신분", "COT_VALUE_02"),
-        sagun: pick("사건개요", "COT_VALUE_03"),
-        pangyul: pick("판결날", "COT_VALUE_04"),
-        joemyung: pick("죄명", "COT_VALUE_05"),
+        sinbun_key: pick("sinbun_key", "COT_NAME_02"),
+        sinbun_value: pick("sinbun_value", "COT_VALUE_02"),
+        sagun_key: pick("sagun_key", "COT_NAME_03"),
+        sagun_value: pick("sagun_value", "COT_VALUE_03"),
+        pangyul_key: pick("pangyul_key", "COT_NAME_04"),
+        pangyul_value: pick("pangyul_value", "COT_VALUE_04"),
+        joemyung_key: pick("joemyung_key", "COT_NAME_05"),
+        joemyung_value: pick("joemyung_value", "COT_VALUE_05"),
         cardUrl: toCardUrl(d.COT_EXTRA_DATA_02 || d.EXTRA_DATA_02),
     };
 
@@ -120,7 +127,11 @@ export async function initActivists() {
 
     const defaultBounds = people.length ? L.latLngBounds(people.map((p) => p.latlng)) : null;
     const showAll = (animate = true) => {
-        if (defaultBounds) map.fitBounds(defaultBounds, { padding: [40, 40], maxZoom: DEFAULT_MAX_ZOOM, animate });
+        if (defaultBounds) {
+            const zoom = Math.min(map.getBoundsZoom(defaultBounds, false, L.point(80, 80)), DEFAULT_MAX_ZOOM);
+
+            map.fitBounds(defaultBounds, { padding: [40, 40], maxZoom: DEFAULT_MAX_ZOOM, animate: animate && map.getZoom() === zoom });
+        }
         map.closePopup();
     };
 
@@ -135,10 +146,10 @@ export async function initActivists() {
         if (detail.error) return '<p class="status-text">상세 정보를 불러올 수 없습니다.</p>';
 
         const items = [
-            ["신분", detail.sinbun],
-            ["사건 개요", detail.sagun],
-            ["판결일", detail.pangyul],
-            ["죄명", detail.joemyung],
+            [detail.sinbun_key, detail.sinbun_value],
+            [detail.sagun_key, detail.sagun_value],
+            [detail.pangyul_key, detail.pangyul_value],
+            [detail.joemyung_key, detail.joemyung_value],
         ].filter(([, v]) => v);
 
         if (!items.length) return '<p class="status-text">등록된 상세 정보가 없습니다.</p>';
@@ -205,7 +216,11 @@ export async function initActivists() {
         setPinActive(person, true);
         people.forEach((p) => p.card.classList.toggle("active", p === person));
         person.card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-        map.setView(person.latlng, FOCUS_ZOOM, { animate: true });
+
+        // 이동 줌: 현재 줌이 FOCUS_ZOOM보다 크면 현재 줌 유지, 줌 변경 없을 때만 이동 애니메이션 적용
+        const zoom = Math.max(map.getZoom(), FOCUS_ZOOM);
+
+        map.setView(person.latlng, zoom, { animate: map.getZoom() === zoom });
         person.marker.openPopup();
         updateReset();
 
@@ -261,8 +276,10 @@ export async function initActivists() {
 
     if (people.length === 0) rail.innerHTML = '<p class="status-text">인물 정보를 불러올 수 없습니다.</p>';
 
-    // 2. 초성 필터 칩 (ㄱ~ㅎ 14종 전체 생성)
-    filterBar.innerHTML = ["all", ...CONSONANTS].map((c) => `<button type="button" class="consonant-chip" data-filter="${c}" aria-pressed="${c === "all"}">${c === "all" ? "전체" : c}</button>`).join("");
+    // 2. 초성 필터 칩 (ㄱ~ㅎ 14종 전체 생성, 해당 초성 인물 없는 칩은 disabled)
+    const initials = new Set(people.map((p) => p.initial));
+
+    filterBar.innerHTML = ["all", ...CONSONANTS].map((c) => `<button type="button" class="consonant-chip" data-filter="${c}" aria-pressed="${c === "all"}"${c !== "all" && !initials.has(c) ? " disabled" : ""}>${c === "all" ? "전체" : c}</button>`).join("");
 
     let activeFilter = "all";
 
