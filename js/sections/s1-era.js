@@ -4,12 +4,16 @@
 // 세계지도: OpenStreetMap 타일, 카드 4곳 번호 마커 + 장소명·주소 상시 라벨 (PC) (서울 2곳 상자 좌우 분리·꼬리 마커 위, 도쿄 아래 배치, 모바일 미표시)
 // 마커·카드 클릭: 해당 위치 확대 + 카드·마커 강조(빨간색), 선택된 카드·마커 재클릭 시 팝업 표시 중이면 선택 해제 + 전체 보기 복귀 / 팝업 닫힌 상태면 팝업만 다시 표시
 // 선택 팝업(장소명 + 주소, 모바일은 장소명만): 지도 클릭 시 유지, 우측 상단 X 클릭 시 팝업만 닫힘 (확대·선택 유지)
-// 확대 상태(전체 보기 줌 초과): 상시 라벨 숨김 / 전체 보기 축척: 서울 마커 2개(남산·대한문) 좌우 분리 표시
+// 확대 상태(전체 보기 줌 초과): 상시 라벨 숨김 + 보기 컨트롤 표시 (전체 보기 화면에서는 보기 컨트롤 숨김, PC·모바일 공통) / 전체 보기 축척: 서울 마커 2개(남산·대한문) 좌우 분리 표시
+// 전체 보기 줌 이하로 축소 시 처음 화면(선택 해제 + 전체 보기) 복귀
 // 서울 확대: 서울 지점(1·2번) 선택 또는 서울 범위 확대 시 스마트서울맵(현재지도만, 옛지도 전환 버튼 숨김, 상시 라벨 없음)으로 전환, 일정 줌 미만 축소·전체 보기 시 세계지도 복귀
 // 우측 상단 보기 컨트롤: 전체 보기(선택 해제 + 세계지도 전체 범위 복귀) + 확대/축소 (mapUtils.js), OSM 저작권 표기는 우측 하단
-// 모바일(560px 이하): 카드 설명 숨김, 사진 클릭 시 확대 모달에 설명 함께 표시, 선택 마커를 지도 아래쪽(76% 지점)에 배치 + 팝업 축소 (세계지도·스마트서울맵 공통), 보기 컨트롤은 확대 상태에서만 축소 표시
+// 모바일(560px 이하): 카드 설명 숨김, 선택 마커를 지도 아래쪽(76% 지점)에 배치 + 팝업 축소 (세계지도·스마트서울맵 공통), 보기 컨트롤 축소 표시
+// 모바일 확대·축소 범위: 장소 선택 줌 기준 ±3단계 (선택 해제·다른 장소 선택 시 해제)
+// 모바일 사진 클릭: 확대 모달에 제목 → 위치(장소명·주소) → 상세 지도(서울 1·2번 스마트서울맵 / 3·4번 OSM, 처음 줌 기준 -4단계까지 확대/축소 버튼) → 사진 → 설명 순 표시, 모달 닫힘 시 지도 제거
 import { S1_ERA } from "/js/data/history-data.js";
 import { addMapViewControl, createStoryMap } from "/js/utils/mapUtils.js";
+import { MAP_ENDPOINTS } from "/services/mapService.js";
 
 // 마커·카드 클릭 시 장소 확대 줌
 const FOCUS_ZOOM = 15;
@@ -45,6 +49,14 @@ const SEOUL_VIEW_ZOOM = 8;
 const SEOUL_EXIT_ZOOM = 6;
 // 모바일 선택 마커 세로 위치 보정: 지도 높이의 26% 아래로 이동 (중앙 50% → 76%, 위쪽 팝업 공간 확보)
 const MOBILE_MARKER_SHIFT = 0.26;
+// 모바일 확대·축소 허용 범위: 장소 선택 줌 기준 ±단계
+const MOBILE_ZOOM_RANGE = 3;
+// 오픈스트리트맵 타일 · 저작권 표기 (세계지도 · 모바일 모달 상세 지도 3·4번 공통)
+const OSM_TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>';
+// 모바일 모달 상세 지도 (모달 닫힘 시 제거), 축소 허용 범위: 처음 줌 기준 -단계 (처음 줌 초과 확대 불가)
+let modalMap = null;
+const MODAL_ZOOM_RANGE = 4;
 
 /* ---------- 1. 카드 4종 렌더링 + 사진 확대 ---------- */
 export function initEra() {
@@ -65,21 +77,94 @@ export function initEra() {
       </article>`,
     ).join("");
 
-    // 사진 클릭: 확대 모달 (사진 로드 실패 카드 제외)
+    // 사진 클릭: 확대 모달 (사진 로드 실패 카드 제외), 모바일은 상세 지도 포함 모달
     grid.querySelectorAll(".era-photo").forEach((btn) => {
         btn.addEventListener("click", () => {
             if (typeof window.openGlobalModal !== "function" || btn.classList.contains("is-empty")) return;
-            const item = S1_ERA[Number(btn.dataset.index)];
-            // 모바일: 카드에서 숨긴 설명을 캡션 아래 표시
-            const detail = MOBILE_QUERY.matches ? `<span class="modal-desc">${item.body}</span>` : "";
-            window.openGlobalModal(item.imgUrl, `${item.caption}<br><small>${item.place}</small>${detail}`);
+            const index = Number(btn.dataset.index);
+            const item = S1_ERA[index];
+            if (MOBILE_QUERY.matches) return openEraModal(item, index);
+            window.openGlobalModal(item.imgUrl, `${item.caption}<br><small>${item.place}</small>`);
         });
     });
+    // 모달 닫힘(.is-open 해제) 시 모바일 모달 표시 상태 해제 + 상세 지도 제거 (다른 섹션 모달 표시에 영향 방지)
+    // is-era 없으면 종료: classList.remove는 클래스가 없어도 class 속성 변경 기록 발생 → 감시 콜백 무한 반복 방지
+    const modal = document.getElementById("image-modal");
+    if (modal) {
+        new MutationObserver(() => {
+            if (modal.classList.contains("is-open") || !modal.classList.contains("is-era")) return;
+            modal.classList.remove("is-era");
+            if (modalMap) modalMap.remove();
+            modalMap = null;
+        }).observe(modal, { attributes: true, attributeFilter: ["class"] });
+    }
 
     initEraMap(grid);
 }
 
-/* ---------- 2. 세계지도 (OSM) + 서울 확대 시 스마트서울맵 ---------- */
+/* ---------- 2. 모바일 사진 확대 모달: 제목 → 위치 → 상세 지도 → 사진 → 설명 ---------- */
+// 기본 모달 이미지는 숨김(.is-era → s1-era.css), 사진은 캡션 영역 안 지도 아래에 배치
+function openEraModal(item, index) {
+    const modal = document.getElementById("image-modal");
+    const place = `<small class="era-modal-place">${item.place}</small>${item.address ? `<small class="era-modal-addr">${item.address}</small>` : ""}`;
+    // 지도 틀(.era-modal-frame): 확대/축소 버튼 배치 기준 (mapUtils.js addMapViewControl → 지도 부모 요소에 추가)
+    const mapHtml = item.latlng && typeof L !== "undefined" ? '<div class="era-modal-frame"><div class="era-modal-map" id="era-modal-map"></div></div>' : "";
+    window.openGlobalModal(item.imgUrl, `<p class="era-modal-title">${item.caption}</p>${place}${mapHtml}<img class="era-modal-img" src="${item.imgUrl}" alt="${item.caption}"><span class="modal-desc">${item.body}</span>`);
+    if (modal) {
+        modal.classList.add("is-era");
+        modal.scrollTop = 0;
+    }
+    const mapEl = document.getElementById("era-modal-map");
+    if (!mapEl) return;
+    // 상세 지도 종류: 서울 지점(1·2번) 스마트서울맵 (API 로드 전이면 OSM 대체), 그 외 OSM
+    const isSeoulMap = SEOUL_INDEXES.includes(index) && typeof getCrsEx === "function" && !!L.TileLayer.DAWULGIS_EX;
+    // 상세 지도: 드래그·손가락 확대 비활성 (모달 스크롤 우선), 확대/축소 버튼으로만 줌 변경, 스마트서울맵은 EPSG:5179 좌표계 + 정수 줌
+    const startZoom = isSeoulMap ? SEOUL_FOCUS_ZOOM : FOCUS_ZOOM;
+    const options = {
+        minZoom: startZoom - MODAL_ZOOM_RANGE,
+        maxZoom: startZoom,
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        touchZoom: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+    };
+    if (isSeoulMap) Object.assign(options, { crs: getCrsEx(), zoomSnap: 1 });
+    modalMap = L.map(mapEl, options).setView(item.latlng, startZoom);
+    if (isSeoulMap) {
+        new L.TileLayer.DAWULGIS_EX(MAP_ENDPOINTS.seoulBaseMap_kor, { minZoom: 1, maxZoom: 15 }).addTo(modalMap);
+    } else {
+        // OSM 최대 제공 줌 18 초과 단계: 18단계 타일 확대 표시 (maxNativeZoom)
+        L.tileLayer(OSM_TILE_URL, { maxZoom: 18 }).addTo(modalMap);
+        // OSM 이용 조건: 저작권 표기 필수 (우측 하단)
+        const attribution = L.control.attribution({ prefix: false, position: "bottomright" });
+        attribution.addAttribution(OSM_ATTRIBUTION);
+        attribution.addTo(modalMap);
+    }
+    L.marker(item.latlng, {
+        icon: L.divIcon({
+            className: "era-marker-wrap",
+            html: `<span class="era-marker is-active" data-index="${index}">${index + 1}</span>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+        }),
+        interactive: false,
+    }).addTo(modalMap);
+    // 확대/축소 버튼: 마커 중심 기준 1단계씩 이동, 스마트서울맵은 애니메이션 미사용 (줌 애니메이션 중 기본지도 타일 미표시 방지), 전체 보기 버튼은 CSS 숨김
+    const created = modalMap;
+    addMapViewControl(created, {
+        onStep: (dir) => created.setView(item.latlng, created.getZoom() + dir, { animate: !isSeoulMap }),
+    });
+    // 모달 표시 직후 크기 재계산 (타일 위치 보정)
+    requestAnimationFrame(() => {
+        if (modalMap === created) created.invalidateSize();
+    });
+}
+
+/* ---------- 3. 세계지도 (OSM) + 서울 확대 시 스마트서울맵 ---------- */
 function initEraMap(grid) {
     const mapEl = document.getElementById("map-s1");
     if (!mapEl || typeof L === "undefined") return;
@@ -98,11 +183,11 @@ function initEraMap(grid) {
     });
 
     // 오픈스트리트맵 타일 (흑백 필터: base.css .map-canvas .leaflet-tile-pane)
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 }).addTo(map);
+    L.tileLayer(OSM_TILE_URL, { maxZoom: 18 }).addTo(map);
 
     // OSM 이용 조건: 저작권 표기 필수 (우측 하단)
     const attribution = L.control.attribution({ prefix: false, position: "bottomright" });
-    attribution.addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>');
+    attribution.addAttribution(OSM_ATTRIBUTION);
     attribution.addTo(map);
 
     const cards = [...grid.querySelectorAll(".era-card")];
@@ -110,7 +195,26 @@ function initEraMap(grid) {
     const seoulArea = L.latLngBounds(SEOUL_AREA);
     // 전체 보기 여백: PC 상시 라벨(장소명 + 주소) 표시 공간 확보 (좌 160px · 위 85px 파리 라벨 / 우 200px · 아래 85px 도쿄 라벨, 주소 한 줄 표시 기준) / 모바일 좌우 24px·상하 22px (라벨 미표시, 마커 여유)
     const fitPadding = () => (MOBILE_QUERY.matches ? { padding: [24, 22] } : { paddingTopLeft: [160, 85], paddingBottomRight: [200, 85] });
-    const showAll = (animate = true) => map.fitBounds(bounds, Object.assign({ maxZoom: FIT_MAX_ZOOM, animate }, fitPadding()));
+    // 전체 보기 줌: fitBounds와 같은 계산 (여백 반영 + FIT_MAX_ZOOM 상한), 확대 상태·축소 복귀 판단 기준
+    let homeZoom = 0;
+    const calcHomeZoom = () => {
+        const p = fitPadding();
+        const padding = L.point(p.paddingTopLeft || p.padding).add(L.point(p.paddingBottomRight || p.padding));
+        return Math.min(map.getBoundsZoom(bounds, false, padding), FIT_MAX_ZOOM);
+    };
+    const showAll = (animate = true) => {
+        homeZoom = calcHomeZoom();
+        map.fitBounds(bounds, Object.assign({ maxZoom: FIT_MAX_ZOOM, animate }, fitPadding()));
+    };
+    // 모바일 확대·축소 범위 제한: zoom 전달 시 zoom ±MOBILE_ZOOM_RANGE, 미전달 시 지도 생성 시 범위 복원 (PC 제한 없음)
+    const baseRanges = new Map();
+    const setZoomRange = (target, zoom) => {
+        if (!baseRanges.has(target)) baseRanges.set(target, [target.options.minZoom, target.options.maxZoom]);
+        const base = baseRanges.get(target);
+        const limited = zoom !== undefined && MOBILE_QUERY.matches;
+        target.setMinZoom(limited ? zoom - MOBILE_ZOOM_RANGE : base[0]);
+        target.setMaxZoom(limited ? zoom + MOBILE_ZOOM_RANGE : base[1]);
+    };
 
     let activeIndex = -1; // 선택 카드 번호 (-1: 선택 없음)
     let isSeoul = false; // 스마트서울맵 표시 여부
@@ -142,11 +246,15 @@ function initEraMap(grid) {
         autoPan: false, // 확대 이동(flyTo) 중 autoPan 충돌 방지 (마커가 지도 중앙으로 이동)
     };
 
-    // 선택 해제: 강조 해제 + 팝업 닫기 + 세계지도 복귀 + 전체 보기
+    // 선택 해제: 강조 해제 + 팝업 닫기 + 모바일 줌 범위 복원 + 세계지도 복귀 + 전체 보기
     const clearSelection = () => {
         setActive(-1);
         map.closePopup();
-        if (seoul) seoul.map.closePopup();
+        setZoomRange(map);
+        if (seoul) {
+            seoul.map.closePopup();
+            setZoomRange(seoul.map);
+        }
         setSeoulView(false);
         showAll();
     };
@@ -214,14 +322,18 @@ function initEraMap(grid) {
     // 장소 선택 줌: 모바일 PC보다 축소
     const seoulFocusZoom = () => (MOBILE_QUERY.matches ? SEOUL_FOCUS_ZOOM_MOBILE : SEOUL_FOCUS_ZOOM);
 
-    // 선택: 카드·마커 강조 + 팝업 열기 + 해당 위치 확대 (서울 지점: 세계지도 확대 후 스마트서울맵 전환)
+    // 선택: 카드·마커 강조 + 팝업 열기 + 해당 위치 확대 (서울 지점: 세계지도 확대 후 스마트서울맵 전환), 모바일은 이동 완료 후 줌 범위 제한
     function focus(index) {
         const item = S1_ERA[index];
         if (!item || !item.latlng) return;
         setActive(index);
+        // 이전 선택 줌 범위 해제 (이동 목표 줌 제한 방지)
+        setZoomRange(map);
+        if (seoul) setZoomRange(seoul.map);
         if (SEOUL_INDEXES.includes(index) && getSeoul()) {
             if (isSeoul) {
                 moveSeoul(item.latlng, seoulFocusZoom(), true, true);
+                setZoomRange(seoul.map, seoulFocusZoom());
                 seoul.markers[index].openPopup();
                 return;
             }
@@ -231,6 +343,7 @@ function initEraMap(grid) {
                 if (activeIndex !== index) return;
                 moveSeoul(item.latlng, seoulFocusZoom(), false, true);
                 setSeoulView(true);
+                setZoomRange(seoul.map, seoulFocusZoom());
                 seoul.markers[index].openPopup();
             });
             return;
@@ -247,6 +360,9 @@ function initEraMap(grid) {
             center = map.unproject(point, FOCUS_ZOOM);
         }
         map.flyTo(center, FOCUS_ZOOM, { duration: 1.4 });
+        map.once("moveend", () => {
+            if (activeIndex === index && !isSeoul) setZoomRange(map, FOCUS_ZOOM);
+        });
     }
 
     // 현재 표시 중인 지도의 마커 (스마트서울맵 표시 중 서울 지점 → 스마트서울맵 마커)
@@ -290,11 +406,12 @@ function initEraMap(grid) {
         });
     });
 
-    // 낮은 줌: 서울 마커 좌우 분리 / 확대 상태: 상시 라벨 숨김 / 선택 없이 서울 범위 확대 시 스마트서울맵 전환
+    // 낮은 줌: 서울 마커 좌우 분리 / 확대 상태(전체 보기 줌 초과): 상시 라벨 숨김 + 보기 컨트롤 표시 / 전체 보기 줌 이하 축소: 처음 화면 복귀 / 선택 없이 서울 범위 확대 시 스마트서울맵 전환
     const update = () => {
         const zoom = map.getZoom();
         mapEl.classList.toggle("is-split", zoom < SPLIT_ZOOM);
-        mapEl.classList.toggle("is-zoomed", zoom > FIT_MAX_ZOOM);
+        mapEl.classList.toggle("is-zoomed", zoom > homeZoom + 0.05);
+        if (!isSeoul && (zoom < homeZoom - 0.05 || (activeIndex !== -1 && zoom <= homeZoom + 0.05))) return clearSelection();
         if (activeIndex !== -1 || isSeoul || zoom < SEOUL_ENTER_ZOOM || !seoulArea.contains(map.getCenter()) || !getSeoul()) return;
         moveSeoul(map.getCenter(), SEOUL_VIEW_ZOOM, false, false);
         setSeoulView(true);

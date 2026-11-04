@@ -1,4 +1,4 @@
-/* 01 시대의 부름: 배경 카드 4종 (s1-era.js 렌더링) + 세계지도(OSM, 서울 확대 시 스마트서울맵) / 모바일(560px 이하): 카드 설명 숨김(사진 클릭 시 모달 표시), 세계지도 가로형 비율 고정, 상시 라벨 숨김 */
+/* 01 시대의 부름: 배경 카드 4종 (s1-era.js 렌더링) + 세계지도(OSM, 서울 확대 시 스마트서울맵) / 모바일(560px 이하): 카드 설명 숨김(사진 클릭 시 상세 지도 포함 모달 표시), 세계지도 가로형 비율 고정, 상시 라벨 숨김 */
 .era-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -296,10 +296,17 @@
     color: var(--text-soft);
 }
 
-/* 보기 컨트롤: 우측 상단 배치 (하단 도쿄 라벨·OSM 저작권 표기 가림 방지) */
+/* 보기 컨트롤: 우측 상단 배치 (하단 도쿄 라벨·OSM 저작권 표기 가림 방지), 전체 보기 화면에서는 숨김 (PC·모바일 공통) */
 .era-map .map-view-ctrl {
     top: var(--space-4);
     bottom: auto;
+    display: none;
+}
+
+/* 확대 상태: 세계지도 확대(#map-s1.is-zoomed) · 스마트서울맵 표시(.is-seoul) → 전체 보기 + 확대/축소 표시 */
+#map-s1.is-zoomed~.map-view-ctrl,
+.era-map.is-seoul .map-view-ctrl {
+    display: flex;
 }
 
 /* ---------- 서울 확대: 스마트서울맵 (s1-era.js 서울 지점 선택 · 서울 범위 확대 시 표시) ---------- */
@@ -325,6 +332,99 @@
 /* 스마트서울맵 현재지도/옛지도 전환 버튼 숨김 (섹션1은 현재지도만 표시) */
 .era-seoul-map .custom-map-toggle {
     display: none !important;
+}
+
+/* ---------- 모바일 사진 확대 모달 (s1-era.js openEraModal, .global-modal.is-era): 제목 → 위치 → 상세 지도 → 사진 → 설명 ---------- */
+/* 기본 모달 이미지 숨김: 사진은 캡션 영역 안 지도 아래에 표시 */
+.global-modal.is-era .global-modal-content {
+    display: none;
+}
+
+.global-modal.is-era #caption-modal {
+    padding-top: 0;
+    animation: modal-in 0.4s var(--ease-out);
+}
+
+.era-modal-title {
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* 위치: 장소명 + 주소 줄 단위 표시 */
+#caption-modal .era-modal-place,
+#caption-modal .era-modal-addr {
+    display: block;
+    margin-top: 4px;
+}
+
+#caption-modal .era-modal-addr {
+    font-size: var(--fs-xs);
+}
+
+/* 상세 지도 틀: 확대/축소 버튼 배치 기준 */
+.era-modal-frame {
+    position: relative;
+    height: 220px;
+    margin-top: var(--space-4);
+    border: 1px solid var(--sheet-line);
+    border-radius: var(--radius-md);
+    background: var(--ink);
+    overflow: hidden;
+}
+
+/* 상세 지도: 드래그 비활성, 확대/축소 버튼으로만 줌 변경, 흑백 타일 */
+.era-modal-map {
+    position: absolute;
+    inset: 0;
+}
+
+/* 상세 지도 확대/축소 버튼: 우측 상단 축소 배치 (하단 OSM 저작권 표기 가림 방지), 전체 보기 버튼 숨김 */
+.era-modal-frame .map-view-ctrl {
+    top: var(--space-2);
+    right: var(--space-2);
+    bottom: auto;
+    width: 68px;
+}
+
+.era-modal-frame .map-view-home {
+    display: none;
+}
+
+.era-modal-frame .map-view-zoom {
+    border-radius: 9px;
+}
+
+.era-modal-frame .map-view-zoom button {
+    height: 28px;
+    font-size: 16px;
+}
+
+.era-modal-map .leaflet-tile-pane {
+    filter: grayscale(100%) brightness(0.95);
+}
+
+/* 상세 지도 OSM 저작권 표기 (base.css 전체 숨김 재정의) */
+.era-modal-map .leaflet-control-attribution {
+    display: block !important;
+    margin: 0 6px 6px 0 !important;
+    padding: 1px 8px;
+    border-radius: var(--radius-pill);
+    background: rgba(var(--ink-rgb), 0.7);
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: 10px;
+}
+
+.era-modal-map .leaflet-control-attribution a {
+    color: var(--text-soft);
+}
+
+.era-modal-img {
+    display: block;
+    width: 100%;
+    margin-top: var(--space-4);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
 }
 
 /* ---------- 반응형 ---------- */
@@ -418,17 +518,6 @@
     /* 세계지도 상시 라벨 숨김 (낮은 지도 높이에서 라벨 겹침) */
     .era-map .era-tooltip {
         display: none;
-    }
-
-    /* 보기 컨트롤: 전체 지도 화면에서는 숨김 (낮은 지도 높이에서 지도 가림) */
-    .era-map .map-view-ctrl {
-        display: none;
-    }
-
-    /* 확대 상태: 세계지도 확대(#map-s1.is-zoomed) · 스마트서울맵 표시(.is-seoul) → 전체 보기 + 확대/축소 표시 */
-    #map-s1.is-zoomed~.map-view-ctrl,
-    .era-map.is-seoul .map-view-ctrl {
-        display: flex;
     }
 
     /* 보기 컨트롤 축소: 낮은 지도 높이 대응 */
