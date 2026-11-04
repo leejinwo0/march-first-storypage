@@ -10,7 +10,7 @@
 // 우측 하단 보기 컨트롤: 전체 보기(선택 해제 + 전체 범위 복귀) + 확대/축소 (mapUtils.js)
 // 지도 크기 변경(모바일 배치 전환 등) 시 선택 인물 없으면 전체 보기 재적용
 // 지도 이동: 줌 변경 시 애니메이션 미사용 (스마트서울맵 타일 다단계 줌 애니메이션 중 검은 화면 발생), 같은 줌 이동만 애니메이션 적용
-// 인물 선택 줌: FOCUS_ZOOM보다 확대된 상태면 현재 줌 유지 + 중심만 이동
+// 인물 선택 줌: 선택 인물이 있는 상태면 현재 줌 유지(확대·축소 공통) + 중심만 이동, 선택 인물 없는 상태(전체 보기)면 FOCUS_ZOOM 이상으로 이동
 // 초성 칩: 해당 초성 인물이 없는 칩은 비활성(disabled)
 import { fetchDailyLifeData, MAP_ENDPOINTS } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
@@ -211,14 +211,17 @@ export async function initActivists() {
             return person.marker.openPopup();
         }
 
+        // 이전 선택 인물 유무 (현재 줌 유지 판단용)
+        const hadActive = !!activePerson;
+
         setPinActive(activePerson, false);
         activePerson = person;
         setPinActive(person, true);
         people.forEach((p) => p.card.classList.toggle("active", p === person));
         person.card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
 
-        // 이동 줌: 현재 줌이 FOCUS_ZOOM보다 크면 현재 줌 유지, 줌 변경 없을 때만 이동 애니메이션 적용
-        const zoom = Math.max(map.getZoom(), FOCUS_ZOOM);
+        // 이동 줌: 선택 인물 있던 상태면 현재 줌 유지, 없던 상태면 FOCUS_ZOOM과 현재 줌 중 큰 값, 줌 변경 없을 때만 이동 애니메이션 적용
+        const zoom = hadActive ? map.getZoom() : Math.max(map.getZoom(), FOCUS_ZOOM);
 
         map.setView(person.latlng, zoom, { animate: map.getZoom() === zoom });
         person.marker.openPopup();

@@ -11,7 +11,7 @@
 // 우측 하단 보기 컨트롤: 전체 보기(선택 해제 + 전체 범위 복귀) + 확대/축소 (mapUtils.js)
 // 모바일(1024px 이하): 팝업에 분류·장소명·더보기만 표시, 더보기 클릭 시 하단 시트로 상세(주소·설명·스마트서울맵) 표시
 // 지도 이동: 줌 변경 시 애니메이션 미사용 (스마트서울맵 타일 다단계 줌 애니메이션 중 검은 화면 발생), 같은 줌 이동만 애니메이션 적용
-// 장소 선택 줌: 확대 줌보다 확대된 상태면 현재 줌 유지 + 중심만 이동
+// 장소 선택 줌: 선택 장소가 있는 상태면 현재 줌 유지(확대·축소 공통) + 중심만 이동, 선택 장소 없는 상태(전체 보기)면 확대 줌 이상으로 이동
 import { fetchTimeTravelData } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
 import { setStat, openSheet } from "/js/utils/uiUtils.js";
@@ -276,15 +276,18 @@ export async function initPlaces() {
             li.classList.add("active");
             scrollListItem(li);
 
+            // 이전 선택 장소 유무 (현재 줌 유지 판단용)
+            const hadActive = !!activePlace;
+
             // 마커 색상: 이전 선택 장소 복귀 → 현재 장소 파란색
             clearActivePin();
             activePlace = place;
             setPinActive(place, true);
             updateReset();
 
-            // 이동 줌: 확대 줌(옛지도 표시 중이면 1단계 축소)보다 현재 줌이 크면 현재 줌 유지
+            // 이동 줌: 선택 장소 있던 상태면 현재 줌 유지, 없던 상태면 확대 줌(옛지도 표시 중이면 1단계 축소)과 현재 줌 중 큰 값
             const focusZoom = (MOBILE_QUERY.matches ? FOCUS_ZOOM_MOBILE : FOCUS_ZOOM) - (isHistorical() ? HISTORICAL_FOCUS_OFFSET : 0);
-            const zoom = Math.max(map.getZoom(), focusZoom);
+            const zoom = hadActive ? map.getZoom() : Math.max(map.getZoom(), focusZoom);
             // 팝업 공간 확보용 Y 오프셋: 지도 높이의 10% (최대 120px) → 마커를 중앙보다 약간 아래 배치
             const point = map.project(place.latlng, zoom);
 
