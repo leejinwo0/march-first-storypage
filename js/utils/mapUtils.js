@@ -20,41 +20,48 @@ const HISTORICAL_KEYS = ["gyeongseong", "modernKorea"];
 
 /* =======================================================
    1. 스마트서울맵 OpenAPI V5 스크립트 로드
-   - 메인 스크립트 → 좌표계 스크립트(5179) 순차 로드
+   - CSS + 메인 스크립트 → 좌표계 스크립트(5179) 순차 로드
+   - 메인 스크립트 로드 실패(서버 500 등) 시 좌표계 스크립트 필요 라이브러리(proj4 · Proj4Leaflet) CDN 직접 로드 후 계속 진행
    - 로드 완료 후 전역 getCrsEx(), L.TileLayer.DAWULGIS_EX 사용 가능
 ======================================================= */
-export function loadSeoulMapAPI() {
+// 메인 스크립트 대체 라이브러리: 좌표계 스크립트의 L.Proj.CRS(EPSG:5179) 사용 조건
+const PROJ4_URL = "https://unpkg.com/proj4@2.11.0/dist/proj4.js";
+const PROJ4LEAFLET_URL = "https://unpkg.com/proj4leaflet@1.0.2/src/proj4leaflet.js";
+
+// 스크립트 1개 로드 (label: 오류 문구용 이름, 주소의 API 키 콘솔 노출 방지)
+function loadScript(src, label) {
     return new Promise((resolve, reject) => {
-        if (typeof CONFIG === "undefined" || !CONFIG.MAP_API_KEY) {
-            console.warn("API 키가 없습니다. config.js를 확인하세요.");
-            resolve();
-            return;
-        }
+        const script = document.createElement("script");
 
-        const key = CONFIG.MAP_API_KEY;
-        const base = `https://map.seoul.go.kr/openapi/v5/${key}/public/map`;
-
-        const link = document.createElement("link");
-
-        link.rel = "stylesheet";
-        link.href = `${base}/css/5.0`;
-        document.head.appendChild(link);
-
-        const mainScript = document.createElement("script");
-
-        mainScript.src = `${base}/js/5.0`;
-        mainScript.onerror = () => reject(new Error("서울맵 V5 메인 스크립트 로드 실패"));
-        mainScript.onload = () => {
-            const crsScript = document.createElement("script");
-
-            crsScript.src = `${base}/base/js/5179/5.0`;
-            crsScript.onload = () => resolve();
-            crsScript.onerror = () => reject(new Error("좌표계 스크립트 로드 실패"));
-            document.head.appendChild(crsScript);
-        };
-
-        document.head.appendChild(mainScript);
+        script.src = src;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`${label} 로드 실패`));
+        document.head.appendChild(script);
     });
+}
+
+export async function loadSeoulMapAPI() {
+    if (typeof CONFIG === "undefined" || !CONFIG.MAP_API_KEY) {
+        console.warn("API 키가 없습니다. config.js를 확인하세요.");
+        return;
+    }
+
+    const base = `https://map.seoul.go.kr/openapi/v5/${CONFIG.MAP_API_KEY}/public/map`;
+    const link = document.createElement("link");
+
+    link.rel = "stylesheet";
+    link.href = `${base}/css/5.0`;
+    document.head.appendChild(link);
+
+    try {
+        await loadScript(`${base}/js/5.0`, "서울맵 V5 메인 스크립트");
+    } catch (error) {
+        console.warn(`${error.message}: proj4 · Proj4Leaflet 직접 로드로 대체`);
+        if (typeof window.proj4 === "undefined") await loadScript(PROJ4_URL, "proj4");
+        if (!L.Proj) await loadScript(PROJ4LEAFLET_URL, "Proj4Leaflet");
+    }
+
+    await loadScript(`${base}/base/js/5179/5.0`, "좌표계 스크립트");
 }
 
 /* =======================================================
