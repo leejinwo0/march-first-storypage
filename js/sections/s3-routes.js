@@ -1,5 +1,5 @@
 /* 03 함성의 궤적: 구분 탭 + 경로 카드 + 평면 지도(유리 패널) + 경로 재생 */
-// 데이터: 스마트서울맵 테마 11100550 경로(LineString) 7종
+// 데이터: 스마트서울맵 테마 11100550 경로(LineString) 7종, 경로 설명은 상세 API 상세내용2(COT_VALUE_02) 사용 (없으면 COT_VALUE_03)
 // 구분 탭(3월 1일 동부 / 3월 1일 서부 / 3월 5일): 탭별 경로 수 표시, 전환 시 첫 경로 활성화
 // 경로 카드 클릭 → 활성 경로 강조(빨간 점선 흐름) + 출발/도착 마커 + 경로 범위로 이동
 // 경로 7종 공통 배율: 경로별 맞춤 배율 최솟값 + 보정(PC ZOOM_UP / 모바일 ZOOM_UP_MOBILE), 기본지도는 정수 줌 표시 + 남는 배율은 지도 영역 CSS 확대·축소로 보정
@@ -9,7 +9,7 @@
 // 경로 재생: 경로선 좌표를 따라 표시점 이동, 진행률 막대·퍼센트 연동 (경유지별 좌표 미제공 → 진행률만 표시)
 // 크게 보기(PC): 지도 프레임(정보·재생 패널 포함)을 화면 전체 팝업으로 확대, 닫기 버튼·Esc·배경 클릭으로 복귀
 // 지도 프레임 크기 변경 시 현재 경로 다시 맞춤 (모니터·창 크기와 관계없이 같은 화면 구성)
-import { fetchTimeTravelData } from "/services/mapService.js";
+import { fetchTimeTravelData, MAP_ENDPOINTS } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
 import { setStat } from "/js/utils/uiUtils.js";
 
@@ -48,6 +48,27 @@ const toStops = (value) =>
         .split(/\s*[-–→]\s*/)
         .map((s) => s.trim())
         .filter(Boolean);
+
+// 경로 설명 HTML: 상세내용2(COT_VALUE_02) → 기존 관련내용(COT_VALUE_03) 순, 빈 값 · "null" 제외, 줄바꿈 유지
+const toDesc = (props) => {
+    const text = [props.COT_VALUE_02, props.COT_VALUE_03].map((v) => String(v || "").trim()).find((v) => v && v !== "null");
+
+    return text ? text.replace(/\n/g, "<br>") : "";
+};
+
+// 상세 API 호출: 테마 목록 주소와 같은 기본 주소 사용, 실패 시 null (목록 속성만 사용)
+async function fetchDetail(id) {
+    try {
+        const baseUrl = MAP_ENDPOINTS.themeData_11100550.split("/public/")[0];
+        const res = await fetch(`${baseUrl}/public/themes/contents/detail?theme_id=11100550&conts_id=${id}`);
+        const data = await res.json();
+
+        return (data && Array.isArray(data.body) && data.body[0]) || null;
+    } catch (error) {
+        console.error(`상세 API 호출 실패 (${id}):`, error);
+        return null;
+    }
+}
 
 // 번호 두 자리 표기 (1 → "01")
 const pad2 = (n) => String(n).padStart(2, "0");
@@ -131,6 +152,11 @@ export async function initRoutes() {
     const geojson = await fetchTimeTravelData();
     const findFeature = (id) => geojson.features.find((f) => String(f.id) === id || String(f.properties.RNUM) === id);
 
+    // 상세 API: 경로 7종 동시 호출 (목록 API 미제공 상세내용2 보완), 경로 feature → 상세 속성
+    const routeFeatures = ROUTE_GROUPS.flatMap((g) => g.ids.map(findFeature)).filter((f) => f && f.geometry.type === "LineString");
+    const details = await Promise.all(routeFeatures.map((f) => fetchDetail(f.properties.COT_CONTS_ID)));
+    const detailOf = (feature) => details[routeFeatures.indexOf(feature)] || {};
+
     // 경로 데이터: 구분·순서별 추출 + 비활성 경로선 생성 (좌표 [경도, 위도] → LatLng)
     const routes = [];
 
@@ -142,7 +168,7 @@ export async function initRoutes() {
 
             if (!feature || feature.geometry.type !== "LineString") return;
 
-            const props = feature.properties;
+            const props = Object.assign({}, feature.properties, detailOf(feature));
             const layer = L.geoJSON(feature, { style: INACTIVE_STYLE, interactive: false }).addTo(map);
             const coords = feature.geometry.coordinates.map(([x, y]) => L.latLng(y, x));
 
@@ -154,7 +180,7 @@ export async function initRoutes() {
                 order,
                 title: props.COT_CONTS_NAME || "제목 없음",
                 stops: toStops(props.COT_VALUE_01),
-                desc: props.COT_VALUE_03 ? String(props.COT_VALUE_03).replace(/\n/g, "<br>") : "",
+                desc: toDesc(props),
                 coords,
                 layer,
             });
