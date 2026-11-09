@@ -206,6 +206,51 @@
     font-size: 13px;
 }
 
+/* ---------- 상세 항목 (s4-places.js buildDesc, 상세 항목 있는 장소의 팝업 · 모바일 시트 설명) ---------- */
+/* 팝업 설명 영역 높이 확대 (기본 180px) */
+#map-s4 .popup-desc.is-rich {
+    max-height: 280px;
+}
+
+.place-sec+.place-sec {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--sheet-line);
+}
+
+.place-sec-title {
+    color: var(--gold-light);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* .place-sec 포함: Leaflet 팝업 기본 p 여백(1.3em) 재정의 */
+.place-sec .place-info,
+.place-sec .place-body {
+    margin: 6px 0 0;
+    color: #cfc7bb;
+    font-size: 12.5px;
+    line-height: 1.8;
+}
+
+.place-info li::before {
+    content: "– ";
+    color: var(--text-faint);
+}
+
+/* 목록 항목명 (예: 사적지 분류, 관련 사건) */
+.place-key {
+    margin-right: 6px;
+    color: var(--cream);
+    font-weight: 600;
+}
+
+/* 모바일 시트: 본문 글자 크기 확대 */
+.place-sheet-desc.is-rich .place-info,
+.place-sheet-desc.is-rich .place-body {
+    font-size: 13.5px;
+}
+
 /* ---------- 지도 팝업 닫기 버튼 · 확대 상태 툴팁 ---------- */
 /* 팝업 내용: 우측 X 버튼 영역 확보 */
 #map-s4 .story-popup .leaflet-popup-content {

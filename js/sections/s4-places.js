@@ -1,5 +1,6 @@
 /* 04 역사의 현장: 좌측 범례 패널(필터 카드 + 2열 목록) | 우측 지도 */
 // 데이터: 스마트서울맵 테마 11100550, COT_THEME_SUB_ID '4' 중요 지점 / '3' 시위 장소
+// 중요 지점 · 시위 장소 상세: 상세 API 동시 호출 후 목록 속성과 병합, 상세 항목(기본정보 · 관련정보 · 참고 문헌 등) 있는 장소는 '더보기'에 항목별 표시 / 없는 장소는 기존 설명 표시
 // 섹션 진입 시 마커 120ms 간격 순차 표시
 // 마커: 중요 지점 빨간색 · 시위 장소 노란색, 선택 장소만 파란색 (선택 해제 시 분류 색상 복귀)
 // 필터 카드: 레이어 ON/OFF / 목록·마커 클릭: 확대 + 팝업, 재클릭 시 전체 보기 복귀
@@ -12,15 +13,19 @@
 // 모바일(1024px 이하): 팝업에 분류·장소명·더보기만 표시, 더보기 클릭 시 하단 시트로 상세(주소·설명·스마트서울맵) 표시
 // 지도 이동: 줌 변경 시 애니메이션 미사용 (스마트서울맵 타일 다단계 줌 애니메이션 중 검은 화면 발생), 같은 줌 이동만 애니메이션 적용
 // 장소 선택 줌: 선택 장소가 있는 상태면 현재 줌 유지(확대·축소 공통) + 중심만 이동, 선택 장소 없는 상태(전체 보기)면 확대 줌 이상으로 이동
-import { fetchTimeTravelData } from "/services/mapService.js";
+import { fetchTimeTravelData, MAP_ENDPOINTS } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
 import { setStat, openSheet } from "/js/utils/uiUtils.js";
 
-// 장소 분류: 테마 하위 분류 ID · 표시명 · 마커 클래스
+// 장소 분류: 테마 하위 분류 ID · 표시명 · 마커 클래스 · 상세 API 호출 여부
 const CATEGORY = {
-    hub: { subId: "4", label: "중요 지점", markerClass: "place-pin place-pin-hub" },
-    site: { subId: "3", label: "시위 장소", markerClass: "place-pin place-pin-site" },
+    hub: { subId: "4", label: "중요 지점", markerClass: "place-pin place-pin-hub", detail: true },
+    site: { subId: "3", label: "시위 장소", markerClass: "place-pin place-pin-site", detail: true },
 };
+// 상세 항목 번호 범위 (COT_NAME_xx · COT_VALUE_xx), 16~20번은 사진 설명
+const DETAIL_FIELD_MAX = 15;
+// 기존 설명 항목 (03 관련내용): 이 항목만 있는 장소는 기존 설명 방식 표시
+const DESC_FIELD = "03";
 
 // 장소 클릭 시 확대 줌: PC 10 / 모바일 7 (작은 지도 → 주변 범위 함께 표시)
 const MOBILE_QUERY = window.matchMedia("(max-width: 1024px)");
@@ -31,6 +36,76 @@ const HISTORICAL_FOCUS_OFFSET = 1; // 옛지도 표시 중 장소 확대 줌 축
 // 전체 보기: 최대 줌 · 균등 여백 (범례 패널이 지도 밖에 위치)
 const FIT_MAX_ZOOM = 11;
 const FIT_PADDING = [40, 40];
+
+// API 텍스트 값 정리: 빈 값 · "null" 제외, 앞뒤 공백 · 따옴표 제거
+const clean = (value) => {
+    const text = String(value || "")
+        .trim()
+        .replace(/^"|"$/g, "");
+
+    return text === "null" ? "" : text;
+};
+
+// 줄 단위 배열: 줄바꿈(\n) 기준 분리, 빈 줄 제외
+const toLines = (value) =>
+    clean(value)
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+// 목록 항목 HTML: 앞 "- " 제거, "항목명: 내용" 형태면 항목명 강조
+const listHtml = (lines) =>
+    lines
+        .map((line) => line.replace(/^-\s*/, ""))
+        .map((line) => {
+            const match = line.match(/^([^:]{1,15}):\s*(.*)$/);
+
+            return match ? `<li><b class="place-key">${match[1]}</b>${match[2] || "-"}</li>` : `<li>${line}</li>`;
+        })
+        .join("");
+
+// 상세 항목 본문: 모든 줄이 "- "로 시작하면 목록, 그 외 문단(줄바꿈 유지)
+const fieldBodyHtml = (lines) => (lines.every((line) => line.startsWith("-")) ? `<ul class="place-info">${listHtml(lines)}</ul>` : `<p class="place-body">${lines.join("<br>")}</p>`);
+
+// 상세 항목 목록: COT_NAME_01~15 항목명 + COT_VALUE 내용 (항목명 · 내용 모두 있는 항목만, 번호순)
+function parseFields(props) {
+    const fields = [];
+
+    for (let i = 1; i <= DETAIL_FIELD_MAX; i++) {
+        const no = String(i).padStart(2, "0");
+        const label = clean(props[`COT_NAME_${no}`]);
+        const lines = toLines(props[`COT_VALUE_${no}`]);
+
+        if (label && lines.length) fields.push({ no, label, lines });
+    }
+
+    return fields;
+}
+
+// 설명 HTML: 관련내용 외 상세 항목 있으면 항목별 표시, 없으면 기존 설명(관련내용 → 기본정보 순)
+function buildDesc(props) {
+    const fields = parseFields(props);
+
+    if (fields.some((f) => f.no !== DESC_FIELD)) {
+        return { rich: true, html: fields.map((f) => `<section class="place-sec"><h4 class="place-sec-title">${f.label}</h4>${fieldBodyHtml(f.lines)}</section>`).join("") };
+    }
+
+    return { rich: false, html: (props.COT_VALUE_03 || props.COT_VALUE_01 || "상세 설명이 없습니다.").replace(/\n/g, "<br>") };
+}
+
+// 상세 API 호출: 테마 목록 주소와 같은 기본 주소 사용, 실패 시 null (목록 속성만 사용)
+async function fetchDetail(id) {
+    try {
+        const baseUrl = MAP_ENDPOINTS.themeData_11100550.split("/public/")[0];
+        const res = await fetch(`${baseUrl}/public/themes/contents/detail?theme_id=11100550&conts_id=${id}`);
+        const data = await res.json();
+
+        return (data && Array.isArray(data.body) && data.body[0]) || null;
+    } catch (error) {
+        console.error(`상세 API 호출 실패 (${id}):`, error);
+        return null;
+    }
+}
 
 // 팝업 내용 DOM 생성: 좌측 분류 배지 · 장소명 · 주소 / 우측 [스마트서울맵]·[더보기] 세로 배치 → 설명(접힘)
 function createPopupContent(place, mapLink) {
@@ -49,7 +124,7 @@ function createPopupContent(place, mapLink) {
         <button type="button" class="line-btn line-btn-gold popup-more-btn" aria-expanded="false">더보기</button>
       </div>
     </div>
-    <div class="popup-desc" hidden>${place.desc}</div>`;
+    <div class="popup-desc${place.rich ? " is-rich" : ""}" hidden>${place.desc}</div>`;
 
     return el;
 }
@@ -61,7 +136,7 @@ function createSheetContent(place, mapLink) {
       <span class="popup-badge popup-badge-${place.key}">${CATEGORY[place.key].label}</span>
       <h3 class="place-sheet-title">${place.name}</h3>
       <p class="place-sheet-addr">${place.address}</p>
-      <div class="place-sheet-desc">${place.desc}</div>
+      <div class="place-sheet-desc${place.rich ? " is-rich" : ""}">${place.desc}</div>
       <a class="line-btn line-btn-red place-sheet-link" href="${mapLink}" target="_blank" rel="noopener noreferrer">스마트서울맵</a>
     </article>`;
 }
@@ -169,22 +244,31 @@ export async function initPlaces() {
 
     const geojson = await fetchTimeTravelData();
 
-    const places = [];
+    // 장소 후보: 분류 · 좌표 있는 콘텐츠만
+    const items = [];
 
     geojson.features.forEach((feature) => {
         const props = feature.properties;
         const key = Object.keys(CATEGORY).find((k) => CATEGORY[k].subId === String(props.COT_THEME_SUB_ID));
 
-        if (!key || !props.COT_COORD_Y || !props.COT_COORD_X) return;
+        if (key && props.COT_COORD_Y && props.COT_COORD_X) items.push({ key, props });
+    });
 
-        places.push({
-            key,
+    // 상세 API: 상세 호출 분류(중요 지점 · 시위 장소) 동시 호출 → 목록 속성 + 상세 속성 병합
+    const details = await Promise.all(items.map((item) => (CATEGORY[item.key].detail ? fetchDetail(item.props.COT_CONTS_ID) : null)));
+    const places = items.map((item, i) => {
+        const props = Object.assign({}, item.props, details[i] || {});
+        const desc = buildDesc(props);
+
+        return {
+            key: item.key,
             name: props.COT_CONTS_NAME || "알 수 없는 장소",
             address: props.COT_ADDR_FULL_NEW || props.COT_ADDR_FULL_OLD || "주소 정보 없음",
-            desc: (props.COT_VALUE_03 || props.COT_VALUE_01 || "상세 설명이 없습니다.").replace(/\n/g, "<br>"),
+            desc: desc.html,
+            rich: desc.rich,
             poiId: props.COT_CONTS_ID,
             latlng: [parseFloat(props.COT_COORD_Y), parseFloat(props.COT_COORD_X)],
-        });
+        };
     });
 
     const hubCount = places.filter((p) => p.key === "hub").length;
