@@ -46,13 +46,48 @@
     line-height: 1.4;
 }
 
+/* 장소 성격 부제 (s2-pledge.js STEP_SUBTITLES): 사진 위 가운데, 좌우 금색 선 장식 */
+.pledge-sub {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 6px;
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+    word-break: keep-all;
+}
+
+/* 좌우 선: 바깥쪽으로 갈수록 흐려지는 금색 */
+.pledge-sub::before,
+.pledge-sub::after {
+    content: "";
+    flex: 1;
+    min-width: 16px;
+    height: 1px;
+}
+
+.pledge-sub::before {
+    background: linear-gradient(90deg, transparent, rgba(var(--gold-rgb), 0.6));
+}
+
+.pledge-sub::after {
+    background: linear-gradient(90deg, rgba(var(--gold-rgb), 0.6), transparent);
+}
+
+.pledge-sub+.pledge-gallery {
+    margin-top: 12px;
+}
+
 /* PC 좌측 카드: STEP · 제목 숨김 (상단 스테퍼에 표시), 모바일 하단 시트(.pledge-side 밖)에서는 표시 */
 .pledge-side .pledge-step,
 .pledge-side .pledge-title {
     display: none;
 }
 
-/* 제목 숨김 후 첫 요소(사진 또는 주소) 위쪽 여백 제거 */
+/* 제목 숨김 후 첫 요소(부제 · 사진 또는 주소) 위쪽 여백 제거 */
 .pledge-side .pledge-title+* {
     margin-top: 0;
 }

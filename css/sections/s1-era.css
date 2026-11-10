@@ -63,7 +63,7 @@
     cursor: default;
 }
 
-.era-date {
+/* .era-date {
     position: absolute;
     right: 16px;
     bottom: 10px;
@@ -72,6 +72,9 @@
     font-weight: 200;
     letter-spacing: -0.03em;
     font-variant-numeric: tabular-nums;
+} */
+.era-date {
+    display: none;
 }
 
 /* 모바일 전용 안내 문구 (사진 우상단) */
@@ -203,19 +206,29 @@
         0 0 18px var(--accent-glow);
 }
 
-/* 장소명·주소 상시 라벨 (base.css .place-tooltip 공용 스타일) */
+/* 장소명·주소 상시 라벨: 반투명 검정 상자 + 배경 흐림 (base.css .place-tooltip 덮어쓰기) */
 .leaflet-tooltip.era-tooltip {
-    font-size: 13.5px;
+    padding: 6px 12px 7px;
+    border: 1px solid rgba(var(--white-rgb), 0.12);
+    border-radius: 10px;
+    background: rgba(var(--black-rgb), 0.78);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
     text-align: center;
+    box-shadow: 0 6px 18px rgba(var(--black-rgb), 0.25);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
 }
 
 /* 서울 2곳 라벨: 꼬리는 마커 바로 위 고정, 네모 상자만 좌우 이동 (두 라벨 겹침 방지) */
 .era-tooltip-to-right {
-    --label-shift: 72px;
+    --label-shift: 60px;
 }
 
 .era-tooltip-to-left {
-    --label-shift: -72px;
+    --label-shift: -60px;
 }
 
 .era-tooltip-to-right,
@@ -229,9 +242,13 @@
     margin-left: calc(-6px - var(--label-shift));
 }
 
-/* 도쿄 라벨: 마커 아래 배치 → 위쪽 꼬리 색상 */
-.leaflet-tooltip-bottom.era-tooltip::before {
-    border-bottom-color: rgba(var(--umber-rgb), 0.94);
+/* 꼬리 색상: 상자 배경과 동일 (위쪽 라벨 · 도쿄 아래쪽 라벨) */
+.leaflet-tooltip.leaflet-tooltip-top.era-tooltip::before {
+    border-top-color: rgba(var(--black-rgb), 0.78);
+}
+
+.leaflet-tooltip.leaflet-tooltip-bottom.era-tooltip::before {
+    border-bottom-color: rgba(var(--black-rgb), 0.78);
 }
 
 /* 확대 상태(s1-era.js .is-zoomed): 상시 라벨 숨김 → 팝업만 표시 */
@@ -239,12 +256,19 @@
     display: none;
 }
 
-/* 라벨 둘째 줄: 주소 (한 줄 표시) */
+/* 확대 상태(s1-era.js .is-zoomed) · 장소 선택 중(.has-active): 상시 라벨 숨김 → 팝업만 표시 */
+.is-zoomed .era-tooltip,
+.has-active .era-tooltip {
+    display: none;
+}
+
+/* 라벨 둘째 줄: 주소 (한 줄 표시, 흐린 글씨) */
 .era-tooltip small {
     display: block;
-    color: var(--text-soft);
-    font-size: 12px;
-    font-weight: 400;
+    margin-top: 1px;
+    color: rgba(var(--white-rgb), 0.65);
+    font-size: 11.5px;
+    font-weight: 500;
 }
 
 /* ---------- 선택 팝업: 장소명 + 주소, 우측 상단 X 클릭 시에만 닫힘 ---------- */

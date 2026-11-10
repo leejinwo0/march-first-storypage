@@ -10,7 +10,7 @@
 // 우측 상단 보기 컨트롤: 전체 보기(선택 해제 + 세계지도 전체 범위 복귀) + 확대/축소 (mapUtils.js), OSM 저작권 표기는 우측 하단
 // 모바일(560px 이하): 카드 설명 숨김, 선택 마커를 지도 아래쪽(76% 지점)에 배치 + 팝업 축소 (세계지도·스마트서울맵 공통), 보기 컨트롤 축소 표시
 // 모바일 확대·축소 범위: 장소 선택 줌 기준 ±3단계 (선택 해제·다른 장소 선택 시 해제)
-// 모바일 사진 클릭: 확대 모달에 제목 → 위치(장소명·주소) → 상세 지도(서울 1·2번 스마트서울맵 / 3·4번 OSM, 처음 줌 기준 -4단계까지 확대/축소 버튼) → 사진 → 설명 순 표시, 모달 닫힘 시 지도 제거
+// 모바일 카드 · 마커 · 사진 클릭: 세계지도 이동 없이 확대 모달에 제목 → 위치(장소명·주소) → 상세 지도(서울 1·2번 스마트서울맵 / 3·4번 OSM, 처음 줌 기준 -4단계까지 확대/축소 버튼) → 사진 → 설명 순 표시, 모달 닫힘 시 지도 제거
 import { S1_ERA } from "/js/data/history-data.js";
 import { addMapViewControl, createStoryMap } from "/js/utils/mapUtils.js";
 import { MAP_ENDPOINTS } from "/services/mapService.js";
@@ -225,6 +225,8 @@ function initEraMap(grid) {
         activeIndex = index;
         cards.forEach((card) => card.classList.toggle("is-active", Number(card.dataset.index) === index));
         frame.querySelectorAll(".era-marker").forEach((el) => el.classList.toggle("is-active", Number(el.dataset.index) === index));
+        // 장소 선택 중: 상시 라벨 즉시 숨김 (확대 이동 중 팝업과 라벨 중복 표시 방지)
+        mapEl.classList.toggle("has-active", index !== -1);
     };
 
     // 번호 마커 아이콘 (split: 세계지도 서울 2곳 좌우 분리 방향)
@@ -369,7 +371,9 @@ function initEraMap(grid) {
     const markerOf = (index) => (isSeoul && SEOUL_INDEXES.includes(index) ? seoul.markers[index] : markers[index]);
 
     // 카드·마커 클릭: 선택된 장소 재클릭 시 팝업 표시 중이면 선택 해제 + 전체 보기, X로 닫은 상태면 팝업만 다시 표시 / 그 외 해당 장소 선택
+    // 모바일: 세계지도 이동 없이 상세 모달 표시 (사진 클릭과 동일)
     function toggle(index) {
+        if (MOBILE_QUERY.matches) return openEraModal(S1_ERA[index], index);
         if (index !== activeIndex) return focus(index);
         const marker = markerOf(index);
         if (marker && !marker.isPopupOpen()) return marker.openPopup();

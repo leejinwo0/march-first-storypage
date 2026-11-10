@@ -8,6 +8,7 @@
 // 연결선 겹침 완화: 구간별 휘는 방향 · 정도 지정(선 교차 · 다른 마커 통과 회피), 선택 단계로 들어오는 구간만 진하게 · 지난 구간 흐리게
 // 옛지도(근세 지형도) 전환 시 줌 보정: 옛지도 9.5 고정 (PC · 모바일 현재지도 9 → 0.5단계 확대)
 // PC: 활성 마커 팝업(장소명) 고정 표시 (마커 재클릭·지도 클릭 시에도 유지), 우측 상단 X 클릭 시 닫힘
+// 장소 성격 부제: start_번호별 지정(STEP_SUBTITLES), 상세 카드 사진 위 표시 (PC 카드 · 모바일 하단 시트 공통)
 // 이전/다음 스테퍼(단계 번호·장소명) + 거점 수만큼 단계 버튼 진행 막대 표시 (PC·모바일 공통)
 // 모바일(1024px 이하): 지도 팝업 미표시, 상세 카드 숨김 → 마커 클릭 또는 스테퍼 '더보기' 클릭 시 하단 시트로 상세 카드 표시
 import { fetchTimeTravelData, MAP_ENDPOINTS } from "/services/mapService.js";
@@ -16,6 +17,18 @@ import { toSafeImageUrl, setStat, openSheet, closeSheet } from "/js/utils/uiUtil
 
 // 거점 콘텐츠 ID 형식: start_번호 (번호순 표시)
 const STEP_ID = /^start_(\d+)$/;
+// 장소 성격 부제: start_번호 기준 (start_02 데이터 없음)
+const STEP_SUBTITLES = {
+    1: "3.1운동 논의의 출발점",
+    3: "3.1운동 민족대표 최종 회합지",
+    4: "3.1운동 천도교 측의 활동 거점",
+    5: "3.1운동 학생단 독립운동의 거점",
+    6: "3.1독립선언서 인쇄처",
+    7: "3.1독립선언서 배포지",
+    8: "3.1운동 민족대표 독립선언식 거행지",
+    9: "3.1운동 만세시위의 중심무대",
+    10: "3.1운동 만세시위의 중심무대",
+};
 // 상세 항목 번호 범위 (COT_NAME_xx · COT_VALUE_xx), 16~20번은 사진 설명
 const DETAIL_FIELD_MAX = 15;
 // 주소 상자로 표시하는 항목 (08 당시주소, 카드에는 '옛주소'로 표시)
@@ -260,8 +273,9 @@ export async function initPledge() {
     const steps = features.map((feature, i) => {
         const props = Object.assign({}, feature.properties, details[i] || {});
         const coords = feature.geometry.type === "Point" ? feature.geometry.coordinates : null;
+        const subtitle = STEP_SUBTITLES[Number(STEP_ID.exec(props.COT_CONTS_ID)[1])] || "";
 
-        return Object.assign({ id: props.COT_CONTS_ID, pos: coords ? [coords[1], coords[0]] : null }, parseProps(props));
+        return Object.assign({ id: props.COT_CONTS_ID, subtitle, pos: coords ? [coords[1], coords[0]] : null }, parseProps(props));
     });
 
     // 수치 띠 '3.1운동 준비과정' 갱신
@@ -372,6 +386,7 @@ export async function initPledge() {
         card.innerHTML = `
       <p class="pledge-step">STEP ${pad2(index + 1)} / ${pad2(steps.length)}</p>
       <h3 class="pledge-title">${step.title}</h3>
+      ${step.subtitle ? `<p class="pledge-sub">${step.subtitle}</p>` : ""}
       ${photoHtml}
       ${mainAddrHtml}
       ${mainHtml}
