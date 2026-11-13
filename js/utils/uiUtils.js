@@ -196,34 +196,6 @@ export function toSafeImageUrl(url) {
     return abs.startsWith("http://") ? "https://images.weserv.nl/?url=" + encodeURIComponent(abs) : abs;
 }
 
-// 이미지 후보 목록: COT_IMG_MAIN_URL1~4(스마트서울맵) → COT_IMG_MAIN_URL(프록시) → 원본
-export function getImageCandidates(props) {
-    const list = ["COT_IMG_MAIN_URL1", "COT_IMG_MAIN_URL2", "COT_IMG_MAIN_URL3", "COT_IMG_MAIN_URL4"].map((key) => toAbsoluteUrl(props[key]));
-    const main = toAbsoluteUrl(props.COT_IMG_MAIN_URL);
-
-    if (main.startsWith("http://")) list.push("https://images.weserv.nl/?url=" + encodeURIComponent(main));
-    list.push(main);
-
-    return [...new Set(list.filter(Boolean))];
-}
-
-// <img>에 후보 URL 순차 적용, 전체 실패(404 등) 시 onFail 호출
-export function attachImageFallback(img, candidates, onFail) {
-    let index = 0;
-
-    img.addEventListener("error", () => {
-        index++;
-
-        if (index < candidates.length) {
-            img.src = candidates[index];
-            return;
-        }
-
-        if (onFail) onFail(img);
-        else img.hidden = true;
-    });
-}
-
 /* =======================================================
    6. 모바일 상세 시트 (하단 팝업)
    - openSheet(content): content = HTML 문자열 또는 DOM 요소

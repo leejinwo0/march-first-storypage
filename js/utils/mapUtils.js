@@ -8,7 +8,6 @@
       · 옛지도 종류: historicalMap 옵션
         - "modernKorea": 근세 한국 오만분지일 지형도 (섹션 2·3·5, 기본값)
         - "gyeongseong": 경성대지도 (섹션 4)
-   5. 곡선 경로 좌표 생성 (섹션2 경로선)
 ======================================================= */
 import { MAP_ENDPOINTS, HISTORICAL_MAPS } from "/services/mapService.js";
 
@@ -219,43 +218,4 @@ export function createStoryMap(containerId, options = {}) {
     const viewControl = addMapViewControl(map, { onHome: () => homeView(), onStep: stepZoom });
 
     return { map, zoomFor, setHomeView, viewControl };
-}
-
-/* =======================================================
-   5. 곡선 경로 좌표 생성 (섹션2 거점 연결선)
-   - 두 지점 사이를 2차 베지어 곡선(구간당 20분할)으로 변환
-   - 구간별 휘는 방향: 1·2·5번째 구간 한쪽, 나머지 반대쪽 (경로선 겹침 방지)
-======================================================= */
-const CURVE_INTENSITY = 0.2; // 휘는 정도
-const CURVE_STEPS = 20; // 구간당 분할 수
-const CURVE_FORWARD_SEGMENTS = [0, 1, 4]; // 정방향으로 휘는 구간 번호
-
-export function generateCurvedPath(coords) {
-    if (coords.length < 2) return coords;
-
-    const curved = [];
-
-    for (let i = 0; i < coords.length - 1; i++) {
-        const [lat1, lng1] = coords[i];
-        const [lat2, lng2] = coords[i + 1];
-        const midLat = (lat1 + lat2) / 2;
-        const midLng = (lng1 + lng2) / 2;
-        const direction = CURVE_FORWARD_SEGMENTS.includes(i) ? 1 : -1;
-
-        // 제어점: 두 지점 중간에서 수직 방향으로 이동
-        const cpLat = midLat - (lng2 - lng1) * CURVE_INTENSITY * direction;
-        const cpLng = midLng + (lat2 - lat1) * CURVE_INTENSITY * direction;
-
-        for (let step = 0; step <= CURVE_STEPS; step++) {
-            if (i > 0 && step === 0) continue; // 구간 연결점 중복 제외
-
-            const t = step / CURVE_STEPS;
-            const lat = (1 - t) * (1 - t) * lat1 + 2 * (1 - t) * t * cpLat + t * t * lat2;
-            const lng = (1 - t) * (1 - t) * lng1 + 2 * (1 - t) * t * cpLng + t * t * lng2;
-
-            curved.push([lat, lng]);
-        }
-    }
-
-    return curved;
 }
