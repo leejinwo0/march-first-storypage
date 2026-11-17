@@ -337,43 +337,57 @@
     background: var(--gold);
 }
 
-/* ---------- 6. 수치 띠 (히어로 아래 빨간 통계 영역) ---------- */
+/* ---------- 6. 수치 띠 (히어로 아래 빨간 통계 영역): 좌측 문구 | 수치 5칸(칸 사이 세로 구분선), 글자 전체 흰색 ---------- */
 .stats-band {
+    display: grid;
+    grid-template-columns: minmax(150px, 1fr) 5fr;
+    align-items: center;
+    gap: var(--space-6);
     margin-bottom: var(--sheet-gap);
-    padding: 34px var(--sheet-pad-x) 60px;
+    padding: 40px var(--sheet-pad-x);
     border-radius: var(--sheet-radius);
     background: linear-gradient(135deg, #b8392d, #7d221a);
     color: var(--white);
 }
 
+/* 좌측 문구: 굵은 글자, 9em 폭에서 줄바꿈 (줄바꿈 위치 고정은 index.html <br>) */
 .stats-caption {
-    color: rgba(var(--white-rgb), 0.9);
-    font-size: clamp(1rem, 1.6vw, 1.25rem);
-    font-weight: 500;
-    text-align: center;
+    max-width: 9em;
+    color: var(--white);
+    font-size: clamp(0.9375rem, 1.3vw, 1.0625rem);
+    font-weight: 700;
+    line-height: 1.5;
+    word-break: keep-all;
 }
 
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    margin-top: 34px;
-    border-top: 1px solid rgba(var(--white-rgb), 0.22);
 }
 
 .stats-grid>div {
+    position: relative;
     display: flex;
     flex-direction: column-reverse;
     align-items: center;
-    padding-top: 46px;
     text-align: center;
 }
 
-.stats-grid>div+div {
-    border-left: 1px solid rgba(var(--white-rgb), 0.22);
+/* 수치 칸 사이 세로 구분선: 칸 높이 가운데 짧은 반투명 흰 선 */
+.stats-grid>div+div::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 1px;
+    height: 64px;
+    background: rgba(var(--white-rgb), 0.3);
+    transform: translateY(-50%);
 }
 
+/* 수치: 기본 글꼴 가는 굵기 */
 .stats-grid dd {
-    font-size: clamp(3.5rem, 7vw, 6rem);
+    font-size: clamp(2.75rem, 4.6vw, 4.25rem);
     font-weight: 200;
     line-height: 1;
     letter-spacing: -0.06em;
@@ -381,9 +395,9 @@
 }
 
 .stats-grid dt {
-    margin-top: var(--space-4);
-    color: rgba(var(--white-rgb), 0.75);
-    font-size: 13px;
+    margin-top: var(--space-3);
+    color: var(--white);
+    font-size: 12px;
 }
 
 /* ---------- 7. CTA · 푸터 ---------- */
@@ -598,7 +612,7 @@
     }
 }
 
-/* 768px 이하 (모바일): 패널 간격·모서리 축소, 수치 띠 압축 */
+/* 768px 이하 (모바일): 패널 간격·모서리 축소, 수치 띠 세로 배치 */
 @media (max-width: 768px) {
     :root {
         --sheet-gap: 10px;
@@ -606,20 +620,24 @@
         --frame-radius: 20px;
     }
 
+    /* 수치 띠: 문구 위 · 수치 5칸 아래 세로 배치 */
     .stats-band {
-        padding: 26px var(--sheet-pad-x) 30px;
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+        padding: 26px var(--sheet-pad-x);
     }
 
-    .stats-grid {
-        margin-top: 24px;
-    }
-
-    .stats-grid>div {
-        padding: 20px 2px 14px;
+    .stats-caption {
+        max-width: none;
+        text-align: center;
     }
 
     .stats-grid dd {
         font-size: clamp(1.6rem, 7vw, 2.4rem);
+    }
+
+    .stats-grid>div+div::before {
+        height: 44px;
     }
 
     .stats-grid dt {
