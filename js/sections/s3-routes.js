@@ -1,24 +1,49 @@
 /* 03 함성의 궤적: 구분 탭 + 경로 카드 + 평면 지도(유리 패널) + 경로 재생 */
-// 데이터: 스마트서울맵 테마 11100550 경로(LineString) 7종, 경로 설명은 상세 API 상세내용2(COT_VALUE_02) 사용 (없으면 COT_VALUE_03)
+// 데이터: 스마트서울맵 테마 11100550 경로(LineString) 7종 (콘텐츠 ID 지정), 경로 설명은 상세 API 상세내용3(COT_VALUE_03), 자료출처는 상세내용10(COT_VALUE_10) 사용
 // 구분 탭(3월 1일 동부 / 3월 1일 서부 / 3월 5일): 탭별 경로 수 표시, 전환 시 첫 경로 활성화
 // 경로 카드 클릭 → 활성 경로 강조(빨간 점선 흐름) + 출발/도착 마커 + 경로 범위로 이동
 // 경로 7종 공통 배율: 경로별 맞춤 배율 최솟값 + 보정(PC ZOOM_UP / 모바일 ZOOM_UP_MOBILE), 기본지도는 정수 줌 표시 + 남는 배율은 지도 영역 CSS 확대·축소로 보정
 // 모바일(1024px 이하): 좌상단 경로 정보 패널 · 크게 보기 버튼 숨김
 // 우측 하단 보기 컨트롤: 전체 보기(현재 경로 다시 맞춤) + 확대/축소 (mapUtils.js)
-// 활성 카드: 경유지 ㄹ자 타임라인(한 줄 3곳) + 경로 설명 펼침/접힘, 활성 카드 재클릭 시 접기/펼치기
+// 활성 카드: 경유지 ㄹ자 타임라인(한 줄 3곳) + 경로 설명 · 자료출처(※) 펼침/접힘, 활성 카드 재클릭 시 접기/펼치기
 // 경로 재생: 경로선 좌표를 따라 표시점 이동, 진행률 막대·퍼센트 연동 (경유지별 좌표 미제공 → 진행률만 표시)
 // 크게 보기(PC): 지도 프레임(정보·재생 패널 포함)을 화면 전체 팝업으로 확대, 닫기 버튼·Esc·배경 클릭으로 복귀
 // 지도 프레임 크기 변경 시 현재 경로 다시 맞춤 (모니터·창 크기와 관계없이 같은 화면 구성)
+// 이동경로 기준 지점 10곳: 중요 지점 · 시위 장소 중 콘텐츠 ID 지정 지점을 점 + 장소명 라벨로 상시 표시 (경로 선택과 무관, 장소명 · 좌표는 API 데이터 사용)
 import { fetchTimeTravelData, MAP_ENDPOINTS } from "/services/mapService.js";
 import { createStoryMap } from "/js/utils/mapUtils.js";
 import { setStat } from "/js/utils/uiUtils.js";
 
-// 경로 구성: 구분 key(탭 버튼 data-group 값과 일치) · 표시명 · 테마 콘텐츠 ID
+// 경로 구성: 구분 key(탭 버튼 data-group 값과 일치) · 표시명 · 테마 콘텐츠 ID(COT_CONTS_ID, 표시 순서) / 목록 순번(RNUM)은 다른 콘텐츠 사용 여부 변경 시 바뀜 → 콘텐츠 ID 기준
 const ROUTE_GROUPS = [
-    { key: "east", label: "3월 1일 · 동부", ids: ["22", "14"] },
-    { key: "west", label: "3월 1일 · 서부", ids: ["21", "20", "19"] },
-    { key: "0305", label: "3월 5일", ids: ["8", "4"] },
+    // 동쪽 1대 · 동쪽 2대
+    { key: "east", label: "3월 1일 · 동부", ids: ["11100550_1548917288805", "11100550_1548917960896"] },
+    // 서쪽 1대 · 서쪽 2-㉠대 · 서쪽 2-㉡대
+    { key: "west", label: "3월 1일 · 서부", ids: ["11100550_1548923616808", "11100550_1548920895129", "11100550_1548981139366"] },
+    // 3월 5일 1대 · 2대
+    { key: "0305", label: "3월 5일", ids: ["11100550_1548922225449", "11100550_1548922339688"] },
 ];
+
+// 이동경로 기준 지점: 중요 지점(SUB_ID 4) · 시위 장소(SUB_ID 3) 콘텐츠 ID (『경성과 평양의 3.1운동』 이동 경로 지도 표시 지점)
+const LANDMARK_IDS = [
+    "11100550_1548916279022", // 독립문
+    "11100550_1548916247143", // 종로네거리
+    "11100550_1548915088438", // 탑골공원(파고다공원)
+    "11100550_1548916467131", // 대한문 앞
+    "11100550_1548916365185", // 프랑스영사관
+    "11100550_1548921863549", // 동아연초회사
+    "11100550_1548921956436", // 신정
+    "11100550_1548980699765", // 용산 조선총독부 인쇄소
+    "11100550_1548982516768", // 연희전문학교 (시위 장소)
+    "11100550_start_12", // 마포 전차종점 3·1운동 만세시위지 (시위 장소)
+];
+
+// 기준 지점 라벨 글자: API 장소명에서 괄호 내용 · '3·1운동 …' 꼬리 문구 제거 (예: 탑골공원(파고다공원) → 탑골공원, 마포 전차종점 3·1운동 만세시위지 → 마포 전차종점)
+const toLandmarkName = (name) =>
+    String(name || "")
+        .replace(/\([^)]*\)/g, "")
+        .replace(/\s*3[·.]1운동.*$/, "")
+        .trim();
 
 // 경로 맞춤 최대 줌: 12 초과 시 타일 미제공 가능성 → 12 고정 (섹션2 확대 줌과 동일)
 const FIT_MAX_ZOOM = 12;
@@ -49,11 +74,11 @@ const toStops = (value) =>
         .map((s) => s.trim())
         .filter(Boolean);
 
-// 경로 설명 HTML: 상세내용2(COT_VALUE_02) → 기존 관련내용(COT_VALUE_03) 순, 빈 값 · "null" 제외, 줄바꿈 유지
-const toDesc = (props) => {
-    const text = [props.COT_VALUE_02, props.COT_VALUE_03].map((v) => String(v || "").trim()).find((v) => v && v !== "null");
+// 상세 API 값 → HTML: 빈 값 · "null" 제외, 줄바꿈 유지 (경로 설명 · 자료출처 공통)
+const toHtml = (value) => {
+    const text = String(value || "").trim();
 
-    return text ? text.replace(/\n/g, "<br>") : "";
+    return text && text !== "null" ? text.replace(/\n/g, "<br>") : "";
 };
 
 // 상세 API 호출: 테마 목록 주소와 같은 기본 주소 사용, 실패 시 null (목록 속성만 사용)
@@ -150,9 +175,28 @@ export async function initRoutes() {
     });
 
     const geojson = await fetchTimeTravelData();
-    const findFeature = (id) => geojson.features.find((f) => String(f.id) === id || String(f.properties.RNUM) === id);
+    // 경로 찾기: 콘텐츠 ID(GeoJSON feature id = COT_CONTS_ID) 기준
+    const findFeature = (id) => geojson.features.find((f) => String(f.id) === id || String(f.properties.COT_CONTS_ID) === id);
 
-    // 상세 API: 경로 7종 동시 호출 (목록 API 미제공 상세내용2 보완), 경로 feature → 상세 속성
+    // 이동경로 기준 지점: 점 + 장소명 라벨 상시 표시 (클릭 불가, 경로선 · 출발/도착 표시 아래 배치), 좌표는 COT_COORD_X · Y 사용
+    LANDMARK_IDS.map(findFeature)
+        .filter(Boolean)
+        .forEach((f) => {
+            const p = f.properties;
+            const lat = parseFloat(p.COT_COORD_Y);
+            const lng = parseFloat(p.COT_COORD_X);
+
+            if (!lat || !lng) return;
+
+            L.marker([lat, lng], {
+                icon: L.divIcon({ className: "route-landmark", html: `<span class="route-landmark-dot"></span><span class="route-landmark-label">${toLandmarkName(p.COT_CONTS_NAME)}</span>`, iconSize: [10, 10], iconAnchor: [5, 5] }),
+                interactive: false,
+                keyboard: false,
+                zIndexOffset: -500,
+            }).addTo(map);
+        });
+
+    // 상세 API: 경로 7종 동시 호출 (목록 API 미제공 상세내용3 · 상세내용10 보완), 경로 feature → 상세 속성
     const routeFeatures = ROUTE_GROUPS.flatMap((g) => g.ids.map(findFeature)).filter((f) => f && f.geometry.type === "LineString");
     const details = await Promise.all(routeFeatures.map((f) => fetchDetail(f.properties.COT_CONTS_ID)));
     const detailOf = (feature) => details[routeFeatures.indexOf(feature)] || {};
@@ -180,7 +224,8 @@ export async function initRoutes() {
                 order,
                 title: props.COT_CONTS_NAME || "제목 없음",
                 stops: toStops(props.COT_VALUE_01),
-                desc: toDesc(props),
+                desc: toHtml(props.COT_VALUE_03),
+                source: toHtml(props.COT_VALUE_10),
                 coords,
                 layer,
             });
@@ -200,7 +245,7 @@ export async function initRoutes() {
         return;
     }
 
-    // 1. 경로 카드 렌더링 (구분별 묶음, 탭으로 표시 전환)
+    // 1. 경로 카드 렌더링 (구분별 묶음, 탭으로 표시 전환), 자료출처는 값이 있는 경로만 표시
     const stopsOf = (route) => (route.stops.length ? route.stops : ["출발지", "도착지"]);
 
     list.innerHTML = ROUTE_GROUPS.map((g) => {
@@ -216,7 +261,7 @@ export async function initRoutes() {
               <span class="route-num">${pad2(route.order)}</span>
               <span class="route-card-text">
                 <span class="route-card-title">${route.title}</span>
-                <span class="route-card-meta">경유지 ${stops.length}곳 · ${stops[0]} → ${stops[stops.length - 1]}</span>
+                <span class="route-card-meta">경유지 ${stops.length}곳</span>
               </span>
               <span class="route-card-arrow" aria-hidden="true">›</span>
             </button>
@@ -227,6 +272,7 @@ export async function initRoutes() {
                   <button type="button" class="route-desc-btn" aria-expanded="false">경로 설명 보기</button>
                 </div>
                 <p class="route-desc" hidden>${route.desc || "경로 설명이 없습니다."}</p>
+                ${route.source ? `<p class="route-source" hidden>※ 자료출처<br>${route.source}</p>` : ""}
               </div>
             </div>
           </article>`;
@@ -375,14 +421,16 @@ export async function initRoutes() {
         });
     }
 
-    // 3-1. 경로 설명 펼침/접힘
+    // 3-1. 경로 설명 · 자료출처 펼침/접힘
     function setDesc(card, open) {
         const btn = card.querySelector(".route-desc-btn");
         const desc = card.querySelector(".route-desc");
+        const source = card.querySelector(".route-source");
 
         btn.setAttribute("aria-expanded", String(open));
         btn.textContent = open ? "경로 설명 접기" : "경로 설명 보기";
         desc.hidden = !open;
+        if (source) source.hidden = !open;
     }
 
     cards.forEach((card) => {
