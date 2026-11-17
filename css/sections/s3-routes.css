@@ -603,33 +603,47 @@
     }
 }
 
-/* 출발/도착 표시: 아이콘 = 원형 점(14px, 중심 = 경로 시작·끝 좌표), 라벨은 점 위 절대 배치 / (flex 세로 배치 시 라벨 높이·글꼴 차이로 점 축소·위치 어긋남 → 점 기준 고정) */
+/* 출발/도착 표시: 빨간 원형 점(18px, 중심 = 경로 시작·끝 좌표, 아이콘 14px 기준 음수 여백으로 중심 유지) + 점 왼쪽 위 빨간 사각 팝업(꼬리 오른쪽 아래) */
 .route-point-dot {
     display: block;
-    width: 14px;
-    height: 14px;
-    border: 2px solid var(--white);
+    width: 18px;
+    height: 18px;
+    margin: -2px;
+    border: 3px solid var(--white);
     border-radius: 50%;
-    background: var(--ink);
-    box-shadow: 0 0 0 3px rgba(var(--ink-rgb), 0.35);
+    background: #c8372b;
+    box-shadow:
+        0 0 0 4px rgba(200, 55, 43, 0.3),
+        0 2px 6px rgba(var(--black-rgb), 0.45);
 }
 
 .route-point-label {
     position: absolute;
-    bottom: calc(100% + 5px);
-    left: 50%;
-    padding: 3px 8px;
-    border-radius: var(--radius-sm);
-    background: var(--ink);
+    right: calc(50% - 14px);
+    bottom: calc(100% + 10px);
+    padding: 5px 11px;
+    border-radius: 4px;
+    background: #c8372b;
     color: var(--white);
-    font-size: 12px;
+    font-size: 13.5px;
     font-weight: 700;
     line-height: 1.4;
     white-space: nowrap;
-    transform: translateX(-50%);
+    box-shadow: 0 3px 10px rgba(var(--black-rgb), 0.4);
+    transform-origin: calc(100% - 14px) calc(100% + 10px);
 }
 
-/* 이동경로 기준 지점 (s3-routes.js LANDMARK_IDS): 파란 점 + 점 오른쪽 위 검은 상자 장소명, .leaflet-container 추가로 Leaflet 기본 divIcon 배경·테두리 재정의 */
+/* 팝업 꼬리: 점 방향 아래 삼각형 */
+.route-point-label::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    right: 8px;
+    border: 6px solid transparent;
+    border-top-color: #c8372b;
+}
+
+/* 이동경로 기준 지점 (s3-routes.js LANDMARK_IDS): 파란 점(14px, 아이콘 10px 기준 음수 여백으로 중심 유지) + 점 오른쪽 위 흰 사각 팝업(꼬리 왼쪽 아래), .leaflet-container 추가로 Leaflet 기본 divIcon 배경·테두리 재정의 */
 .leaflet-container .route-landmark {
     border: none;
     background: none;
@@ -638,27 +652,40 @@
 
 .route-landmark-dot {
     display: block;
-    width: 10px;
-    height: 10px;
-    border: 1.5px solid var(--white);
+    width: 14px;
+    height: 14px;
+    margin: -2px;
+    border: 2.5px solid var(--white);
     border-radius: 50%;
     background: #2c4a8a;
-    box-shadow: 0 1px 3px rgba(var(--black-rgb), 0.5);
+    box-shadow: 0 1px 4px rgba(var(--black-rgb), 0.5);
 }
 
 .route-landmark-label {
     position: absolute;
-    bottom: calc(100% + 2px);
-    left: calc(100% + 2px);
-    padding: 2px 7px;
-    border: 1px solid rgba(var(--white-rgb), 0.25);
-    background: rgba(var(--black-rgb), 0.78);
-    color: var(--white);
-    font-size: 11.5px;
+    left: calc(50% - 14px);
+    bottom: calc(100% + 10px);
+    padding: 4px 10px;
+    border: 1px solid rgba(var(--ink-rgb), 0.18);
+    border-radius: 4px;
+    background: var(--white);
+    color: var(--ink);
+    font-size: 13px;
     font-weight: 700;
     line-height: 1.4;
     white-space: nowrap;
-    box-shadow: 0 1px 4px rgba(var(--black-rgb), 0.35);
+    box-shadow: 0 3px 10px rgba(var(--black-rgb), 0.35);
+    transform-origin: 14px calc(100% + 10px);
+}
+
+/* 팝업 꼬리: 점 방향 아래 삼각형 */
+.route-landmark-label::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 8px;
+    border: 6px solid transparent;
+    border-top-color: var(--white);
 }
 
 .route-runner-dot {
@@ -726,6 +753,10 @@
     }
 
     .route-landmark-label {
-        font-size: 10.5px;
+        font-size: 11.5px;
+    }
+
+    .route-point-label {
+        font-size: 12px;
     }
 }

@@ -4,7 +4,7 @@
 // 섹션 진입 시 마커 120ms 간격 순차 표시
 // 마커: 중요 지점 빨간색 · 시위 장소 노란색, 선택 장소만 파란색 (선택 해제 시 분류 색상 복귀)
 // 필터 카드: 레이어 ON/OFF / 목록·마커 클릭: 확대 + 팝업, 재클릭 시 전체 보기 복귀
-// 범례 목록: 중요 지점(좌) · 시위 장소(우) 2열 분리, 필터 OFF 시 해당 열 흐리게 표시, 선택 항목은 목록 열 내부만 스크롤
+// 범례 목록: 중요 지점(좌) · 시위 장소(우) 2열 분리, 장소명 가나다순 정렬, 필터 OFF 시 해당 열 흐리게 표시, 선택 항목은 목록 열 내부만 스크롤
 // 마커 호버: 장소명 툴팁 표시
 // 옛지도(경성대지도) 전환 시 일반지도와 동일 줌 유지, 장소 확대 줌만 1단계 축소
 // 팝업: 우측 상단 X 클릭 시 팝업만 닫힘(확대·선택 유지), 지도 클릭 시 유지, 설명은 '더보기' 클릭 시 펼침
@@ -270,6 +270,9 @@ export async function initPlaces() {
             latlng: [parseFloat(props.COT_COORD_Y), parseFloat(props.COT_COORD_X)],
         };
     });
+
+    // 장소명 가나다순 정렬 (한국어 기준, 숫자는 크기순) → 목록 · 마커 순차 표시 순서 공통 적용
+    places.sort((a, b) => a.name.localeCompare(b.name, "ko", { numeric: true }));
 
     const hubCount = places.filter((p) => p.key === "hub").length;
     const siteCount = places.filter((p) => p.key === "site").length;
